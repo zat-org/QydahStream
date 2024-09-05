@@ -1,9 +1,9 @@
 <template>
-  <div class="  bg-transparent  w-[1080px]  aspect-[9/16] flex flex-col justify-between " >
-    <!-- <div class="fixed top-0 right-[50%] "> player1</div>
-    <div class="fixed t" > player2</div>
-    <div> player1</div>
-    <div> player1</div> -->
+  <div class=" relative bg-transparent  w-[800px]  aspect-[9/16] flex flex-col justify-between " >
+    <!-- <div class="absolute top-0 right-[50%] p-5 bg-blue-400 "> player1</div>
+    <div class="absolute top-[100%] right-[50%] p-5 bg-blue-400" > player2</div>
+    <div class="absolute top-[50%] left-0 p-5 bg-red-400" > player3</div>
+    <div class="absolute top-[50%] left-[100%] p-5 bg-red-400"> player4 </div> -->
 
 <div class ="flex justify-between items-center  w-full">
   <div class="p-5 bg-red-500"></div>
