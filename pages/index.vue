@@ -1,5 +1,5 @@
 <template>
-  <div class=" relative bg-transparent  w-[625px] h-[1400px] m-0 bg-red-300 flex flex-col justify-between " >
+  <div class=" relative bg-transparent  w-[625px] h-[1350px] m-0 bg-red-300 flex flex-col justify-between " >
     <!-- <div class="absolute top-0 right-[50%] p-5 bg-blue-400 "> player1</div>
     <div class="absolute top-[100%] right-[50%] p-5 bg-blue-400" > player2</div>
     <div class="absolute top-[50%] left-0 p-5 bg-red-400" > player3</div>
