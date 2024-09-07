@@ -1,6 +1,6 @@
 <template>
   <div
-    class="aspect-[9/18]  flex flex-col  border-2   ">
+    class="aspect-[9/19] h-[1350px]  flex flex-col  border-2   ">
 
     <div
       class="text-2xl font-bold flex flex-col items-center justify-center w-full h-full p-4 pb-10">
