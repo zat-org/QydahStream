@@ -1,6 +1,6 @@
 <template>
   <div
-    class=" h-[1200px] flex flex-col  border-2   ">
+    class=" h-[90vh] flex flex-col  border-2   ">
 
     <div
       class="text-2xl font-bold flex flex-col items-center justify-center w-full h-full p-4 pb-10">
