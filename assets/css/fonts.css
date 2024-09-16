@@ -1,0 +1,12 @@
+@font-face {
+    font-family: "CairoSemiBold";
+    src: url("@/assets/fonts/Cairo-SemiBold.ttf") format("truetype");
+
+}
+
+
+@font-face {
+    font-family: "arefBold";
+    src: url("@/assets/fonts/ArefRuqaa-Bold.ttf") format("truetype");
+
+}

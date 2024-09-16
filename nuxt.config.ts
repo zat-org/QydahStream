@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     },
   },
   ssr: false,
-  modules: ["@nuxtjs/tailwindcss", "nuxt-vuefire"],
+  modules: ["@nuxtjs/tailwindcss", "nuxt-vuefire",'@pinia/nuxt'],
 
   vuefire: {
     config: {
@@ -20,7 +20,9 @@ export default defineNuxtConfig({
       messagingSenderId: "979205306604",
       appId: "1:979205306604:web:7031aff4f4fcf713904dc9",
     },
+
   },
+  css:["@/assets/css/fonts.css"],
   app: {
     head: {
       meta: [
