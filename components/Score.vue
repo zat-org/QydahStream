@@ -159,7 +159,7 @@ onMounted(() => {
   @apply text-[white] text-center w-[324px] h-[62px] absolute opacity-100 top-4;
 }
 .video {
-  @apply absolute z-[-1] left-0 top-0;
+  @apply w-screen  z-[-1] left-0 top-0;
 }
 * {
   font-family: "arefBold";
