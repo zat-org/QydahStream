@@ -163,6 +163,5 @@ onMounted(() => {
 }
 * {
   font-family: "arefBold";
-  @apply bg-green-500
 }
 </style>
