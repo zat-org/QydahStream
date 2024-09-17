@@ -17,13 +17,14 @@ export const useMyGameStore = defineStore("myGameStore",  () => {
     })
     .build();
 
-  async function initializeConnection () {
+  async function initializeConnection (id:string) {
     try {
       await connection.start();
       gameString.value = await connection.invoke(
         "AddToBoardGroup",
-        "983365b7-c1dc-4c60-8131-8450ceb934db"
+        id
       );
+      
       game.value = JSON.parse(gameString.value);
     } catch (error) {
       console.log(error);
@@ -54,9 +55,21 @@ export const useMyGameStore = defineStore("myGameStore",  () => {
         gameString.value = gameData;
         game.value = JSON.parse(gameString.value);
         let winner =false
-        if (game?.value && game?.value?.usPlayers.length>0 && game?.value?.themPlayers.length>0 ){
-          winner =( game?.value?.usPlayers[0].url && game?.value?.usPlayers[1].url && game?.value?.themPlayers[0].url && game?.value?.themPlayers[1].url && game?.value?.winner ) == null  
-      }
+        const us_photo = game?.value && game?.value?.usPlayers.length>0 && game?.value?.usPlayers[0].url && game?.value?.usPlayers[1].url
+        const them_photo = game?.value && game?.value?.themPlayers.length>0 && game?.value?.themPlayers[0].url && game?.value?.themPlayers[1].url
+
+        if (game?.value?.winner){
+          if (game?.value?.winner =="Us" && us_photo){
+            winner =true
+          }
+          else if(game?.value?.winner =="Them" && them_photo){
+            winner =true
+          } 
+        }
+
+      //   if (game?.value && game?.value?.usPlayers.length>0 && game?.value?.themPlayers.length>0 ){
+      //     winner =( game?.value?.usPlayers[0].url && game?.value?.usPlayers[1].url && game?.value?.themPlayers[0].url && game?.value?.themPlayers[1].url && game?.value?.winner ) == null  
+      // }
       gameService.send({ type: "UPDATE_CONTEXT",  ended:winner });
       }
     );

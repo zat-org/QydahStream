@@ -1,18 +1,18 @@
 <template>
-  <div  >
+  <div>
     <video
       ref="mediaElm"
-      :class="[theme,orientaion,'video']"
+      class="video"
       muted
-      hwight="1080"
+      height="1080"
       width="1920"
-      :src="'/videos/' + theme + '/Corner_Score.webm'"></video>
-    <div :class="['left-[976px] ','teamWrap' , theme , orientaion]" ref="team1wrapper">
-      <img
-        :src="'/images/' + theme + '/zat_white.svg'"
-        :class="[theme,orientaion, 'SponsorImage' ,'left-64']" />
+      :src="'/videos/qydha/landscape/Corner_Score.webm'"></video>
+    <div class="left-[970px] teamWrap" ref="team1wrapper">
+      <!-- <img
+        :src="'/images/zat/zat_white.svg'"
+        class=" SponsorImage left-64" /> -->
       <transition name="fade" mode="out-in">
-        <p :key="game?.usName" :class="[theme,orientaion,'left-14','teamName']">
+        <p :key="game?.usName" class="left-14 teamName">
           {{
             game?.usName
               ? game?.usName
@@ -22,17 +22,17 @@
           }}
         </p>
       </transition>
-      <p :class="[theme,orientaion,'left-[2px]','score']">
+      <p class="left-[2px] score">
         {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
       </p>
     </div>
 
-    <div :class="[theme,orientaion,'left-[621px]' ,'teamWrap']" ref="team2wrapper">
-      <p :class="[theme,orientaion,'-right-[2px]' ,'score']">
+    <div class="left-[621px] teamWrap" ref="team2wrapper">
+      <p class="-right-[2px] score">
         {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }}
       </p>
       <transition name="fade" mode="out-in">
-        <p :key="game?.themName" :class="[theme,orientaion,'teamName' ,'left-[82px]']">
+        <p :key="game?.themName" class="teamName left-[82px]">
           {{
             game?.themName
               ? game?.themName
@@ -43,9 +43,9 @@
         </p>
       </transition>
 
-      <img
-        :src="'/images/' + theme + '/zat_black.svg'"
-        :class="[theme, orientaion,'SponsorImage' ,'left-[5px]']" />
+      <!-- <img
+        :src="'/images/zat/zat_black.svg'"
+        class=" SponsorImage left-[5px] " /> -->
     </div>
   </div>
 </template>
@@ -66,7 +66,7 @@ const { gameService } = store;
 const mediaElm = ref<HTMLVideoElement>();
 
 const intro_start_sec = 0;
-const intro_end_sec = 3;
+const intro_end_sec = 4.5;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
@@ -80,7 +80,7 @@ const scoreMount = () => {
     [team1wrapper.value, team2wrapper.value],
     { opacity: 0 },
     {
-      duration: 0.85,
+      duration: 1.2,
       opacity: 1,
       ease: "linear",
     }
@@ -147,16 +147,16 @@ onMounted(() => {
 }
 
 .score {
-  @apply absolute text-[1.9rem] w-[55px] h-[55px] flex justify-center items-center top-0;
+  @apply text-slate-700 absolute text-[1.9rem] w-[55px] h-[55px] flex justify-center items-center top-0;
   font-family: "CairoSemiBold";
 }
 
 .teamName {
-  @apply absolute w-[185px]  text-[1.75rem] h-[40px] flex justify-center items-center top-1.5;
+  @apply absolute w-[185px]   text-[1.75rem] h-[40px] flex justify-center items-center top-1.5;
 }
 
 .teamWrap {
-  @apply text-[white] text-center w-[324px] h-[62px] absolute opacity-100 top-[20px];
+  @apply text-[white] text-center w-[324px] h-[62px] absolute opacity-100 top-[118px];
 }
 
 .video {
@@ -166,10 +166,9 @@ onMounted(() => {
 .wrapcomp {
   @apply relative h-screen w-screen;
 }
-.SponsorImage{
-  @apply absolute w-[66px] h-[62px] -top-0.5
+.SponsorImage {
+  @apply absolute w-[66px] h-[62px] -top-0.5;
 }
-
 
 * {
   font-family: "arefBold";

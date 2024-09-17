@@ -38,7 +38,7 @@ router.push({
 
 const game = useMyGameStore();
 const { gameService, initializeConnection } = game;
-await initializeConnection();
+await initializeConnection("983365b7-c1dc-4c60-8131-8450ceb934db");
 const { snapshot } = storeToRefs(game);
 </script>
 

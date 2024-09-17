@@ -4,34 +4,34 @@
       ref="mediaElm"
       class="video-elm"
       muted
-      :src="'/videos/' + theme + '/Full_Score.webm'"
+      :src="'/videos/qydha/landscape/Full_Score.webm'"
       height="1080"
       width=" 1920"></video>
     <div class="TeamWrap left-[1062px]" ref="team1wrapper">
-      <img
+      <!-- <img
         class="TeamSponsor  right-[30px]"
-        :src="'/images/' + theme + '/zat_white.svg'" />
-      <p  class="TeamName left-[84px]" >
+        :src="'/images/zat/zat_white.svg'" /> -->
+      <p  class="TeamName left-[28px]" >
         {{ game?.usName }}
       </p>
 
-      <p id="team1totalScore" class="TeamScore left-0">{{ last_sakka!.usSakkaScore }}</p>
+      <p id="team1totalScore" class="TeamScore -left-[80px]">{{ last_sakka!.usSakkaScore }}</p>
       <div id="team1-detailed-scores"  class="TeamDetailedScore left-0">
         <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
       </div>
     </div>
 
     <div class="TeamWrap left-[364px]" ref="team2wrapper">
-      <p class="TeamScore right-0">{{ last_sakka!.themSakkaScore }}</p>
+      <p class="TeamScore -right-[73px]">{{ last_sakka!.themSakkaScore }}</p>
 
-      <p  class="TeamName  left-[115px]">
+      <p  class="TeamName  left-[170px]">
         {{ game?.themName }}
       </p>
 
-      <img
+      <!-- <img
 
         class="TeamSponsor left-[30px]"
-        :src="'/images/' + theme + '/zat_black.svg'" />
+        :src="'/images/zat/zat_black.svg'" /> -->
 
       <div  class="TeamDetailedScore right-0">
         <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
@@ -138,7 +138,7 @@ onMounted(() => {
 }
 
 .TeamWrap {
-  @apply text-[white] text-center w-[499px] h-[97px] absolute opacity-0 top-[62px];
+  @apply text-[white] text-center w-[499px] h-[97px] absolute opacity-0 top-[200px];
   font-family: "arefBold";
 }
 
@@ -148,7 +148,7 @@ onMounted(() => {
 }
 
 .TeamScore {
-  @apply absolute text-[2.8rem] w-[85px] h-[97px] flex justify-center items-center top-0;
+  @apply absolute text-slate-700 text-[2.8rem] w-[100px] h-[97px] flex justify-center items-center top-0;
   font-family: "CairoSemiBold";
 }
 
@@ -157,11 +157,14 @@ onMounted(() => {
 }
 
 .TeamDetailedScore {
-  @apply text-[black] absolute w-[85px] text-[1.8rem] top-[125px];
+  @apply text-[white] absolute w-[85px] text-[1.8rem] top-[175px];
   font-family: "CairoSemiBold";
 }
 
 .score {
   @apply font-extrabold text-5xl leading-[3rem] m-0 p-0;
 }
+/* *{
+  @apply bg-gray-50/10
+} */
 </style>

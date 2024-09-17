@@ -4,13 +4,13 @@
       ref="mediaElm"
       class="video-elm"
       muted
-      :src="'/videos/' + theme + '/Full_Score.webm'"
+      :src="'/videos/zat/Full_Score.webm'"
       height="1080"
       width=" 1920"></video>
     <div class="TeamWrap left-[1062px]" ref="team1wrapper">
       <img
         class="TeamSponsor  right-[30px]"
-        :src="'/images/' + theme + '/zat_white.svg'" />
+        :src="'/images/zat/zat_white.svg'" />
       <p  class="TeamName left-[84px]" >
         {{ game?.usName }}
       </p>
@@ -31,7 +31,7 @@
       <img
 
         class="TeamSponsor left-[30px]"
-        :src="'/images/' + theme + '/zat_black.svg'" />
+        :src="'/images/zat/zat_black.svg'" />
 
       <div  class="TeamDetailedScore right-0">
         <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
