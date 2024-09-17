@@ -4,19 +4,21 @@
       ref="mediaElm"
       class="video-elm"
       muted
-      :src="'/videos/qydha/portrate/Full_Score.webm'"
+      src="/videos/qydha/portrate/Full_Score.webm"
       height="1920"
       width=" 1080"></video>
     <div class="TeamWrap left-[640px]" ref="team1wrapper">
       <!-- <img
         class="TeamSponsor  right-[30px]"
         :src="'/images/zat/zat_white.svg'" /> -->
-      <p  class="TeamName left-[28px]" >
+      <p class="TeamName left-[28px]">
         {{ game?.usName }}
       </p>
 
-      <p id="team1totalScore" class="TeamScore -left-[80px]">{{ last_sakka!.usSakkaScore }}</p>
-      <div id="team1-detailed-scores"  class="TeamDetailedScore left-0">
+      <p id="team1totalScore" class="TeamScore -left-[80px]">
+        {{ last_sakka!.usSakkaScore }}
+      </p>
+      <div id="team1-detailed-scores" class="TeamDetailedScore left-0">
         <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
       </div>
     </div>
@@ -24,7 +26,7 @@
     <div class="TeamWrap -left-[50px]" ref="team2wrapper">
       <p class="TeamScore -right-[73px]">{{ last_sakka!.themSakkaScore }}</p>
 
-      <p  class="TeamName  left-[170px]">
+      <p class="TeamName left-[170px]">
         {{ game?.themName }}
       </p>
 
@@ -33,7 +35,7 @@
         class="TeamSponsor left-[30px]"
         :src="'/images/zat/zat_black.svg'" /> -->
 
-      <div  class="TeamDetailedScore right-0">
+      <div class="TeamDetailedScore right-0">
         <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
       </div>
     </div>
@@ -142,9 +144,8 @@ onMounted(() => {
   font-family: "arefBold";
 }
 
-.TeamName{
-  @apply absolute text-[2rem] h-[81px] flex justify-center items-center top-2 w-[300px] ;
-  
+.TeamName {
+  @apply absolute text-[2rem] h-[81px] flex justify-center items-center top-2 w-[300px];
 }
 
 .TeamScore {
@@ -152,7 +153,7 @@ onMounted(() => {
   font-family: "CairoSemiBold";
 }
 
-.TeamSponsor{
+.TeamSponsor {
   @apply absolute w-[66px] h-[62px] top-[13px];
 }
 

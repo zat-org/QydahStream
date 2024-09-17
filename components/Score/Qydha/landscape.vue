@@ -6,7 +6,7 @@
       muted
       height="1080"
       width="1920"
-      :src="'/videos/qydha/landscape/Corner_Score.webm'"></video>
+      src="/videos/qydha/landscape/Corner_Score.webm"></video>
     <div class="left-[970px] teamWrap" ref="team1wrapper">
       <!-- <img
         :src="'/images/zat/zat_white.svg'"
