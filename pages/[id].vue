@@ -1,17 +1,17 @@
 <template>
     <div v-if="gameService" class="w-screen h-screen">
       
-    <ScoreZatLandscape v-if="theme =='zat' &&  orienation =='landscape' && snapshot.matches('score') "    />
-    <ScoreQydhaLandscape v-if="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('score') "    />
-    <ScoreQydhaPortrate v-if="theme =='qydha' &&  orienation =='portrate' && snapshot.matches('score') "    />
+    <ScoreZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('score') "    />
+    <ScoreQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('score') "    />
+    <ScoreQydhaPortrate v-show="theme =='qydha' &&  orienation =='portrate' && snapshot.matches('score') "    />
 
-    <DetailZatLandscape v-if="theme =='zat' &&  orienation =='landscape' && snapshot.matches('detail') "    />
-    <DetailQydhaLandscape v-if="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('detail') "    />
-    <DetailQydhaPortrate v-if="theme =='qydha' &&  orienation =='portrate' && snapshot.matches('detail') "    />
+    <DetailZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('detail') "    />
+    <DetailQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('detail') "    />
+    <DetailQydhaPortrate v-show="theme =='qydha' &&  orienation =='portrate' && snapshot.matches('detail') "    />
 
 
     <!-- <Detail v-if="snapshot.matches('detail')" /> -->
-    <Winner v-if="snapshot.matches('winner')" />
+    <Winner v-show="snapshot.matches('winner')" />
   </div>
 </template>
 
