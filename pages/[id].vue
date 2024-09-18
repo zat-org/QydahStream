@@ -1,21 +1,22 @@
-<template>
-    <div v-if="gameService" class="w-screen h-screen">
+<template v-if="gameService"  >
+    
       
-    <ScoreZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('score') "   class="w-full h-full"  />
-    <ScoreQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('score') "   class="w-full h-full" />
-    <ScoreQydhaPortrate v-show="theme =='qydha' &&  orienation =='portrate' && snapshot.matches('score') "    class="w-full h-full" />
+    <ScoreZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('score') "    />
+    <ScoreQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('score') "  />
+    <ScoreQydhaPortrait v-show="theme =='qydha' &&  orienation =='portrait' && snapshot.matches('score') " class="w-full h-full"    />
 
-    <DetailZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('detail') "   class="w-full h-full"  />
-    <DetailQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('detail') "  class="w-full h-full"   />
-    <DetailQydhaPortrate v-show="theme =='qydha' &&  orienation =='portrate' && snapshot.matches('detail') "   class="w-full h-full"  />
+    <DetailZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('detail') "   />
+    <DetailQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('detail') "   />
+    <DetailQydhaPortrait v-show="theme =='qydha' &&  orienation =='portrait' && snapshot.matches('detail') "    />
 
 
     <!-- <Detail v-if="snapshot.matches('detail')" /> -->
-    <Winner v-show="snapshot.matches('winner')" />
-  </div>
+    <!-- <Winner v-show="snapshot.matches('winner')" /> -->
+ 
 </template>
 
 <script lang="ts" setup>
+
 const route = useRoute();
 const router = useRouter();
 
@@ -35,7 +36,7 @@ if (
 if (
   route.query.orienation &&
   (route.query.orienation == "landscape" ||
-    route.query.orienation == "portrate")
+    route.query.orienation == "portrait")
 )
   orienation.value = route.query.orienation
     ? route.query.orienation
