@@ -8,9 +8,7 @@
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex" ref="team2wrapper">
-          <p class="w-[38px] ml-[4px] score">
-            {{ last_sakka?.themSakkaScore }}
-          </p>
+      
           <transition name="fade" mode="out-in">
             <p class="grow" :key="game?.themName">
               {{
@@ -24,8 +22,14 @@
               }}
             </p>
           </transition>
+          <p class="w-[38px] ml-[4px] score">
+            {{ last_sakka?.themSakkaScore }}
+          </p>
         </div>
         <div class="w-1/2 flex" ref="team1wrapper">
+          <p class="w-[38px] mr-[4px] score">
+            {{ last_sakka?.usSakkaScore }}
+          </p>
           <transition name="fade" mode="out-in">
             <p class="grow" key="game?.usName">
               {{
@@ -37,9 +41,7 @@
               }}
             </p>
           </transition>
-          <p class="w-[38px] mr-[4px] score">
-            {{ last_sakka?.usSakkaScore }}
-          </p>
+         
         </div>
       </div>
       <div class="flex gap-10 w-full justify-center" ref="score">

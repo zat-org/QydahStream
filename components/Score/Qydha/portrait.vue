@@ -10,10 +10,6 @@
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
 
         <div class="w-1/2 flex" ref="team2wrapper">
-          <p class="w-[38px] ml-[4px] score">
-            
-              {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }}
-          </p>
           <p class="grow" :key="game?.themName">
             {{
               game?.themName
@@ -25,8 +21,16 @@
                   game?.themPlayers[1].name
             }}
           </p>
+          <p class="w-[38px] ml-[4px] score">
+            
+              {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }}
+          </p>
+        
         </div>
         <div class="w-1/2 flex" ref="team1wrapper">
+          <p class="w-[38px] mr-[4px] score">
+             {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
+          </p>
           <transition name="fade" mode="out-in">
             <p class="grow" key="game?.usName">
               {{
@@ -38,9 +42,7 @@
               }}
             </p>
           </transition>
-          <p class="w-[38px] mr-[4px] score">
-             {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
-          </p>
+       
         </div>
       </div>
     </div>
