@@ -1,42 +1,55 @@
 <template>
-  <div class="score-comp">
-    <video
-      ref="mediaElm"
-      class="video-elm"
-      muted
-      src="/videos/qydha/portrait/Full_Score.webm"
-      height="1920"
-      width=" 1080"></video>
-    <div class="TeamWrap left-[640px]" ref="team1wrapper">
-      <!-- <img
-        class="TeamSponsor  right-[30px]"
-        :src="'/images/zat/zat_white.svg'" /> -->
-      <p class="TeamName left-[28px]">
-        {{ game?.usName }}
-      </p>
-
-      <p id="team1totalScore" class="TeamScore -left-[80px]">
-        {{ last_sakka!.usSakkaScore }}
-      </p>
-      <div id="team1-detailed-scores" class="TeamDetailedScore left-0">
-        <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
+  <div class="flex justify-center min-w-[300px]">
+    <div class="relative">
+      <video
+        ref="mediaElm"
+        muted
+        src="/videos/qydha/portrait/Corner_Score.webm"></video>
+      <div
+        class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
+        <div class="w-1/2 flex" ref="team1wrapper">
+          <transition name="fade" mode="out-in">
+            <p class="grow" key="game?.usName">
+              {{
+                game?.usName
+                  ? game?.usName
+                  : game?.usPlayers.length == 0
+                  ? "لنا"
+                  : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
+              }}
+            </p>
+          </transition>
+          <p class="w-[38px] mr-[4px] score">
+            {{ last_sakka?.usSakkaScore }}
+          </p>
+        </div>
+        <div class="w-1/2 flex" ref="team2wrapper">
+          <p class="w-[38px] ml-[4px] score">
+            {{ last_sakka?.themSakkaScore }}
+          </p>
+          <transition name="fade" mode="out-in">
+            <p class="grow" :key="game?.themName">
+              {{
+                game?.themName
+                  ? game?.themName
+                  : game?.themPlayers.length == 0
+                  ? "لهم"
+                  : game?.themPlayers[0].name +
+                    "  |   " +
+                    game?.themPlayers[1].name
+              }}
+            </p>
+          </transition>
+        </div>
       </div>
-    </div>
+      <div class=" flex gap-10 w-full justify-center" ref="score">
+        <div  class="TeamDetailedScore grow  text-right">
+          <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
+        </div>
 
-    <div class="TeamWrap -left-[50px]" ref="team2wrapper">
-      <p class="TeamScore -right-[73px]">{{ last_sakka!.themSakkaScore }}</p>
-
-      <p class="TeamName left-[170px]">
-        {{ game?.themName }}
-      </p>
-
-      <!-- <img
-
-        class="TeamSponsor left-[30px]"
-        :src="'/images/zat/zat_black.svg'" /> -->
-
-      <div class="TeamDetailedScore right-0">
-        <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
+        <div class="TeamDetailedScore grow  ">
+          <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -58,8 +71,10 @@ const { gameService } = store;
 const mediaElm = ref<HTMLVideoElement>();
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
+const score = ref(null);
+
 const intro_start_sec = 0;
-const intro_end_sec = 4;
+const intro_end_sec = 3;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
@@ -70,8 +85,8 @@ const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
 });
 const scoreMount = () => {
   const t1 = gsap.timeline();
-  t1.delay(1.75);
-  t1.to([team1wrapper.value, team2wrapper.value], {
+  t1.delay(2);
+  t1.to([team1wrapper.value, team2wrapper.value,score.value], {
     duration: 0.75,
     opacity: 1,
     ease: "linear",
@@ -80,7 +95,7 @@ const scoreMount = () => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value], {
+  t2.to([team1wrapper.value, team2wrapper.value,score.value], {
     duration: 1,
     opacity: 0,
     ease: "linear",
@@ -108,7 +123,7 @@ onMounted(() => {
       if (mediaElm.value) {
         mediaElm.value.currentTime = score_sec;
       }
-      await sleep(250);
+      await sleep(500);
       gameService.send({ type: "TO_OUTRO" });
     }
 
@@ -158,14 +173,16 @@ onMounted(() => {
 }
 
 .TeamDetailedScore {
-  @apply text-[white] absolute w-[85px] text-[1.8rem] top-[225px];
+  @apply text-slate-700  w-[85px] text-[2rem] ;
   font-family: "CairoSemiBold";
 }
 
 .score {
-  @apply font-extrabold text-5xl leading-[3rem] m-0 p-0;
+  @apply text-slate-700  text-[1.2rem];
+  font-family: "CairoSemiBold";
 }
-/* *{
-  @apply bg-gray-50/10
-} */
+
+* {
+  font-family: "arefBold";
+}
 </style>

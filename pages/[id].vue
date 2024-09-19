@@ -1,9 +1,9 @@
 <template v-if="gameService"  >
     
       
-    <ScoreZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('score') "    />
+    <ScoreZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('score') " class="transition-all duration-300"   />
     <ScoreQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('score') "  />
-    <ScoreQydhaPortrait v-show="theme =='qydha' &&  orienation =='portrait' && snapshot.matches('score') " class="w-full h-full"    />
+    <ScoreQydhaPortrait v-show="theme =='qydha' &&  orienation =='portrait' && snapshot.matches('score') "    />
 
     <DetailZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('detail') "   />
     <DetailQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('detail') "   />
