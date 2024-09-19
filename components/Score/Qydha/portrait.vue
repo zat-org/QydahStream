@@ -8,22 +8,7 @@
         src="/videos/qydha/portrait/Corner_Score.webm"></video>
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
-        <div class="w-1/2 flex" ref="team1wrapper">
-          <transition name="fade" mode="out-in">
-            <p class="grow" key="game?.usName">
-              {{
-                game?.usName
-                  ? game?.usName
-                  : game?.usPlayers.length == 0
-                  ? "لنا"
-                  : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
-              }}
-            </p>
-          </transition>
-          <p class="w-[38px] mr-[4px] score">
-             {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
-          </p>
-        </div>
+
         <div class="w-1/2 flex" ref="team2wrapper">
           <p class="w-[38px] ml-[4px] score">
             
@@ -39,6 +24,22 @@
                   "  |   " +
                   game?.themPlayers[1].name
             }}
+          </p>
+        </div>
+        <div class="w-1/2 flex" ref="team1wrapper">
+          <transition name="fade" mode="out-in">
+            <p class="grow" key="game?.usName">
+              {{
+                game?.usName
+                  ? game?.usName
+                  : game?.usPlayers.length == 0
+                  ? "لنا"
+                  : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
+              }}
+            </p>
+          </transition>
+          <p class="w-[38px] mr-[4px] score">
+             {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
           </p>
         </div>
       </div>

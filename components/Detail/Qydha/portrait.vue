@@ -7,22 +7,6 @@
         src="/videos/qydha/portrait/Corner_Score.webm"></video>
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
-        <div class="w-1/2 flex" ref="team1wrapper">
-          <transition name="fade" mode="out-in">
-            <p class="grow" key="game?.usName">
-              {{
-                game?.usName
-                  ? game?.usName
-                  : game?.usPlayers.length == 0
-                  ? "لنا"
-                  : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
-              }}
-            </p>
-          </transition>
-          <p class="w-[38px] mr-[4px] score">
-            {{ last_sakka?.usSakkaScore }}
-          </p>
-        </div>
         <div class="w-1/2 flex" ref="team2wrapper">
           <p class="w-[38px] ml-[4px] score">
             {{ last_sakka?.themSakkaScore }}
@@ -41,14 +25,29 @@
             </p>
           </transition>
         </div>
-      </div>
-      <div class=" flex gap-10 w-full justify-center" ref="score">
-        <div  class="TeamDetailedScore grow  text-right">
-          <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
+        <div class="w-1/2 flex" ref="team1wrapper">
+          <transition name="fade" mode="out-in">
+            <p class="grow" key="game?.usName">
+              {{
+                game?.usName
+                  ? game?.usName
+                  : game?.usPlayers.length == 0
+                  ? "لنا"
+                  : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
+              }}
+            </p>
+          </transition>
+          <p class="w-[38px] mr-[4px] score">
+            {{ last_sakka?.usSakkaScore }}
+          </p>
         </div>
-
-        <div class="TeamDetailedScore grow  ">
+      </div>
+      <div class="flex gap-10 w-full justify-center" ref="score">
+        <div class="TeamDetailedScore grow">
           <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
+        </div>
+        <div class="TeamDetailedScore grow text-right">
+          <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
         </div>
       </div>
     </div>
@@ -86,7 +85,7 @@ const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
 const scoreMount = () => {
   const t1 = gsap.timeline();
   t1.delay(2);
-  t1.to([team1wrapper.value, team2wrapper.value,score.value], {
+  t1.to([team1wrapper.value, team2wrapper.value, score.value], {
     duration: 0.75,
     opacity: 1,
     ease: "linear",
@@ -95,7 +94,7 @@ const scoreMount = () => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value,score.value], {
+  t2.to([team1wrapper.value, team2wrapper.value, score.value], {
     duration: 1,
     opacity: 0,
     ease: "linear",
@@ -123,7 +122,7 @@ onMounted(() => {
       if (mediaElm.value) {
         mediaElm.value.currentTime = score_sec;
       }
-      await sleep(500);
+      await sleep(250);
       gameService.send({ type: "TO_OUTRO" });
     }
 
@@ -173,7 +172,7 @@ onMounted(() => {
 }
 
 .TeamDetailedScore {
-  @apply text-slate-700  w-[85px] text-[2rem] ;
+  @apply text-slate-700  w-[85px] text-[2rem];
   font-family: "CairoSemiBold";
 }
 
