@@ -1,28 +1,36 @@
-<template v-if="gameService"  >
-    
-      
-    <ScoreZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('score') " class="transition-all duration-300"   />
-    <ScoreQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('score') "  />
-    <ScoreQydhaPortrait v-show="theme =='qydha' &&  orienation =='portrait' && snapshot.matches('score') "    />
+<template v-if="gameService">
 
-    <DetailZatLandscape v-show="theme =='zat' &&  orienation =='landscape' && snapshot.matches('detail') "   />
-    <DetailQydhaLandscape v-show="theme =='qydha' &&  orienation =='landscape' && snapshot.matches('detail') "   />
-    <DetailQydhaPortrait v-show="theme =='qydha' &&  orienation =='portrait' && snapshot.matches('detail') "    />
+<div v-show="snapshot.matches('score')">
+    <transition name="fade" mode="out-in">
+      <component :is="scoreComponent" v-if="snapshot.matches('score')" />
+    </transition>
+  </div>
+
+  <!-- Detail Screen -->
+  <div v-show="snapshot.matches('detail')">
+    <transition name="fade" mode="out-in">
+      <component :is="detailComponent" v-if="snapshot.matches('detail')" />
+    </transition>
+  </div>
 
 
-    <!-- <Detail v-if="snapshot.matches('detail')" /> -->
-    <!-- <Winner v-show="snapshot.matches('winner')" /> -->
- 
 </template>
 
 <script lang="ts" setup>
+import  ScoreZatLandscape from '../components/Score/Zat/Landscape.vue';
+import DetailZatLandscape from '../components/Detail/Zat/landscape.vue';
+import  ScoreQydhaLandscape  from '../components/Score/Qydha/landscape.vue';
+import  DetailQydhaLandscape  from '../components/Detail/Qydha/landscape.vue';
+import  ScoreQydhaPortrait  from '../components/Score/Qydha/portrait.vue';
+import  DetailQydhaPortrait  from '../components/Detail/Qydha/portrait.vue';
+
 
 const route = useRoute();
 const router = useRouter();
 
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
-  console.log(table_id)
+console.log(table_id);
 const theme = ref("zat");
 
 const orienation = ref("landscape");
@@ -46,10 +54,43 @@ router.push({
   query: { theme: theme.value, orienation: orienation.value },
 });
 
+const scoreComponent = computed(() => {
+  if (theme.value === 'zat' && orienation.value === 'landscape') {
+    return ScoreZatLandscape;
+  } else if (theme.value === 'qydha' && orienation.value === 'landscape') {
+    return ScoreQydhaLandscape;
+  } else if (theme.value === 'qydha' && orienation.value === 'portrait') {
+    return ScoreQydhaPortrait;
+  }
+  return null;
+});
+
+const detailComponent = computed(() => {
+  if (theme.value === 'zat' && orienation.value === 'landscape') {
+    return DetailZatLandscape;
+  } else if (theme.value === 'qydha' && orienation.value === 'landscape') {
+    return DetailQydhaLandscape;
+  } else if (theme.value === 'qydha' && orienation.value === 'portrait') {
+    return DetailQydhaPortrait;
+  }
+  return null;
+});
+
+
+
+
 const game = useMyGameStore();
 const { gameService, initializeConnection } = game;
 await initializeConnection(table_id);
 const { snapshot } = storeToRefs(game);
 </script>
 
-<style></style>
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  @apply transition-opacity duration-[1s] ease-[ease];
+}
+.fade-enter-from, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  @apply opacity-0;
+}
+</style>
