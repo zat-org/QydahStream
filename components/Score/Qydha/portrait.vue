@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center min-w-[300px]">
+  <div class="flex justify-center min-w-[325px]">
     <div class="relative">
       <video
         ref="mediaElm"
@@ -10,7 +10,7 @@ width="325px"
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
 
-        <div class="w-1/2 flex" ref="team2wrapper">
+        <div class="w-1/2 flex items-center" ref="team2wrapper">
           <p class="grow" :key="game?.themName">
             {{
               game?.themName
@@ -28,7 +28,7 @@ width="325px"
           </p>
         
         </div>
-        <div class="w-1/2 flex" ref="team1wrapper">
+        <div class="w-1/2 flex items-center" ref="team1wrapper">
           <p class="w-[38px] mr-[4px] score">
              {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
           </p>
@@ -143,7 +143,7 @@ onMounted(() => {
 }
 
 .score {
-  @apply text-slate-700  text-[1.2rem] ;
+  @apply text-slate-700  text-[1rem] ;
   font-family: "CairoSemiBold";
 }
 

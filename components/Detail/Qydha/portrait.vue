@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center min-w-[300px]">
+  <div class="flex justify-center min-w-[325px]">
     <div class="relative">
       <video
         ref="mediaElm"
@@ -9,7 +9,7 @@
         src="/videos/qydha/portrait/Corner_Score.webm"></video>
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
-        <div class="w-1/2 flex" ref="team2wrapper">
+        <div class="w-1/2 flex items-center" ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p class="grow" :key="game?.themName">
               {{
@@ -27,7 +27,7 @@
             {{ last_sakka?.themSakkaScore }}
           </p>
         </div>
-        <div class="w-1/2 flex" ref="team1wrapper">
+        <div class="w-1/2 flex items-center" ref="team1wrapper">
           <p class="w-[38px] mr-[4px] score">
             {{ last_sakka?.usSakkaScore }}
           </p>
@@ -45,10 +45,10 @@
         </div>
       </div>
       <div class="flex gap-10 w-full justify-center" ref="score">
-        <div class="TeamDetailedScore grow">
+        <div class="TeamDetailedScore grow  text-right">
           <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
         </div>
-        <div class="TeamDetailedScore grow text-right">
+        <div class="TeamDetailedScore grow">
           <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
         </div>
       </div>
@@ -85,13 +85,15 @@ const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
   return m.state == "Ended";
 });
 const scoreMount = () => {
+  console.log("start score mount ")
   const t1 = gsap.timeline();
-  t1.delay(2);
-  t1.to([team1wrapper.value, team2wrapper.value, score.value], {
-    duration: 0.75,
+  t1.delay(1.5);
+  t1.fromTo([team1wrapper.value, team2wrapper.value,score.value],{opacity:0}, {
+    duration: 2,
     opacity: 1,
     ease: "linear",
   });
+
 };
 
 const scoreUnMount = () => {
@@ -124,7 +126,7 @@ onMounted(() => {
       if (mediaElm.value) {
         mediaElm.value.currentTime = score_sec;
       }
-      await sleep(250);
+      await sleep(400);
       gameService.send({ type: "TO_OUTRO" });
     }
 
@@ -179,7 +181,7 @@ onMounted(() => {
 }
 
 .score {
-  @apply text-slate-700  text-[1.2rem];
+  @apply text-slate-700  text-[1rem];
   font-family: "CairoSemiBold";
 }
 
