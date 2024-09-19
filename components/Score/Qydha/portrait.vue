@@ -3,7 +3,8 @@
     <div class="relative">
       <video
         ref="mediaElm"
-
+width="300px"
+        height="100px"
         muted
         src="/videos/qydha/portrait/Corner_Score.webm"></video>
       <div

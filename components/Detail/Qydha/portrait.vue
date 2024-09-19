@@ -4,12 +4,12 @@
       <video
         ref="mediaElm"
         muted
- 
+        width="300px"
+        height="100px"
         src="/videos/qydha/portrait/Corner_Score.webm"></video>
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex" ref="team2wrapper">
-      
           <transition name="fade" mode="out-in">
             <p class="grow" :key="game?.themName">
               {{
@@ -42,7 +42,6 @@
               }}
             </p>
           </transition>
-         
         </div>
       </div>
       <div class="flex gap-10 w-full justify-center" ref="score">
