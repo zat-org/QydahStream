@@ -1,5 +1,5 @@
 <template>
-  <div class="score-comp">
+  <div class="score-comp ">
     <video
       ref="mediaElm"
       class="video-elm"
@@ -61,6 +61,8 @@ const intro_end_sec = 6;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
+
+
 const last_sakka_index = game.value?.sakkas.length! - 1;
 const last_sakka = game.value?.sakkas[last_sakka_index];
 const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
@@ -68,8 +70,8 @@ const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
 });
 const scoreMount = () => {
   const t1 = gsap.timeline();
-  t1.delay(2);
-  t1.to([team1wrapper.value, team2wrapper.value], {
+  t1.delay(3)
+  t1.fromTo([team1wrapper.value, team2wrapper.value],{opacity:0}, {
     duration: 0.75,
     opacity: 1,
     ease: "linear",
@@ -78,11 +80,14 @@ const scoreMount = () => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
-  t2.FromTo([team1wrapper.value, team2wrapper.value],{opacity:1}, {
-    duration: 2,
+  t2.fromTo([team1wrapper.value, team2wrapper.value],
+  {opacity:1}, 
+  {
+    duration: .3,
     opacity: 0,
     ease: "linear",
   });
+
 };
 
 onMounted(() => {
@@ -92,6 +97,7 @@ onMounted(() => {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
         scoreMount();
+
         mediaElm.value.ontimeupdate = () => {
           if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
             mediaElm.value.ontimeupdate = null;
@@ -104,6 +110,7 @@ onMounted(() => {
     }
     if (snapshot.value.matches("detail.main")) {
       if (mediaElm.value) {
+
         mediaElm.value.currentTime = score_sec;
       }
       await sleep(500);
@@ -113,8 +120,10 @@ onMounted(() => {
     if (snapshot.value.matches("detail.outro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = outro_start;
-        mediaElm.value.play();
         scoreUnMount();
+
+        mediaElm.value.play();
+      
         mediaElm.value.onended = () => {
           // mediaElm.value.onended=null;
           gameService.send({ type: "CHECK_END" });
