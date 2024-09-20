@@ -68,7 +68,7 @@ const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
 });
 const scoreMount = () => {
   const t1 = gsap.timeline();
-  t1.delay(1.75);
+  t1.delay(2);
   t1.to([team1wrapper.value, team2wrapper.value], {
     duration: 0.75,
     opacity: 1,
@@ -79,7 +79,7 @@ const scoreMount = () => {
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
   t2.delay(1)
-  t2.to([team1wrapper.value, team2wrapper.value], {
+  t2.FromTo([team1wrapper.value, team2wrapper.value],{opacity:1}, {
     duration: 1,
     opacity: 0,
     ease: "linear",

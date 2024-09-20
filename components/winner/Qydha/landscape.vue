@@ -77,7 +77,7 @@ const scoreMount = () => {
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
   t2.to([winnerComp.value], {
-    duration: 1,
+    duration: 3,
     opacity: 0,
     ease: "bounce.out",
   });
