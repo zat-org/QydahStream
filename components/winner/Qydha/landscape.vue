@@ -69,10 +69,11 @@ const winnerComp = ref(null);
 
 const scoreMount = () => {
   const t1 = gsap.timeline();
+  t1.delay(1)
   t1.fromTo([winnerData.value, winnerImages.value],{opacity:0}, {
     duration: 0.75,
     opacity: 2,
-    ease: "bounce.out",
+    ease: "linear",
   });
 };
 
@@ -81,7 +82,7 @@ const scoreUnMount = () => {
   t2.to([winnerComp.value], {
     duration: 3,
     opacity: 0,
-    ease: "bounce.out",
+    ease: "linear",
   });
 };
 
