@@ -57,7 +57,7 @@ const mediaElm = ref<HTMLVideoElement>();
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 const intro_start_sec = 0;
-const intro_end_sec = 6;
+const intro_end_sec = 5;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
