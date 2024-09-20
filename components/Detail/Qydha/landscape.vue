@@ -78,9 +78,8 @@ const scoreMount = () => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
-  t2.delay(1)
   t2.FromTo([team1wrapper.value, team2wrapper.value],{opacity:1}, {
-    duration: 1,
+    duration: 2,
     opacity: 0,
     ease: "linear",
   });
