@@ -2,27 +2,39 @@
 
 <div v-show="snapshot.matches('score')">
     <transition name="fade" mode="out-in">
-      <component :is="scoreComponent" v-if="snapshot.matches('score')" />
+      <component :is="scoreComponent"  v-if="snapshot.matches('score')" />
     </transition>
   </div>
 
   <!-- Detail Screen -->
   <div v-show="snapshot.matches('detail')">
     <transition name="fade" mode="out-in">
-      <component :is="detailComponent" v-if="snapshot.matches('detail')" />
+      <component :is="detailComponent"  v-if="snapshot.matches('detail')" />
     </transition>
   </div>
-
+  <div v-show="snapshot.matches('winner')">
+    <transition name="fade" mode="out-in">
+      <component :is="winnerComponent" v-if="snapshot.matches('winner')" />
+    </transition>
+  </div>
 
 </template>
 
 <script lang="ts" setup>
 import  ScoreZatLandscape from '../components/Score/Zat/Landscape.vue';
 import DetailZatLandscape from '../components/Detail/Zat/landscape.vue';
+import WinnerZatLandscape from '../components/winner/Zat/landscape.vue';
+
 import  ScoreQydhaLandscape  from '../components/Score/Qydha/landscape.vue';
 import  DetailQydhaLandscape  from '../components/Detail/Qydha/landscape.vue';
+import  WinnerQydhaLandscape  from '../components/winner/Qydha/landscape.vue';
+
+
+
 import  ScoreQydhaPortrait  from '../components/Score/Qydha/portrait.vue';
 import  DetailQydhaPortrait  from '../components/Detail/Qydha/portrait.vue';
+import  WinnerQydhaPortrait  from '../components/winner/Qydha/portrait.vue';
+
 
 
 const route = useRoute();
@@ -75,6 +87,18 @@ const detailComponent = computed(() => {
   }
   return null;
 });
+
+const winnerComponent = computed(() => {
+  if (theme.value === 'zat' && orienation.value === 'landscape') {
+    return WinnerZatLandscape;
+  } else if (theme.value === 'qydha' && orienation.value === 'landscape') {
+    return WinnerQydhaLandscape;
+  } else if (theme.value === 'qydha' && orienation.value === 'portrait') {
+    return WinnerQydhaPortrait;
+  }
+  return null;
+});
+
 
 
 

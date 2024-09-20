@@ -57,7 +57,7 @@ const mediaElm = ref<HTMLVideoElement>();
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 const intro_start_sec = 0;
-const intro_end_sec = 4;
+const intro_end_sec = 6;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
@@ -78,6 +78,7 @@ const scoreMount = () => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
+  t2.delay(1)
   t2.to([team1wrapper.value, team2wrapper.value], {
     duration: 1,
     opacity: 0,
@@ -106,7 +107,7 @@ onMounted(() => {
       if (mediaElm.value) {
         mediaElm.value.currentTime = score_sec;
       }
-      await sleep(250);
+      await sleep(500);
       gameService.send({ type: "TO_OUTRO" });
     }
 

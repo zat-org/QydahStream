@@ -55,6 +55,7 @@ export const useMyGameStore = defineStore("myGameStore",  () => {
         gameString.value = gameData;
         game.value = JSON.parse(gameString.value);
         let winner =false
+        
         const us_photo = game?.value && game?.value?.usPlayers.length>0 && game?.value?.usPlayers[0].url && game?.value?.usPlayers[1].url
         const them_photo = game?.value && game?.value?.themPlayers.length>0 && game?.value?.themPlayers[0].url && game?.value?.themPlayers[1].url
 
@@ -66,11 +67,10 @@ export const useMyGameStore = defineStore("myGameStore",  () => {
             winner =true
           } 
         }
-
       //   if (game?.value && game?.value?.usPlayers.length>0 && game?.value?.themPlayers.length>0 ){
       //     winner =( game?.value?.usPlayers[0].url && game?.value?.usPlayers[1].url && game?.value?.themPlayers[0].url && game?.value?.themPlayers[1].url && game?.value?.winner ) == null  
       // }
-      gameService.send({ type: "UPDATE_CONTEXT",  ended:winner });
+      gameService.send({ type: "UPDATE_CONTEXT",  ended:game?.value?.winner });
       }
     );
   }
