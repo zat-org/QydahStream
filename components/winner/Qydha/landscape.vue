@@ -11,6 +11,7 @@
           <img
             :src=" winner!.players && winner!.players[0].url   ?winner!.players[0].url  : '/images/u1.jpg'"
             id="image1"
+            ref="winnerImages"
             class="image"
             :width="200"
             :height="194" />
@@ -21,6 +22,7 @@
           <img
             :src=" winner!.players && winner!.players[1].url  ?winner!.players[1].url  : '/images/u2.jpg'"
             id="image2"
+            ref="winnerImages"
             class="image"
             :width="200"
             :height="194" />
