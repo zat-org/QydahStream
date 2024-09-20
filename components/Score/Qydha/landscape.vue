@@ -75,7 +75,7 @@ const team2wrapper = ref(null);
 
 const scoreMount = () => {
   const t1 = gsap.timeline();
-  t1.delay(1.75);
+  t1.delay(2);
   t1.fromTo(
     [team1wrapper.value, team2wrapper.value],
     { opacity: 0 },

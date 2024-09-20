@@ -13,8 +13,8 @@
             id="image1"
             ref="winnerImages"
             class="image"
-            :width="200"
-            :height="194" />
+            :width="186"
+            :height="200" />
   
   
         </div>
@@ -24,11 +24,11 @@
             id="image2"
             ref="winnerImages"
             class="image"
-            :width="200"
-            :height="194" />
+            :width="186"
+            :height="200" />
   
   
-        </div>
+        </div> 
       </div>
     </div>
    
