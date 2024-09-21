@@ -10,7 +10,26 @@ export const useMyGameStore = defineStore("myGameStore",  () => {
   //   return JSON.parse(gameString.value);
   // });
   const sakka_ended = ref(false);
-  const game = ref<GameI>();
+  const newGameFlag = ref(false);
+
+  const game = ref<GameI>()!;
+  const newGame = ref<GameI>()!;
+  const { gameMachine } = useNashraMachine();
+  // const { send, snapshot } = useMachine(gameMachine);
+  const gameService = interpret(gameMachine).start();
+  const snapshot = ref(gameService.getSnapshot());
+  gameService.subscribe((state) => {
+    snapshot.value = state;
+
+  
+    if (snapshot.value.matches("score") &&newGame.value&& game.value&& newGame.value.id !== game.value.id) {
+      console.log("stat nwe game")
+      game.value = newGame.value;
+    }
+  });
+  
+
+
   const connection = new signalR.HubConnectionBuilder()
     .withUrl("https://sam-baloot-admin.online/dev/baloot-games-hub", {
       withCredentials: true,
@@ -29,31 +48,45 @@ export const useMyGameStore = defineStore("myGameStore",  () => {
     } catch (error) {
       console.log(error);
     }
-
+   
     connection.on(
       "BalootGameStateChanged",
       (eventName: string, gameData: string) => {
+        newGameFlag.value=false
         const events = eventName.split(",").map((e) => {
           return e.trim();
         });
         console.log(events);
-        if (events.includes("ScoreChanges")) {
-          sakka_ended.value = false;
+        const newGameEvent =events.includes('NamesChanged') && events.includes('MaxSakkaCountChanged')&& events.includes('IsCurrentSakkaMashdodaChanged')&& events.length == 3
+       newGameFlag.value=newGameEvent
+        gameString.value = gameData;
+        newGame.value = JSON.parse(gameString.value);
+        if (snapshot.value.matches("detail") ){
+     
+          if (newGameEvent) {}
+          else{
+            
+            game.value =newGame.value;
+          }      
+        }else if (snapshot.value.matches("winner")){
 
-          if (snapshot.value.matches("score")) {
+        }else if(snapshot.value.matches("score")){
+          if (newGameEvent) {
+
+          }else if (events.includes("ScoreChanges")) {
             gameService.send({ type: "TO_OUTRO" });
-          }
+            game.value =newGame.value;
+
+          }   
         }
+        
+
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
         }
         if (events.includes("GameEnded")) {
           console.log("game ended")
-        }
-    
-
-        gameString.value = gameData;
-        game.value = JSON.parse(gameString.value);
+          
         let winner =false
         
         const us_photo = game?.value && game?.value?.usPlayers.length>0 && game?.value?.usPlayers[0].url && game?.value?.usPlayers[1].url
@@ -67,25 +100,23 @@ export const useMyGameStore = defineStore("myGameStore",  () => {
             winner =true
           } 
         }
-      //   if (game?.value && game?.value?.usPlayers.length>0 && game?.value?.themPlayers.length>0 ){
-      //     winner =( game?.value?.usPlayers[0].url && game?.value?.usPlayers[1].url && game?.value?.themPlayers[0].url && game?.value?.themPlayers[1].url && game?.value?.winner ) == null  
-      // }
-      gameService.send({ type: "UPDATE_CONTEXT",  ended:game?.value?.winner });
+
+      gameService.send({ type: "UPDATE_CONTEXT",  ended:winner });
+        }
+    
+
+
       }
     );
   }
 
   // await initializeConnection();
   // export const useNashraMachine = () => {
-  const { gameMachine } = useNashraMachine();
-  // const { send, snapshot } = useMachine(gameMachine);
-  const gameService = interpret(gameMachine).start();
-  const snapshot = ref(gameService.getSnapshot());
-  gameService.subscribe((state) => {
-    snapshot.value = state;
-  });
+
+
 
   return {
+    newGameFlag,
     gameString,
     game,
     connection,

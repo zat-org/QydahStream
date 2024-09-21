@@ -1,41 +1,29 @@
 <template v-if="gameService">
-
-<div v-show="snapshot.matches('score')">
-    <transition name="fade" mode="out-in">
-      <component :is="scoreComponent"  v-if="snapshot.matches('score')" />
-    </transition>
+  <div v-show="snapshot.matches('score')">
+    <component :is="scoreComponent" v-if="snapshot.matches('score')" />
   </div>
 
   <!-- Detail Screen -->
   <div v-show="snapshot.matches('detail')">
-    <transition name="fade" mode="out-in">
-      <component :is="detailComponent"  v-if="snapshot.matches('detail')" />
-    </transition>
+    <component :is="detailComponent" v-if="snapshot.matches('detail')" />
   </div>
   <div v-show="snapshot.matches('winner')">
-    <transition name="fade" mode="out-in">
-      <component :is="winnerComponent" v-if="snapshot.matches('winner')" />
-    </transition>
+    <component :is="winnerComponent" v-if="snapshot.matches('winner')" />
   </div>
-
 </template>
 
 <script lang="ts" setup>
-import  ScoreZatLandscape from '../components/Score/Zat/Landscape.vue';
-import DetailZatLandscape from '../components/Detail/Zat/landscape.vue';
-import WinnerZatLandscape from '../components/winner/Zat/landscape.vue';
+import ScoreZatLandscape from "../components/Score/Zat/Landscape.vue";
+import DetailZatLandscape from "../components/Detail/Zat/landscape.vue";
+import WinnerZatLandscape from "../components/winner/Zat/landscape.vue";
 
-import  ScoreQydhaLandscape  from '../components/Score/Qydha/landscape.vue';
-import  DetailQydhaLandscape  from '../components/Detail/Qydha/landscape.vue';
-import  WinnerQydhaLandscape  from '../components/winner/Qydha/landscape.vue';
+import ScoreQydhaLandscape from "../components/Score/Qydha/landscape.vue";
+import DetailQydhaLandscape from "../components/Detail/Qydha/landscape.vue";
+import WinnerQydhaLandscape from "../components/winner/Qydha/landscape.vue";
 
-
-
-import  ScoreQydhaPortrait  from '../components/Score/Qydha/portrait.vue';
-import  DetailQydhaPortrait  from '../components/Detail/Qydha/portrait.vue';
-import  WinnerQydhaPortrait  from '../components/winner/Qydha/portrait.vue';
-
-
+import ScoreQydhaPortrait from "../components/Score/Qydha/portrait.vue";
+import DetailQydhaPortrait from "../components/Detail/Qydha/portrait.vue";
+import WinnerQydhaPortrait from "../components/winner/Qydha/portrait.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -67,41 +55,37 @@ router.push({
 });
 
 const scoreComponent = computed(() => {
-  if (theme.value === 'zat' && orienation.value === 'landscape') {
+  if (theme.value === "zat" && orienation.value === "landscape") {
     return ScoreZatLandscape;
-  } else if (theme.value === 'qydha' && orienation.value === 'landscape') {
+  } else if (theme.value === "qydha" && orienation.value === "landscape") {
     return ScoreQydhaLandscape;
-  } else if (theme.value === 'qydha' && orienation.value === 'portrait') {
+  } else if (theme.value === "qydha" && orienation.value === "portrait") {
     return ScoreQydhaPortrait;
   }
   return null;
 });
 
 const detailComponent = computed(() => {
-  if (theme.value === 'zat' && orienation.value === 'landscape') {
+  if (theme.value === "zat" && orienation.value === "landscape") {
     return DetailZatLandscape;
-  } else if (theme.value === 'qydha' && orienation.value === 'landscape') {
+  } else if (theme.value === "qydha" && orienation.value === "landscape") {
     return DetailQydhaLandscape;
-  } else if (theme.value === 'qydha' && orienation.value === 'portrait') {
+  } else if (theme.value === "qydha" && orienation.value === "portrait") {
     return DetailQydhaPortrait;
   }
   return null;
 });
 
 const winnerComponent = computed(() => {
-  if (theme.value === 'zat' && orienation.value === 'landscape') {
+  if (theme.value === "zat" && orienation.value === "landscape") {
     return WinnerZatLandscape;
-  } else if (theme.value === 'qydha' && orienation.value === 'landscape') {
+  } else if (theme.value === "qydha" && orienation.value === "landscape") {
     return WinnerQydhaLandscape;
-  } else if (theme.value === 'qydha' && orienation.value === 'portrait') {
+  } else if (theme.value === "qydha" && orienation.value === "portrait") {
     return WinnerQydhaPortrait;
   }
   return null;
 });
-
-
-
-
 
 const game = useMyGameStore();
 const { gameService, initializeConnection } = game;

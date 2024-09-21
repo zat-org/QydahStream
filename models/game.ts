@@ -1,19 +1,24 @@
-export interface GameI {
-  sakkas: {
-    moshtaras: {
-      advancedDetails: null;
-      id: number;
-      usAbnat: number;
-      themAbnat: number;
-      state: string;
-    }[];
+export interface MoshtraI {
+  advancedDetails: null;
     id: number;
+    usAbnat: number;
+    themAbnat: number;
     state: string;
-    isMashdoda: false;
-    winner: null | string;
-    usSakkaScore: number;
-    themSakkaScore: number;
-  }[];
+}
+
+export interface SakkaI{
+  moshtaras: MoshtraI[];
+  id: number;
+  state: string;
+  isMashdoda: false;
+  winner: null | string;
+  usSakkaScore: number;
+  themSakkaScore: number;
+}
+
+
+export interface GameI {
+  sakkas: SakkaI[];
   id: string;
   createdAt: string;
   startedAt: string;

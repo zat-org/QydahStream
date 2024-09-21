@@ -1,16 +1,14 @@
 <template>
-  <div  >
+  <div>
     <video
       ref="mediaElm"
-      class='video'
+      class="video"
       muted
       height="1080"
       width="1920"
       :src="'/videos/zat/Corner_Score.webm'"></video>
     <div class="left-[976px] teamWrap" ref="team1wrapper">
-      <img
-        :src="'/images/zat/zat_white.svg'"
-        class=" SponsorImage left-64" />
+      <img :src="'/images/zat/zat_white.svg'" class="SponsorImage left-[254px]" />
       <transition name="fade" mode="out-in">
         <p :key="game?.usName" class="left-14 teamName">
           {{
@@ -22,17 +20,19 @@
           }}
         </p>
       </transition>
-      <p class="left-[2px] score ">
-        {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
+      <p class="left-[0px] score">
+        {{ newGameFlag? '0': tweenedScores.team1.toFixed(0) }}
+        <!-- {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }} -->
       </p>
     </div>
 
-    <div class="left-[621px] teamWrap " ref="team2wrapper">
-      <p class="-right-[2px] score">
-        {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }}
+    <div class="left-[621px] teamWrap" ref="team2wrapper">
+      <p class="left-[269px] score">
+        <!-- {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }} -->
+        {{newGameFlag?'0': tweenedScores.team2.toFixed(0) }}
       </p>
       <transition name="fade" mode="out-in">
-        <p :key="game?.themName" class="teamName left-[82px] ">
+        <p :key="game?.themName" class="teamName left-[82px]">
           {{
             game?.themName
               ? game?.themName
@@ -42,29 +42,27 @@
           }}
         </p>
       </transition>
-
-      <img
-        :src="'/images/zat/zat_black.svg'"
-        class=" SponsorImage left-[5px] " />
+      <img :src="'/images/zat/zat_black.svg'" class="SponsorImage left-[3px]" />
     </div>
   </div>
+<!-- <p class="text-black">
+  {{tweenedScores}}
+
+</p> -->
+
 </template>
 
 <script lang="ts" setup>
 const route = useRoute();
 
-const theme = ref();
-const orientaion = ref();
-theme.value = route.query.theme;
-orientaion.value = route.query.orienation;
 
 const store = useMyGameStore();
 import gsap from "gsap";
-const { snapshot, game, sakka_ended } = storeToRefs(store);
+const { snapshot, game, sakka_ended, newGameFlag } = storeToRefs(store);
 
 const { gameService } = store;
 const mediaElm = ref<HTMLVideoElement>();
-
+const {sleep } =useSleep()
 const intro_start_sec = 0;
 const intro_end_sec = 3;
 const score_sec = intro_end_sec;
@@ -73,18 +71,30 @@ const outro_start = score_sec;
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 
-const scoreMount = () => {
+
+const tweenedScores = reactive({
+    team1: 0,
+    team2: 0,
+});
+
+
+
+const scoreMount = (score1:number ,score2:number) => {
   const t1 = gsap.timeline();
-  t1.delay(1.75);
+  t1.delay(2.15);
   t1.fromTo(
     [team1wrapper.value, team2wrapper.value],
     { opacity: 0 },
     {
-      duration: 0.85,
+      duration: 0.5,
       opacity: 1,
       ease: "linear",
     }
-  );
+  ).to(tweenedScores, {
+                team1: score1,
+                team2: score2,
+                duration: .75,
+            });;
 };
 
 const scoreUnMount = () => {
@@ -95,31 +105,41 @@ const scoreUnMount = () => {
     ease: "linear",
   });
 };
-const last_sakka = computed(() => {
-  return game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
-});
+let last_sakka =  game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
 
+
+watch(newGameFlag,(new_value,old_value)=>{
+  if (new_value== true){
+    tweenedScores.team1 = 0
+    tweenedScores.team2= 0
+  }
+})
+// const newGame =newGameFlag.value
 console.log(game);
-onMounted(() => {
-  watchEffect(() => {
+onMounted(async() => {
+  watchEffect(async() => {
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
-        scoreMount();
-        mediaElm.value.ontimeupdate = () => {
-          if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
-            mediaElm.value.ontimeupdate = null;
-            mediaElm.value.pause();
-            mediaElm.value.currentTime = score_sec;
-            gameService.send({ type: "NEXT" });
-          }
-        };
+         scoreMount(last_sakka!.usSakkaScore!,last_sakka!.themSakkaScore!);
+         await sleep(3.22*1000)
+        mediaElm.value.pause();
+
+        mediaElm.value.currentTime = score_sec;
+        gameService.send({ type: "NEXT" });
+        // mediaElm.value.ontimeupdate = () => {
+        //   if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
+        //     mediaElm.value.ontimeupdate = null;
+        //     mediaElm.value.pause();
+      
+        //   }
+        // };
       }
     }
     if (snapshot.value.matches("score.main")) {
       if (mediaElm.value) {
-        mediaElm.value.currentTime = score_sec;
+        mediaElm.value.currentTime =3.22;
       }
     }
 
@@ -147,7 +167,7 @@ onMounted(() => {
 }
 
 .score {
-  @apply absolute text-[1.9rem] w-[55px] h-[55px] flex justify-center items-center top-0;
+  @apply absolute text-[1.6rem] w-[55px] h-[55px] flex justify-center items-center top-0;
   font-family: "CairoSemiBold";
 }
 
@@ -166,10 +186,9 @@ onMounted(() => {
 .wrapcomp {
   @apply relative h-screen w-screen;
 }
-.SponsorImage{
-  @apply absolute w-[66px] h-[62px] -top-0.5
+.SponsorImage {
+  @apply absolute w-[71px] h-[65px] -top-[5px] box-border overflow-hidden;
 }
-
 
 * {
   font-family: "arefBold";

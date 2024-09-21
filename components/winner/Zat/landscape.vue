@@ -83,6 +83,7 @@ const scoreUnMount = () => {
 const { sleep } = useSleep();
 const winner = computed(() => {
   if (game?.value?.winner) {
+    console.log(game?.value?.winner)
     if (game.value.winner == "Us") {
       console.log(game.value.usPlayers);
       return {
@@ -120,9 +121,11 @@ onMounted(() => {
     if (snapshot.value.matches("winner.main")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = score_sec;
-        await sleep(500);
-        gameService.send({ type: "NEW_GAME" });
         scoreUnMount();
+        await sleep(500);
+        gameService.send({ type: "UPDATE_CONTEXT",  ended:false });
+        
+        gameService.send({ type: "NEW_GAME" });
       }
     }
   });

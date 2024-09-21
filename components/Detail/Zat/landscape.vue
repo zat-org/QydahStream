@@ -9,35 +9,34 @@
       width=" 1920"></video>
     <div class="TeamWrap left-[1062px]" ref="team1wrapper">
       <img
-        class="TeamSponsor  right-[30px]"
+        class="TeamSponsor right-[30px]"
         :src="'/images/zat/zat_white.svg'" />
-      <p  class="TeamName left-[84px]" >
+      <p class="TeamName left-[84px]">
         {{ game?.usName }}
       </p>
 
-      <p id="team1totalScore" class="TeamScore left-0">{{ last_sakka!.usSakkaScore }}</p>
-      <div id="team1-detailed-scores"  class="TeamDetailedScore left-0">
+      <p id="team1totalScore" class="TeamScore left-0">
+        {{ last_sakka?.usSakkaScore }}
+      </p>
+      <div id="team1-detailed-scores" class="TeamDetailedScore left-0">
         <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
       </div>
     </div>
 
     <div class="TeamWrap left-[364px]" ref="team2wrapper">
-      <p class="TeamScore right-0">{{ last_sakka!.themSakkaScore }}</p>
+      <p class="TeamScore right-0">{{ last_sakka?.themSakkaScore }}</p>
 
-      <p  class="TeamName  left-[115px]">
+      <p class="TeamName left-[115px]">
         {{ game?.themName }}
       </p>
 
-      <img
+      <img class="TeamSponsor left-[30px]" :src="'/images/zat/zat_black.svg'" />
 
-        class="TeamSponsor left-[30px]"
-        :src="'/images/zat/zat_black.svg'" />
-
-      <div  class="TeamDetailedScore right-0">
+      <div class="TeamDetailedScore right-0">
         <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
       </div>
     </div>
-  </div>
+  </div>  
 </template>
 
 <script lang="ts" setup>
@@ -50,6 +49,7 @@ orientaion.value = route.query.orienation;
 
 const store = useMyGameStore();
 import gsap from "gsap";
+import type { SakkaI } from "~/models/game";
 const { sleep } = useSleep();
 const { snapshot, game } = storeToRefs(store);
 const { gameService } = store;
@@ -61,10 +61,17 @@ const intro_end_sec = 4;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
-const last_sakka_index = game.value?.sakkas.length! - 1;
-const last_sakka = game.value?.sakkas[last_sakka_index];
-const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
-  return m.state == "Ended";
+const last_sakka_index = computed(() => {
+  return game.value?.sakkas.length! - 1;
+});
+const last_sakka = computed<SakkaI|undefined>(() => {
+  return game.value?.sakkas[last_sakka_index.value] 
+});
+
+const ended_moshtras = computed(() => {
+  return last_sakka.value?.moshtaras.filter((m) => {
+    return m.state == "Ended";
+  });
 });
 const scoreMount = () => {
   const t1 = gsap.timeline();
@@ -142,9 +149,8 @@ onMounted(() => {
   font-family: "arefBold";
 }
 
-.TeamName{
-  @apply absolute text-[2rem] h-[81px] flex justify-center items-center top-2 w-[300px] ;
-  
+.TeamName {
+  @apply absolute text-[2rem] h-[81px] flex justify-center items-center top-2 w-[300px];
 }
 
 .TeamScore {
@@ -152,12 +158,12 @@ onMounted(() => {
   font-family: "CairoSemiBold";
 }
 
-.TeamSponsor{
+.TeamSponsor {
   @apply absolute w-[66px] h-[62px] top-[13px];
 }
 
 .TeamDetailedScore {
-  @apply text-[black] absolute w-[85px] text-[1.8rem] top-[125px];
+  @apply text-[white] absolute w-[85px] text-[1.8rem] top-[125px];
   font-family: "CairoSemiBold";
 }
 
