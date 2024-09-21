@@ -64,7 +64,7 @@ const { gameService } = store;
 const mediaElm = ref<HTMLVideoElement>();
 const {sleep } =useSleep()
 const intro_start_sec = 0;
-const intro_end_sec = 3;
+const intro_end_sec = 3.22;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
@@ -123,7 +123,7 @@ onMounted(async() => {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
          scoreMount(last_sakka!.usSakkaScore!,last_sakka!.themSakkaScore!);
-         await sleep(3.22*1000)
+         await sleep(intro_end_sec*1000)
         mediaElm.value.pause();
 
         mediaElm.value.currentTime = score_sec;
@@ -139,13 +139,14 @@ onMounted(async() => {
     }
     if (snapshot.value.matches("score.main")) {
       if (mediaElm.value) {
-        mediaElm.value.currentTime =3.22;
+        mediaElm.value.currentTime =score_sec;
       }
     }
 
     if (snapshot.value.matches("score.outro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = outro_start;
+        mediaElm.value.playbackRate = 2
         mediaElm.value.play();
         scoreUnMount();
         mediaElm.value.onended = () => {
