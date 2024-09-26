@@ -7,7 +7,7 @@
         muted
         width="325px"
         height="150px"
-        src="/videos/qydha/portrait/Corner_Score.webm"></video>
+        src="/videos/qydha/portrait/Corner_Score.mp4"></video>
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
