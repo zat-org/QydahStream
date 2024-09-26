@@ -2,6 +2,7 @@
   <div class="flex justify-center min-w-[325px] bg-transparent">
     <div class="relative">
       <video
+      playsinline 
         ref="mediaElm"
 width="325px"
         height="150px"
