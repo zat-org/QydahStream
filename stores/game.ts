@@ -11,6 +11,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   // });
   const sakka_ended = ref(false);
   const newGameFlag = ref(false);
+  const game_updated = ref(false);
 
   const game = ref<GameI>()!;
   const newGame = ref<GameI>()!;
@@ -52,15 +53,18 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       "BalootGameStateChanged",
       (eventName: string, gameData: string) => {
         newGameFlag.value = false;
+        game_updated.value = false;
         const events = eventName.split(",").map((e) => {
           return e.trim();
         });
         console.log(events);
-        const newGameEvent =
-          events.includes("NamesChanged") &&
-          events.includes("MaxSakkaCountChanged") &&
-          events.includes("IsCurrentSakkaMashdodaChanged") &&
-          events.length == 3;
+        // const newGameEvent =
+        //   events.includes("NamesChanged") &&
+        //   events.includes("MaxSakkaCountChanged") &&
+        //   events.includes("IsCurrentSakkaMashdodaChanged") &&
+        //   events.length == 3;
+        const newGameEvent =events.includes("GameStarted")
+
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
         newGame.value = JSON.parse(gameString.value);
@@ -75,6 +79,17 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           } else if (events.includes("ScoreIncreased")) {
             gameService.send({ type: "TO_OUTRO" });
             game.value = newGame.value;
+          }
+
+          // ScoreUpdated = 1 << 2,
+          // ScoreDecreased = 1 << 3,
+          else if (
+            events.includes("ScoreUpdated") ||
+            events.includes("ScoreDecreased")
+          ) {
+            //   gameService.send({ type: "TO_OUTRO" });
+            game.value = newGame.value;
+            game_updated.value = true;
           }
         }
 
@@ -115,6 +130,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   // export const useNashraMachine = () => {
 
   return {
+    game_updated,
     newGameFlag,
     gameString,
     game,

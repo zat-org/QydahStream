@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center min-w-[325px]">
+  <div class="flex justify-center min-w-[325px] bg-transparent">
     <div class="relative">
       <video
         ref="mediaElm"

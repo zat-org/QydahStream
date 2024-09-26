@@ -40,12 +40,6 @@
 </template>
 
 <script lang="ts" setup>
-const route = useRoute();
-
-const theme = ref();
-const orientaion = ref();
-theme.value = route.query.theme;
-orientaion.value = route.query.orienation;
 
 const store = useMyGameStore();
 import gsap from "gsap";
@@ -57,7 +51,7 @@ const mediaElm = ref<HTMLVideoElement>();
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 const intro_start_sec = 0;
-const intro_end_sec = 4;
+const intro_end_sec = 3.22;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
@@ -85,6 +79,8 @@ const scoreMount = () => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
+  t2.delay(.5);
+
   t2.to([team1wrapper.value, team2wrapper.value], {
     duration: 1,
     opacity: 0,
@@ -99,14 +95,10 @@ onMounted(() => {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
         scoreMount();
-        mediaElm.value.ontimeupdate = () => {
-          if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
-            mediaElm.value.ontimeupdate = null;
-            mediaElm.value.pause();
-            mediaElm.value.currentTime = score_sec;
-            gameService.send({ type: "NEXT" });
-          }
-        };
+        await sleep(score_sec*1000)
+        mediaElm.value.currentTime = score_sec;
+        mediaElm.value.pause();
+        gameService.send({ type: "NEXT" });
       }
     }
     if (snapshot.value.matches("detail.main")) {
@@ -120,6 +112,7 @@ onMounted(() => {
     if (snapshot.value.matches("detail.outro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = outro_start;
+        mediaElm.value.playbackRate = 2;
         mediaElm.value.play();
         scoreUnMount();
         mediaElm.value.onended = () => {

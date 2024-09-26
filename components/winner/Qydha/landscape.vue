@@ -44,13 +44,6 @@
 
 <script lang="ts" setup>
 
-const route =useRoute()
-
-const theme =ref()
-const orientaion = ref()
-
-theme.value =route.query.theme
-orientaion.value =route.query.orienation  
 
 
 const store = useMyGameStore();
@@ -60,7 +53,7 @@ const { gameService } = store;
 const mediaElm = ref<HTMLVideoElement>();
 
 const intro_start_sec = 0;
-const intro_end_sec = 5;
+const intro_end_sec = 6;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 const winnerData = ref(null);
@@ -72,7 +65,7 @@ const scoreMount = () => {
   t1.delay(1)
   t1.fromTo([winnerData.value, winnerImages.value],{opacity:0}, {
     duration: 0.75,
-    opacity: 2,
+    opacity: 1.5,
     ease: "linear",
   });
 };
@@ -107,39 +100,32 @@ const winner = computed(() => {
 });
 onMounted(() => {
   watchEffect(async () => {
-    console.log(snapshot);
     if (snapshot.value.matches("winner.intro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;
         scoreMount();
         mediaElm.value.play();
-        mediaElm.value.ontimeupdate = () => {
-          if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
-            mediaElm.value.ontimeupdate = null;
-            mediaElm.value.currentTime = score_sec;
-            mediaElm.value.pause();
-            gameService.send({ type: "NEXT" });
-          }
-        };
+        await sleep(intro_end_sec*1000)
+        mediaElm.value.currentTime = score_sec;
+        mediaElm.value.pause();
+        gameService.send({ type: "NEXT" });
+
       }
     }
     if (snapshot.value.matches("winner.main")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = score_sec;
-        await sleep(250);
-        gameService.send({ type: "NEW_GAME" });
+        await sleep(1000);
         scoreUnMount();
+        gameService.send({ type: "UPDATE_CONTEXT", ended: false });
+        gameService.send({ type: "NEW_GAME" });
       }
     }
   });
 });
 </script>
 <style scoped>
-/*
-  Based on TailwindCSS recommendations,
-  consider using classes instead of the `@apply` directive
-  @see https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction
-*/
+
 .winner-comp {
   @apply relative;
 }

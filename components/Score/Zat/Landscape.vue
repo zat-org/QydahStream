@@ -8,7 +8,9 @@
       width="1920"
       :src="'/videos/zat/Corner_Score.webm'"></video>
     <div class="left-[976px] teamWrap" ref="team1wrapper">
-      <img :src="'/images/zat/zat_white.svg'" class="SponsorImage left-[254px]" />
+      <img
+        :src="'/images/zat/zat_white.svg'"
+        class="SponsorImage left-[254px]" />
       <transition name="fade" mode="out-in">
         <p :key="game?.usName" class="left-14 teamName">
           {{
@@ -21,7 +23,7 @@
         </p>
       </transition>
       <p class="left-[0px] score">
-        {{ newGameFlag? '0': tweenedScores.team1.toFixed(0) }}
+        {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }}
         <!-- {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }} -->
       </p>
     </div>
@@ -29,7 +31,7 @@
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="left-[269px] score">
         <!-- {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }} -->
-        {{newGameFlag?'0': tweenedScores.team2.toFixed(0) }}
+        {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }}
       </p>
       <transition name="fade" mode="out-in">
         <p :key="game?.themName" class="teamName left-[82px]">
@@ -45,24 +47,20 @@
       <img :src="'/images/zat/zat_black.svg'" class="SponsorImage left-[3px]" />
     </div>
   </div>
-<!-- <p class="text-black">
-  {{tweenedScores}}
-
-</p> -->
 
 </template>
 
 <script lang="ts" setup>
-const route = useRoute();
 
 
 const store = useMyGameStore();
 import gsap from "gsap";
-const { snapshot, game, sakka_ended, newGameFlag } = storeToRefs(store);
+const { snapshot, game, sakka_ended, newGameFlag, game_updated } =
+  storeToRefs(store);
 
 const { gameService } = store;
 const mediaElm = ref<HTMLVideoElement>();
-const {sleep } =useSleep()
+const { sleep } = useSleep();
 const intro_start_sec = 0;
 const intro_end_sec = 3.22;
 const score_sec = intro_end_sec;
@@ -71,15 +69,12 @@ const outro_start = score_sec;
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 
-
 const tweenedScores = reactive({
-    team1: 0,
-    team2: 0,
+  team1: 0,
+  team2: 0,
 });
 
-
-
-const scoreMount = (score1:number ,score2:number) => {
+const scoreMount = (score1: number, score2: number) => {
   const t1 = gsap.timeline();
   t1.delay(2.15);
   t1.fromTo(
@@ -91,10 +86,10 @@ const scoreMount = (score1:number ,score2:number) => {
       ease: "linear",
     }
   ).to(tweenedScores, {
-                team1: score1,
-                team2: score2,
-                duration: .75,
-            });;
+    team1: score1,
+    team2: score2,
+    duration: 0.75,
+  });
 };
 
 const scoreUnMount = () => {
@@ -105,48 +100,53 @@ const scoreUnMount = () => {
     ease: "linear",
   });
 };
-let last_sakka =  game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
+let last_sakka =computed(()=>{
+  return game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
 
+})
 
-watch(newGameFlag,(new_value,old_value)=>{
-  if (new_value== true){
-    tweenedScores.team1 = 0
-    tweenedScores.team2= 0
+watch(newGameFlag, (new_value, old_value) => {
+  if (new_value == true) {
+    tweenedScores.team1 = 0;
+    tweenedScores.team2 = 0;
+  }
+});
+
+watch(game_updated, (new_value, old_value) => {
+  console.log(game_updated.value)
+  if (game_updated.value == true) {
+    tweenedScores.team1 =
+      last_sakka.value!.usSakkaScore!;
+    tweenedScores.team2 =
+      last_sakka.value!.themSakkaScore!;
+      game_updated.value = false;
   }
 })
-// const newGame =newGameFlag.value
-console.log(game);
-onMounted(async() => {
-  watchEffect(async() => {
+
+onMounted(async () => {
+  watchEffect(async () => {
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
-         scoreMount(last_sakka!.usSakkaScore!,last_sakka!.themSakkaScore!);
-         await sleep(intro_end_sec*1000)
+        scoreMount(last_sakka.value!.usSakkaScore!, last_sakka.value!.themSakkaScore!);
+        await sleep(intro_end_sec * 1000);
         mediaElm.value.pause();
 
         mediaElm.value.currentTime = score_sec;
         gameService.send({ type: "NEXT" });
-        // mediaElm.value.ontimeupdate = () => {
-        //   if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
-        //     mediaElm.value.ontimeupdate = null;
-        //     mediaElm.value.pause();
-      
-        //   }
-        // };
       }
     }
     if (snapshot.value.matches("score.main")) {
       if (mediaElm.value) {
-        mediaElm.value.currentTime =score_sec;
+        mediaElm.value.currentTime = score_sec;
       }
     }
 
     if (snapshot.value.matches("score.outro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = outro_start;
-        mediaElm.value.playbackRate = 2
+        mediaElm.value.playbackRate = 2;
         mediaElm.value.play();
         scoreUnMount();
         mediaElm.value.onended = () => {

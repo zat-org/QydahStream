@@ -7,8 +7,11 @@
   <div v-show="snapshot.matches('detail')">
     <component :is="detailComponent" v-if="snapshot.matches('detail')" />
   </div>
+  
   <div v-show="snapshot.matches('winner')">
+    <transition name="fade" mode="out-in">
     <component :is="winnerComponent" v-if="snapshot.matches('winner')" />
+    </transition>
   </div>
 </template>
 

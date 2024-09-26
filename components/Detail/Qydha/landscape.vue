@@ -41,15 +41,10 @@
 </template>
 
 <script lang="ts" setup>
-const route = useRoute();
-
-const theme = ref();
-const orientaion = ref();
-theme.value = route.query.theme;
-orientaion.value = route.query.orienation;
 
 const store = useMyGameStore();
 import gsap from "gsap";
+import type { SakkaI } from "~/models/game";
 const { sleep } = useSleep();
 const { snapshot, game } = storeToRefs(store);
 const { gameService } = store;
@@ -63,10 +58,17 @@ const outro_start = score_sec;
 
 
 
-const last_sakka_index = game.value?.sakkas.length! - 1;
-const last_sakka = game.value?.sakkas[last_sakka_index];
-const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
-  return m.state == "Ended";
+const last_sakka_index = computed(() => {
+  return game.value?.sakkas.length! - 1;
+});
+const last_sakka = computed<SakkaI|undefined>(() => {
+  return game.value?.sakkas[last_sakka_index.value] 
+});
+
+const ended_moshtras = computed(() => {
+  return last_sakka.value?.moshtaras.filter((m) => {
+    return m.state == "Ended";
+  });
 });
 const scoreMount = () => {
   const t1 = gsap.timeline();
@@ -97,15 +99,11 @@ onMounted(() => {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
         scoreMount();
-
-        mediaElm.value.ontimeupdate = () => {
-          if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
-            mediaElm.value.ontimeupdate = null;
-            mediaElm.value.pause();
-            mediaElm.value.currentTime = score_sec;
-            gameService.send({ type: "NEXT" });
-          }
-        };
+        await sleep(score_sec*1000)
+        mediaElm.value.currentTime = score_sec;
+        mediaElm.value.pause();
+        gameService.send({ type: "NEXT" });
+        
       }
     }
     if (snapshot.value.matches("detail.main")) {
@@ -113,17 +111,16 @@ onMounted(() => {
 
         mediaElm.value.currentTime = score_sec;
       }
-      await sleep(500);
+      await sleep(250);
       gameService.send({ type: "TO_OUTRO" });
     }
 
     if (snapshot.value.matches("detail.outro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = outro_start;
-        scoreUnMount();
-
+        mediaElm.value.playbackRate = 2;
         mediaElm.value.play();
-      
+        scoreUnMount();      
         mediaElm.value.onended = () => {
           // mediaElm.value.onended=null;
           gameService.send({ type: "CHECK_END" });
