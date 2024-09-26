@@ -4,7 +4,7 @@
       ref="mediaElm"
       class="video-elm"
       muted
-      src="/videos/qydha/landscape/Full_Score.webm"
+      src="/videos/qydha/landscape/Full_Score.mp4"
       height="1080"
       width=" 1920"></video>
     <div class="TeamWrap left-[1062px]" ref="team1wrapper">
