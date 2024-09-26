@@ -7,7 +7,7 @@
 width="325px"
         height="150px"
         muted
-        src="/videos/qydha/portrait/Corner_Score.mov"></video>
+        src="/videos/qydha/portrait/Corner_Score.webm"></video>
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
 
