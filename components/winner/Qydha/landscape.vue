@@ -6,7 +6,7 @@
       </p>
     </div>
     <div class="absolute h-[1080px] w-[1920px] flex justify-center gap-5 items-center">
-      <div class=" relative     ">
+      <div class=" relative ">
         <div class=" absolute  w-[186px] h-[200px]  left-[34px] top-[-85px] rotate-[15deg] z-[-2]  ">
           <img
             :src=" winner!.players && winner!.players[0].url   ?winner!.players[0].url  : '/images/u1.jpg'"

@@ -2,15 +2,14 @@
   <div class="flex justify-center min-w-[325px] bg-transparent">
     <div class="relative">
       <video
-      playsinline 
+        playsinline
         ref="mediaElm"
-width="325px"
+        width="325px"
         height="150px"
         muted
-        src="/videos/qydha/portrait/Corner_Score.webm"></video>
+        :src="videoSrc"></video>
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
-
         <div class="w-1/2 flex items-center" ref="team2wrapper">
           <p class="grow" :key="game?.themName">
             {{
@@ -24,14 +23,14 @@ width="325px"
             }}
           </p>
           <p class="w-[38px] ml-[4px] score">
-            
-              {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }}
+            {{
+              !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore
+            }}
           </p>
-        
         </div>
         <div class="w-1/2 flex items-center" ref="team1wrapper">
           <p class="w-[38px] mr-[4px] score">
-             {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
+            {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
           </p>
           <transition name="fade" mode="out-in">
             <p class="grow" key="game?.usName">
@@ -44,12 +43,10 @@ width="325px"
               }}
             </p>
           </transition>
-       
         </div>
       </div>
     </div>
   </div>
-  
 </template>
 
 <script lang="ts" setup>
@@ -70,9 +67,18 @@ const outro_start = score_sec;
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 
+const videoSrc = ref('/videos/qydha/portrait/Corner_Score.webm');
+
+const checkVideoSupport = () => {
+  if (!mediaElm.value!.canPlayType('video/webm; codecs="vp8, vorbis"')) {
+    videoSrc.value = '/videos/qydha/portrait/Corner_ScoreIPhone.mov'; 
+  }
+};
+
+
 const scoreMount = () => {
   const t1 = gsap.timeline();
-  t1.delay(2); 
+  t1.delay(2);
   t1.fromTo(
     [team1wrapper.value, team2wrapper.value],
     { opacity: 0 },
@@ -98,6 +104,8 @@ const last_sakka = computed(() => {
 
 console.log(game);
 onMounted(() => {
+
+  checkVideoSupport()
   watchEffect(() => {
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
@@ -144,7 +152,7 @@ onMounted(() => {
 }
 
 .score {
-  @apply text-slate-700  text-[1rem] ;
+  @apply text-slate-700  text-[1rem];
   font-family: "CairoSemiBold";
 }
 

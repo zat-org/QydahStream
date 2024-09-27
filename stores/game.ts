@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import * as signalR from "@microsoft/signalr";
 import type { GameI } from "~/models/game";
-import { useMachine } from "@xstate/vue";
 import { interpret } from "xstate";
 export const useMyGameStore = defineStore("myGameStore", () => {
   const gameString = ref("");
@@ -58,16 +57,13 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           return e.trim();
         });
         console.log(events);
-        // const newGameEvent =
-        //   events.includes("NamesChanged") &&
-        //   events.includes("MaxSakkaCountChanged") &&
-        //   events.includes("IsCurrentSakkaMashdodaChanged") &&
-        //   events.length == 3;
-        const newGameEvent =events.includes("GameStarted")
+
+        const newGameEvent = events.includes("GameStarted");
 
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
         newGame.value = JSON.parse(gameString.value);
+        console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
           if (newGameEvent) {
           } else {
@@ -76,20 +72,24 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("score")) {
           if (newGameEvent) {
+            game.value = newGame.value;
           } else if (events.includes("ScoreIncreased")) {
             gameService.send({ type: "TO_OUTRO" });
             game.value = newGame.value;
-          }
-
-          // ScoreUpdated = 1 << 2,
-          // ScoreDecreased = 1 << 3,
-          else if (
+          } else if (
             events.includes("ScoreUpdated") ||
             events.includes("ScoreDecreased")
           ) {
-            //   gameService.send({ type: "TO_OUTRO" });
+            if (
+              events.includes("ScoreUpdated") &&
+              newGame.value?.winner !== null
+            ) {
+              gameService.send({ type: "TO_OUTRO" });
+            }
             game.value = newGame.value;
             game_updated.value = true;
+          } else {
+            game.value = newGame.value;
           }
         }
 

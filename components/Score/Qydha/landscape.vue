@@ -8,18 +8,11 @@
       width="1920"
       src="/videos/qydha/landscape/Corner_Score.webm"></video>
     <div class="left-[970px] teamWrap" ref="team1wrapper">
-      <!-- <img
-        :src="'/images/zat/zat_white.svg'"
-        class=" SponsorImage left-64" /> -->
+ 
       <transition name="fade" mode="out-in">
         <p :key="game?.usName" class="left-14 teamName">
-          {{
-            game?.usName
-              ? game?.usName
-              : game?.usPlayers.length == 0
-              ? "لنا"
-              : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
-          }}
+          {{game?.usName}}
+ 
         </p>
       </transition>
       <p class="left-[2px] score">
@@ -33,21 +26,13 @@
       </p>
       <transition name="fade" mode="out-in">
         <p :key="game?.themName" class="teamName left-[82px]">
-          {{
-            game?.themName
-              ? game?.themName
-              : game?.themPlayers.length == 0
-              ? "لهم"
-              : game?.themPlayers[0].name + "  |   " + game?.themPlayers[1].name
-          }}
+          {{ game?.themName}}
         </p>
       </transition>
 
-      <!-- <img
-        :src="'/images/zat/zat_black.svg'"
-        class=" SponsorImage left-[5px] " /> -->
     </div>
   </div>
+
 </template>
 
 <script lang="ts" setup>
