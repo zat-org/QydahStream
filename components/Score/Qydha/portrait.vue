@@ -2,6 +2,7 @@
   <div class="flex justify-center min-w-[325px] bg-transparent">
     <div class="relative">
       <video
+
         playsinline
         ref="mediaElm"
         width="325px"
@@ -70,9 +71,30 @@ const team2wrapper = ref(null);
 const videoSrc = ref('/videos/qydha/portrait/Corner_Score.webm');
 
 const checkVideoSupport = () => {
+
+
   if (platform == "ios") {
     videoSrc.value = '/videos/qydha/portrait/Corner_ScoreIPhone.mov'; 
   }
+  
+};
+
+const preloadVideo = async () => {
+  return new Promise<void>((resolve, reject) => {
+    if (!mediaElm.value) return reject('Video element not found');
+    mediaElm.value.src = videoSrc.value;
+    mediaElm.value.preload = 'metadata'; // Load only metadata for quick readiness
+
+    // Event listener for when metadata is loaded
+    mediaElm.value.onloadedmetadata = () => {
+      resolve(); // Resolve the promise when video metadata is loaded
+    };
+
+    // Error handling for loading video
+    mediaElm.value.onerror = () => {
+      reject('Error loading video metadata');
+    };
+  });
 };
 
 
@@ -103,9 +125,10 @@ const last_sakka = computed(() => {
 });
 
 console.log(game);
-onMounted(() => {
+onMounted(async() => {
 
   checkVideoSupport()
+ await  preloadVideo()
   watchEffect(() => {
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
