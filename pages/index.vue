@@ -10,10 +10,8 @@
 import { storeToRefs } from "pinia";
 const route = useRoute();
 const router = useRouter();
-// table_id
-// theme = zat |Qydha
-// orientation = landscap|  portrait
-// const table_id = route.query.table_id
+
+const platform = ref("android");
 const theme = ref("zat");
 const orienation = ref("landscape");
 
@@ -28,12 +26,26 @@ if (
   (route.query.orienation == "landscape" ||
     route.query.orienation == "portrait")
 )
-  orienation.value = route.query.orienation
+ { orienation.value = route.query.orienation
     ? route.query.orienation
-    : "landscape";
+    : "landscape";}
+
+    
+if (
+  route.query.platform &&
+  ((route.query.platform as string).toLowerCase()== "android" ||
+    (route.query.platform as string).toLowerCase() == "ios")
+)
+{
+  platform.value = route.query.platform
+    ? (route.query.platform as string).toLowerCase()
+    : "android";
+}
+
+
 router.push({
   path: "",
-  query: { theme: theme.value, orienation: orienation.value },
+  query: { theme: theme.value, orienation: orienation.value,platform:platform.value },
 });
 
 const game = useMyGameStore();

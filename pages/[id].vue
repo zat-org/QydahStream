@@ -7,10 +7,10 @@
   <div v-show="snapshot.matches('detail')">
     <component :is="detailComponent" v-if="snapshot.matches('detail')" />
   </div>
-  
+
   <div v-show="snapshot.matches('winner')">
     <transition name="fade" mode="out-in">
-    <component :is="winnerComponent" v-if="snapshot.matches('winner')" />
+      <component :is="winnerComponent" v-if="snapshot.matches('winner')" />
     </transition>
   </div>
 </template>
@@ -35,8 +35,8 @@ const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
 console.log(table_id);
 const theme = ref("zat");
-
 const orienation = ref("landscape");
+const platform = ref("android");
 
 if (
   route.query.theme &&
@@ -48,13 +48,31 @@ if (
   route.query.orienation &&
   (route.query.orienation == "landscape" ||
     route.query.orienation == "portrait")
-)
+){
+
   orienation.value = route.query.orienation
     ? route.query.orienation
     : "landscape";
+}
+
+if (
+  route.query.platform &&
+  ((route.query.platform as string).toLowerCase()== "android" ||
+    (route.query.platform as string).toLowerCase() == "ios")
+)
+{
+  platform.value = route.query.platform
+    ? (route.query.platform as string).toLowerCase()
+    : "android";
+}
+
 router.push({
   path: `/${table_id}/`,
-  query: { theme: theme.value, orienation: orienation.value },
+  query: {
+    theme: theme.value,
+    orienation: orienation.value,
+    platform: platform.value,
+  },
 });
 
 const scoreComponent = computed(() => {

@@ -51,7 +51,7 @@
 
 <script lang="ts" setup>
 const route = useRoute();
-
+const platform = ((route.query.platform as string)??'android').toLowerCase()
 const store = useMyGameStore();
 import gsap from "gsap";
 const { snapshot, game, sakka_ended } = storeToRefs(store);
@@ -70,7 +70,7 @@ const team2wrapper = ref(null);
 const videoSrc = ref('/videos/qydha/portrait/Corner_Score.webm');
 
 const checkVideoSupport = () => {
-  if (!mediaElm.value!.canPlayType('video/webm; codecs="vp8, vorbis"')) {
+  if (platform == "ios") {
     videoSrc.value = '/videos/qydha/portrait/Corner_ScoreIPhone.mov'; 
   }
 };
