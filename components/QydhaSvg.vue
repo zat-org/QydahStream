@@ -1,5 +1,5 @@
 <template>
-  <div :innerhtml="svg">
+  <div v-html="svg">
   </div>
     
 
