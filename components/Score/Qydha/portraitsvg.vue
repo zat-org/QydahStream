@@ -54,8 +54,8 @@
 const route = useRoute();
 const platform = ((route.query.platform as string)??'android').toLowerCase()
 const store = useMyGameStore();
-import gsap from "gsap";
 const svgQydha =ref()
+import gsap from "gsap";
 const { snapshot, game, sakka_ended } = storeToRefs(store);
 
 const { gameService } = store;
