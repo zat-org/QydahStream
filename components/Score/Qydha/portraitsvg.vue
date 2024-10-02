@@ -1,13 +1,14 @@
 <template>
   <div class="flex justify-center min-w-[325px] bg-transparent">
     <div class="relative">
-      <video
-        playsinline
-        ref="mediaElm"
-        width="325px"
-        height="150px"
-        muted
-        :src="videoSrc"></video>
+      
+      <QydhaSvg ref="svgQydha"/>
+          <!-- <div class="absolute top-[65px] left-[6px] w-[287px] bg-gray-500/55 flex justify-around items-center  ">
+      <p class=" text-center w-[116px]">team2</p>
+      <p class="w-[50px] text-center "> 999</p>
+      <p class="w-[50px] text-center " > 999</p>
+      <p class=" text-center w-[110px]" > team1</p>
+          -->
       <div
         class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
@@ -54,6 +55,7 @@ const route = useRoute();
 const platform = ((route.query.platform as string)??'android').toLowerCase()
 const store = useMyGameStore();
 import gsap from "gsap";
+const svgQydha =ref()
 const { snapshot, game, sakka_ended } = storeToRefs(store);
 
 const { gameService } = store;
@@ -71,31 +73,11 @@ const videoSrc = ref('/videos/qydha/portrait/Corner_Score.webm');
 
 const checkVideoSupport = () => {
 
-
   if (platform == "ios") {
     videoSrc.value = '/videos/qydha/portrait/Corner_ScoreIPhone.mov'; 
   }
   
 };
-
-const preloadVideo = async () => {
-  return new Promise<void>((resolve, reject) => {
-    if (!mediaElm.value) return reject('Video element not found');
-    mediaElm.value.src = videoSrc.value;
-    mediaElm.value.preload = 'metadata'; // Load only metadata for quick readiness
-
-    // Event listener for when metadata is loaded
-    mediaElm.value.onloadedmetadata = () => {
-      resolve(); // Resolve the promise when video metadata is loaded
-    };
-
-    // Error handling for loading video
-    mediaElm.value.onerror = () => {
-      reject('Error loading video metadata');
-    };
-  });
-};
-
 
 const scoreMount = () => {
   const t1 = gsap.timeline();
@@ -126,39 +108,25 @@ const last_sakka = computed(() => {
 console.log(game);
 onMounted(async() => {
 
-  checkVideoSupport()
- await  preloadVideo()
   watchEffect(() => {
     if (snapshot.value.matches("score.intro")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = intro_start_sec;
-        mediaElm.value.play();
+      if (svgQydha.value) {
+        svgQydha.value.enteranimation()
         scoreMount();
-        mediaElm.value.ontimeupdate = () => {
-          if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
-            mediaElm.value.ontimeupdate = null;
-            mediaElm.value.pause();
-            mediaElm.value.currentTime = score_sec;
-            gameService.send({ type: "NEXT" });
-          }
-        };
+        gameService.send({ type: "NEXT" });
+        
       }
     }
     if (snapshot.value.matches("score.main")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = score_sec;
-      }
+      
     }
 
     if (snapshot.value.matches("score.outro")) {
       if (mediaElm.value) {
-        mediaElm.value.currentTime = outro_start;
-        mediaElm.value.play();
         scoreUnMount();
-        mediaElm.value.onended = () => {
-          // mediaElm.value.onended=null;
-          gameService.send({ type: "NEXT" });
-        };
+        svgQydha.value.outAnimation()
+        gameService.send({ type: "NEXT" });
+        
       }
     }
   });

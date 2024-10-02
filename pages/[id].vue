@@ -25,6 +25,8 @@ import DetailQydhaLandscape from "../components/Detail/Qydha/landscape.vue";
 import WinnerQydhaLandscape from "../components/winner/Qydha/landscape.vue";
 
 import ScoreQydhaPortrait from "../components/Score/Qydha/portrait.vue";
+import ScoreQydhaPortraitsvg from "../components/Score/Qydha/portraitsvg.vue";
+
 import DetailQydhaPortrait from "../components/Detail/Qydha/portrait.vue";
 import WinnerQydhaPortrait from "../components/winner/Qydha/portrait.vue";
 
@@ -48,8 +50,7 @@ if (
   route.query.orienation &&
   (route.query.orienation == "landscape" ||
     route.query.orienation == "portrait")
-){
-
+) {
   orienation.value = route.query.orienation
     ? route.query.orienation
     : "landscape";
@@ -57,10 +58,9 @@ if (
 
 if (
   route.query.platform &&
-  ((route.query.platform as string).toLowerCase()== "android" ||
+  ((route.query.platform as string).toLowerCase() == "android" ||
     (route.query.platform as string).toLowerCase() == "ios")
-)
-{
+) {
   platform.value = route.query.platform
     ? (route.query.platform as string).toLowerCase()
     : "android";
@@ -81,7 +81,7 @@ const scoreComponent = computed(() => {
   } else if (theme.value === "qydha" && orienation.value === "landscape") {
     return ScoreQydhaLandscape;
   } else if (theme.value === "qydha" && orienation.value === "portrait") {
-    return ScoreQydhaPortrait;
+    return ScoreQydhaPortraitsvg;
   }
   return null;
 });
