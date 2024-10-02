@@ -1,7 +1,21 @@
 <template>
-  
-    <svg
+  <div :innerhtml="svg">
+  </div>
+    
 
+</template>
+
+<script lang="ts" setup>
+import gsap from "gsap";
+const {sleep} =useSleep()
+// document.addEventListener('mousemove', (event) => {
+//   const x = event.clientX;  // Get the horizontal coordinate
+//   const y = event.clientY;  // Get the vertical coordinate
+
+//   console.log(`X: ${x}, Y: ${y}`);
+// });
+
+const svg =`<svg
       version="1.1"
       id="svg2"
       width="300"
@@ -292,19 +306,7 @@
           </g>
         </g>
       </g>
-    </svg>
-
-</template>
-
-<script lang="ts" setup>
-import gsap from "gsap";
-const {sleep} =useSleep()
-// document.addEventListener('mousemove', (event) => {
-//   const x = event.clientX;  // Get the horizontal coordinate
-//   const y = event.clientY;  // Get the vertical coordinate
-
-//   console.log(`X: ${x}, Y: ${y}`);
-// });
+    </svg>`
 
 const t1 = gsap.timeline();
 const shapes = [".Shape4", ".Shape3", ".Shape2", ".Shape1"];
