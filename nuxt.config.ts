@@ -27,7 +27,12 @@ export default defineNuxtConfig({
       ],
     },
   },
-  vite: {
+  vite: 
+  {
+ 
+    optimizeDeps: {
+    exclude: ['gsap']
+  },
     build: {
       minify: false
     }
