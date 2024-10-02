@@ -1,7 +1,7 @@
 <template>
   
     <svg
-      class="absolute top-0 left-0"
+
       version="1.1"
       id="svg2"
       width="300"
@@ -134,7 +134,7 @@
             id="image168" />
         </mask>
       </defs>
-      <sodipodi:namedview
+      <!-- <sodipodi:namedview
         id="namedview4"
         pagecolor="#ffffff"
         bordercolor="#000000"
@@ -151,7 +151,7 @@
         inkscape:window-x="-8"
         inkscape:window-y="-8"
         inkscape:window-maximized="1"
-        inkscape:current-layer="g3" />
+        inkscape:current-layer="g3" /> -->
       <g
         id="g8"
         inkscape:groupmode="layer"
@@ -308,10 +308,11 @@ const {sleep} =useSleep()
 
 const t1 = gsap.timeline();
 const shapes = [".Shape4", ".Shape3", ".Shape2", ".Shape1"];
-const enteranimation = () => {
+ const enteranimation = () => {
   t1.fromTo(".Logo", { y: 30 }, { y: 0, opacity: 1, duration: 1 })
-    .to(".Bar", { opacity: 1, duration: 1 })
-    .to(shapes, { opacity: 1, stagger: 0.2 }, "<")
+    .to (".Bar",{opacity:1})
+    .fromTo(".Bar",{  y:80}, { y:0, duration: 1 })
+    .to(shapes, { opacity: 1, stagger: 0.2 },"<" )
     .fromTo(".RightArm .Orange", { x: -50 }, { x: 0, opacity: 1, duration: 1 })
     .fromTo(
       ".LeftArm .Orange",
@@ -323,14 +324,18 @@ const enteranimation = () => {
       ".RightArm .Blue",
       { x: -50 },
       { x: 0, opacity: 1, duration: 1 },
-      ">"
+      "-=.8"
     )
     .fromTo(".LeftArm .Blue", { x: 50 }, { x: 0, opacity: 1, duration: 1 }, "<")
-    .to(".ScoreArea", { opacity: 1, duration: 1 }, "<");
+    .fromTo(".ScoreArea", { scaleX: 0,opacity:1, duration: 1, transformOrigin: "center center" },{scaleX:1}, "<");
 };
-const outAnimation = () => {
+ const outAnimation = () => {
    t1.reverse()
 };
+
+defineExpose({
+  enteranimation ,outAnimation
+})
 
 </script>
 

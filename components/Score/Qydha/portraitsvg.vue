@@ -1,8 +1,8 @@
 <template>
   <div class="flex justify-center min-w-[325px] bg-transparent">
-    <div class="relative">
+    <div class="relative w-[300px] h-[100px] z-[-5]">
       
-      <QydhaSvg ref="svgQydha"/>
+      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 " />
           <!-- <div class="absolute top-[65px] left-[6px] w-[287px] bg-gray-500/55 flex justify-around items-center  ">
       <p class=" text-center w-[116px]">team2</p>
       <p class="w-[50px] text-center "> 999</p>
@@ -10,9 +10,9 @@
       <p class=" text-center w-[110px]" > team1</p>
           -->
       <div
-        class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
+        class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
-          <p class="grow" :key="game?.themName">
+          <p class="grow mt-[-5px]" :key="game?.themName">
             {{
               game?.themName
                 ? game?.themName
@@ -23,18 +23,18 @@
                   game?.themPlayers[1].name
             }}
           </p>
-          <p class="w-[38px] ml-[4px] score">
+          <p class="w-[38px] mr-[5px] score">
             {{
               !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore
             }}
           </p>
         </div>
         <div class="w-1/2 flex items-center" ref="team1wrapper">
-          <p class="w-[38px] mr-[4px] score">
+          <p class="w-[38px] ml-[4px] score">
             {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
           </p>
           <transition name="fade" mode="out-in">
-            <p class="grow" key="game?.usName">
+            <p class="grow mt-[-5px]" key="game?.usName">
               {{
                 game?.usName
                   ? game?.usName
@@ -124,7 +124,7 @@ onMounted(async() => {
     if (snapshot.value.matches("score.outro")) {
       if (mediaElm.value) {
         scoreUnMount();
-        svgQydha.value.outAnimation()
+        svgQydha.value!.outAnimation()
         gameService.send({ type: "NEXT" });
         
       }
