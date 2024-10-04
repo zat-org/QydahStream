@@ -1,15 +1,10 @@
 <template>
   <div class="flex justify-center min-w-[325px] bg-transparent">
-    <div class="relative">
-      <video
-      playsinline 
-        ref="mediaElm"
-        muted
-        width="325px"
-        height="150px"
-        src="/videos/qydha/portrait/Corner_Score.webm"></video>
+    <div class="relative w-[300px] h-[100px]">
+      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 " />
+
       <div
-        class="absolute text-center text-white flex h-[28px] top-[55px] -translate-x-1/2 left-1/2 w-[280px]">
+        class="absolute text-center text-white flex h-[28px] top-[64px]  -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p class="grow" :key="game?.themName">
@@ -45,10 +40,11 @@
           </transition>
         </div>
       </div>
-      <div class="flex gap-10 w-full justify-center" ref="score">
-        <div class="TeamDetailedScore grow  text-right">
+      <div class=" absolute flex gap-5 w-full justify-center top-[110px]" ref="score">
+        <div class="TeamDetailedScore   text-right grow  ">
           <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
         </div>
+        <div class="  bg-gradient-to-b from-orange-500 to-black w-[3px] h-[50vh] rounded-lg  "></div>
         <div class="TeamDetailedScore grow">
           <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
         </div>
@@ -58,37 +54,35 @@
 </template>
 
 <script lang="ts" setup>
-const route = useRoute();
+const svgQydha =ref()
 
-const theme = ref();
-const orientaion = ref();
-theme.value = route.query.theme;
-orientaion.value = route.query.orienation;
 
 const store = useMyGameStore();
 import gsap from "gsap";
+import type { SakkaI } from "~/models/game";
 const { sleep } = useSleep();
 const { snapshot, game } = storeToRefs(store);
 const { gameService } = store;
-const mediaElm = ref<HTMLVideoElement>();
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 const score = ref(null);
 
-const intro_start_sec = 0;
-const intro_end_sec = 3;
-const score_sec = intro_end_sec;
-const outro_start = score_sec;
+const last_sakka_index = computed(() => {
+  return game.value?.sakkas.length! - 1;
+});
+const last_sakka = computed<SakkaI | undefined>(() => {
+  return game.value?.sakkas[last_sakka_index.value];
+});
 
-const last_sakka_index = game.value?.sakkas.length! - 1;
-const last_sakka = game.value?.sakkas[last_sakka_index];
-const ended_moshtras = last_sakka?.moshtaras.filter((m) => {
-  return m.state == "Ended";
+const ended_moshtras = computed(() => {
+  return last_sakka.value?.moshtaras.filter((m) => {
+    return m.state == "Ended";
+  });
 });
 const scoreMount = () => {
   console.log("start score mount ")
   const t1 = gsap.timeline();
-  t1.delay(1.5);
+  t1.delay(2);
   t1.fromTo([team1wrapper.value, team2wrapper.value,score.value],{opacity:0}, {
     duration: 2,
     opacity: 1,
@@ -100,7 +94,7 @@ const scoreMount = () => {
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
   t2.to([team1wrapper.value, team2wrapper.value, score.value], {
-    duration: 1.5,
+    duration: .3,
     opacity: 0,
     ease: "linear",
   });
@@ -109,37 +103,27 @@ const scoreUnMount = () => {
 onMounted(() => {
   watchEffect(async () => {
     if (snapshot.value.matches("detail.intro")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = intro_start_sec;
-        mediaElm.value.play();
+      if (svgQydha.value) {
+        svgQydha.value.enteranimation()
         scoreMount();
-        mediaElm.value.ontimeupdate = () => {
-          if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
-            mediaElm.value.ontimeupdate = null;
-            mediaElm.value.pause();
-            mediaElm.value.currentTime = score_sec;
-            gameService.send({ type: "NEXT" });
-          }
-        };
+      await sleep(4000);
+
+        gameService.send({ type: "NEXT" });
       }
     }
     if (snapshot.value.matches("detail.main")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = score_sec;
-      }
-      await sleep(400);
+   
+      await sleep(2000);
       gameService.send({ type: "TO_OUTRO" });
     }
 
     if (snapshot.value.matches("detail.outro")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = outro_start;
-        mediaElm.value.play();
+      if (svgQydha.value) {
+        svgQydha.value.outAnimation()
         scoreUnMount();
-        mediaElm.value.onended = () => {
-          // mediaElm.value.onended=null;
-          gameService.send({ type: "CHECK_END" });
-        };
+        await sleep(2000);
+        gameService.send({ type: "CHECK_END" });
+
       }
     }
   });

@@ -16,13 +16,13 @@
         </p>
       </transition>
       <p class="left-[2px] score">
-        {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }}
+        {{ newGameFlag ? "0" : tweenedScores.team1 }}
       </p>
     </div>
 
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="-right-[2px] score">
-        {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }}
+        {{ newGameFlag ? "0" : tweenedScores.team2 }}
       </p>
       <transition name="fade" mode="out-in">
         <p :key="game?.themName" class="teamName left-[82px]">

@@ -1,17 +1,14 @@
 <template>
-  <div class="flex justify-center min-w-[325px] bg-transparent">
+ <WinnerSvg />
+ <!-- <div class="flex justify-center min-w-[325px] bg-transparent">
     <div class="relative w-[300px] h-[100px] z-[-5]">
       
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 " />
-          <!-- <div class="absolute top-[65px] left-[6px] w-[287px] bg-gray-500/55 flex justify-around items-center  ">
-      <p class=" text-center w-[116px]">team2</p>
-      <p class="w-[50px] text-center "> 999</p>
-      <p class="w-[50px] text-center " > 999</p>
-      <p class=" text-center w-[110px]" > team1</p>
-          -->
+
       <div
         class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
+          <transition name="fade" mode="out-in">
           <p class="grow mt-[-5px]" :key="game?.themName">
             {{
               game?.themName
@@ -23,15 +20,14 @@
                   game?.themPlayers[1].name
             }}
           </p>
+          </transition>
           <p class="w-[38px] mr-[5px] score">
-            {{
-              !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore
-            }}
+            {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }}
           </p>
         </div>
         <div class="w-1/2 flex items-center" ref="team1wrapper">
           <p class="w-[38px] ml-[4px] score">
-            {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
+            {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }}
           </p>
           <transition name="fade" mode="out-in">
             <p class="grow mt-[-5px]" key="game?.usName">
@@ -47,39 +43,25 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script lang="ts" setup>
-const route = useRoute();
-const platform = ((route.query.platform as string)??'android').toLowerCase()
 const store = useMyGameStore();
 const svgQydha =ref()
+const {sleep} =useSleep()
 import gsap from "gsap";
-const { snapshot, game, sakka_ended } = storeToRefs(store);
+const { snapshot, game, sakka_ended, newGameFlag, game_updated  } = storeToRefs(store);
 
 const { gameService } = store;
-const mediaElm = ref<HTMLVideoElement>();
-
-const intro_start_sec = 0;
-const intro_end_sec = 3;
-const score_sec = 4;
-const outro_start = score_sec;
-
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 
-const videoSrc = ref('/videos/qydha/portrait/Corner_Score.webm');
-
-const checkVideoSupport = () => {
-
-  if (platform == "ios") {
-    videoSrc.value = '/videos/qydha/portrait/Corner_ScoreIPhone.mov'; 
-  }
-  
-};
-
-const scoreMount = () => {
+const tweenedScores = reactive({
+  team1: 0,
+  team2: 0,
+});
+const scoreMount = (score1: number, score2: number) => {
   const t1 = gsap.timeline();
   t1.delay(2);
   t1.fromTo(
@@ -90,13 +72,17 @@ const scoreMount = () => {
       opacity: 1,
       ease: "linear",
     }
-  );
+  ).to(tweenedScores, {
+    team1: score1,
+    team2: score2,
+    duration: 0.75,
+  },"<");
 };
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
   t2.to([team1wrapper.value, team2wrapper.value], {
-    duration: 0.8,
+    duration: 0.3,
     opacity: 0,
     ease: "linear",
   });
@@ -105,26 +91,44 @@ const last_sakka = computed(() => {
   return game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
 });
 
-console.log(game);
-onMounted(async() => {
 
-  watchEffect(() => {
+watch(newGameFlag, (new_value, old_value) => {
+  if (new_value == true) {
+    tweenedScores.team1 = 0;
+    tweenedScores.team2 = 0;
+  }
+});
+
+
+watch(game_updated, (new_value, old_value) => {
+  console.log(game_updated.value);
+  if (game_updated.value == true) {
+    tweenedScores.team1 = last_sakka.value!.usSakkaScore!;
+    tweenedScores.team2 = last_sakka.value!.themSakkaScore!;
+    game_updated.value = false;
+  }
+});
+
+console.log(game);
+onMounted(() => {
+  watchEffect(async() => {
     if (snapshot.value.matches("score.intro")) {
       if (svgQydha.value) {
         svgQydha.value.enteranimation()
-        scoreMount();
+        scoreMount( last_sakka.value!.usSakkaScore!,
+        last_sakka.value!.themSakkaScore!);
         gameService.send({ type: "NEXT" });
         
       }
     }
     if (snapshot.value.matches("score.main")) {
-      
     }
 
     if (snapshot.value.matches("score.outro")) {
-      if (mediaElm.value) {
+      if (svgQydha.value) {
         scoreUnMount();
         svgQydha.value!.outAnimation()
+        await sleep(2000)
         gameService.send({ type: "NEXT" });
         
       }
