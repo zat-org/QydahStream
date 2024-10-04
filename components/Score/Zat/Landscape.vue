@@ -123,12 +123,14 @@ watch(game_updated, (new_value, old_value) => {
   }
 })
 
+
 onMounted(async () => {
   watchEffect(async () => {
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
+     
         scoreMount(last_sakka.value!.usSakkaScore!, last_sakka.value!.themSakkaScore!);
         await sleep(intro_end_sec * 1000);
         mediaElm.value.pause();

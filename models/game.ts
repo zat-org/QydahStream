@@ -12,8 +12,8 @@ export interface SakkaI{
   state: string;
   isMashdoda: false;
   winner: null | string;
-  usSakkaScore: number;
   themSakkaScore: number;
+  usSakkaScore: number;
 }
 
 

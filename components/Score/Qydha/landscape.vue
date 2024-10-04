@@ -16,13 +16,13 @@
         </p>
       </transition>
       <p class="left-[2px] score">
-        {{ newGameFlag ? "0" : tweenedScores.team1 }}
+        {{ newGameFlag ? "0" : tweenedScores.team1.toFixed() }}
       </p>
     </div>
 
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="-right-[2px] score">
-        {{ newGameFlag ? "0" : tweenedScores.team2 }}
+        {{ newGameFlag ? "0" : tweenedScores.team2.toFixed() }}
       </p>
       <transition name="fade" mode="out-in">
         <p :key="game?.themName" class="teamName left-[82px]">
@@ -101,7 +101,7 @@ watch(game_updated, (new_value, old_value) => {
     game_updated.value = false;
   }
 });
-
+console.log(game.value)
 onMounted(() => {
   watchEffect(async () => {
     if (snapshot.value.matches("score.intro")) {
