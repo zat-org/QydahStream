@@ -72,9 +72,17 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           }
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("score")) {
+          
+          if (events.includes("NamesChanged") ) {
+            game.value = newGame.value
+            game.value = newGame.value
+  
+          }
+
           if (newGameEvent) {
             game.value = newGame.value;
-          } else if (events.includes("ScoreIncreased")) {
+          } 
+          else if (events.includes("ScoreIncreased")) {
             gameService.send({ type: "TO_OUTRO" });
             game.value = newGame.value;
           } else if (
@@ -94,12 +102,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           }
         }
 
-        if (events.includes("NamesChanged") ) {
-          game.value = newGame.value
-          game.value = newGame.value
-
-        }
-
+   
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
         }
