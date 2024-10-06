@@ -11,7 +11,7 @@ import { storeToRefs } from "pinia";
 const route = useRoute();
 const router = useRouter();
 
-const platform = ref("android");
+
 const theme = ref("zat");
 const orienation = ref("landscape");
 
@@ -31,21 +31,12 @@ if (
     : "landscape";}
 
     
-if (
-  route.query.platform &&
-  ((route.query.platform as string).toLowerCase()== "android" ||
-    (route.query.platform as string).toLowerCase() == "ios")
-)
-{
-  platform.value = route.query.platform
-    ? (route.query.platform as string).toLowerCase()
-    : "android";
-}
+
 
 
 router.push({
   path: "",
-  query: { theme: theme.value, orienation: orienation.value,platform:platform.value },
+  query: { theme: theme.value, orienation: orienation.value},
 });
 
 const game = useMyGameStore();

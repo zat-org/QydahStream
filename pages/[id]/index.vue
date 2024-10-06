@@ -120,7 +120,7 @@ const { snapshot } = storeToRefs(game);
 <style>
 .fade-enter-active,
 .fade-leave-active {
-  @apply transition-opacity duration-[1s] ease-[ease];
+  @apply transition-opacity duration-[2s] ease-[ease];
 }
 .fade-enter-from, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
   @apply opacity-0;
