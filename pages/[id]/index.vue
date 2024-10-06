@@ -16,19 +16,19 @@
 </template>
 
 <script lang="ts" setup>
-import ScoreZatLandscape from "../components/Score/Zat/Landscape.vue";
-import DetailZatLandscape from "../components/Detail/Zat/landscape.vue";
-import WinnerZatLandscape from "../components/winner/Zat/landscape.vue";
+import ScoreZatLandscape from "../../components/Score/Zat/Landscape.vue";
+import DetailZatLandscape from "../../components/Detail/Zat/landscape.vue";
+import WinnerZatLandscape from "../../components/winner/Zat/landscape.vue";
 
-import ScoreQydhaLandscape from "../components/Score/Qydha/landscape.vue";
-import DetailQydhaLandscape from "../components/Detail/Qydha/landscape.vue";
-import WinnerQydhaLandscape from "../components/winner/Qydha/landscape.vue";
+import ScoreQydhaLandscape from "../../components/Score/Qydha/landscape.vue";
+import DetailQydhaLandscape from "../../components/Detail/Qydha/landscape.vue";
+import WinnerQydhaLandscape from "../../components/winner/Qydha/landscape.vue";
 
-import ScoreQydhaPortrait from "../components/Score/Qydha/portrait.vue";
-import ScoreQydhaPortraitsvg from "../components/Score/Qydha/portraitsvg.vue";
+import ScoreQydhaPortrait from "../../components/Score/Qydha/portrait.vue";
+import ScoreQydhaPortraitsvg from "../../components/Score/Qydha/portraitsvg.vue";
 
-import DetailQydhaPortrait from "../components/Detail/Qydha/portrait.vue";
-import WinnerQydhaPortrait from "../components/winner/Qydha/portrait.vue";
+import DetailQydhaPortrait from "../../components/Detail/Qydha/portrait.vue";
+import WinnerQydhaPortrait from "../../components/winner/Qydha/portrait.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -38,7 +38,7 @@ const table_id =
 console.log(table_id);
 const theme = ref("zat");
 const orienation = ref("landscape");
-const platform = ref("android");
+
 
 if (
   route.query.theme &&
@@ -61,9 +61,7 @@ if (
   ((route.query.platform as string).toLowerCase() == "android" ||
     (route.query.platform as string).toLowerCase() == "ios")
 ) {
-  platform.value = route.query.platform
-    ? (route.query.platform as string).toLowerCase()
-    : "android";
+ 
 }
 
 router.push({
@@ -71,7 +69,6 @@ router.push({
   query: {
     theme: theme.value,
     orienation: orienation.value,
-    platform: platform.value,
   },
 });
 
@@ -108,9 +105,15 @@ const winnerComponent = computed(() => {
   return null;
 });
 
+// const table_id =
+//   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
 const game = useMyGameStore();
-const { gameService, initializeConnection } = game;
+const { gameService, initializeConnection ,connection} = game;
 await initializeConnection(table_id);
+if( (connection.state as string) !="Connected"){
+  await initializeConnection(table_id);
+}
+
 const { snapshot } = storeToRefs(game);
 </script>
 

@@ -2,9 +2,9 @@
   <div class="winner-comp" ref="winnerComp">
     <div class="winner-data" ref="winnerData">
       <div
-        class="relative flex flex-col justify-center items-center gap-4 left-[-200px]">
+        class=" bg-black/10 p-3 rounded-xl w-[365px]  relative flex flex-col justify-center items-center gap-4 left-[-260px]">
         <p class="text-3xl self-end">الفريق الفائز</p>
-        <p class="h-[100px]">
+        <p class="h-[100px] bg-gray-400">
           {{ winner!.name }}
         </p>
       </div>
@@ -110,7 +110,6 @@ onMounted(() => {
     }
     if (snapshot.value.matches("winner.main")) {
       if (mediaElm.value) {
-        await sleep(500);
         scoreUnMount();
         gameService.send({ type: "UPDATE_CONTEXT", ended: false });
         gameService.send({ type: "NEW_GAME" });

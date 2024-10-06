@@ -9,7 +9,7 @@
       width=" 1920"></video>
     <div class="TeamWrap left-[1062px]" ref="team1wrapper">
       <img
-        class="TeamSponsor right-[30px]"
+        class="TeamSponsor right-[0px]"
         :src="'/images/zat/zat_white.svg'" />
       <p class="TeamName left-[84px]">
         {{ game?.usName }}
@@ -30,7 +30,7 @@
         {{ game?.themName }}
       </p>
 
-      <img class="TeamSponsor left-[30px]" :src="'/images/zat/zat_black.svg'" />
+      <img class="TeamSponsor left-[12px]" :src="'/images/zat/zat_black.svg'" />
 
       <div class="TeamDetailedScore right-0">
         <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
@@ -79,7 +79,7 @@ const scoreMount = () => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
-  t2.delay(.5);
+
 
   t2.to([team1wrapper.value, team2wrapper.value], {
     duration: 1,
@@ -152,7 +152,7 @@ onMounted(() => {
 }
 
 .TeamSponsor {
-  @apply absolute w-[66px] h-[62px] top-[13px];
+  @apply absolute w-[110px] h-[100px] top-[-5px];
 }
 
 .TeamDetailedScore {

@@ -94,6 +94,12 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           }
         }
 
+        if (events.includes("NamesChanged") ) {
+          game.value = newGame.value
+          game.value = newGame.value
+
+        }
+
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
         }
