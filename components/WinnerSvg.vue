@@ -1,7 +1,6 @@
 <template>
  
-<svg
-v-pre
+<svg v-pre
    version="1.1"
    id="svg2"
    xml:space="preserve"
