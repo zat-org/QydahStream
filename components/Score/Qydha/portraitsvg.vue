@@ -1,6 +1,6 @@
 <template>
- <WinnerSvg />
- <!-- <div class="flex justify-center min-w-[325px] bg-transparent">
+
+ <div class="flex justify-center min-w-[325px] bg-transparent">
     <div class="relative w-[300px] h-[100px] z-[-5]">
       
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 " />
@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-  </div> -->
+  </div> 
 </template>
 
 <script lang="ts" setup>

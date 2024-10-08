@@ -7,27 +7,22 @@
     </div>
     <div class="absolute h-[1080px] w-[1920px] flex justify-center gap-5 items-center">
       <div class=" relative ">
-        <div class=" absolute  w-[186px] h-[200px]  left-[34px] top-[-85px] rotate-[15deg] z-[-2]  ">
+        <div class=" absolute  w-[178px] h-[200px]  left-[34px] top-[-80px] rotate-[15deg] z-[-2]  ">
           <img
+               class="h-[250px]"
             :src=" winner!.players && winner!.players[0].url   ?winner!.players[0].url  : '/images/u1.jpg'"
-            id="image1"
-            ref="winnerImages"
-            class="image"
-            :width="186"
-            :height="200" />
+            ref="winnerImages"   
+            />
   
   
         </div>
-        <div class="absolute  w-[186px] h-[200px] left-[-220px]  top-[-85px] rotate-[-15deg]  z-[-2] ">
+        <div class="absolute  w-[185px] h-[400px] left-[-190px]  top-[-80px] rotate-[-15deg]  z-[-2] ">
           <img
+          class="h-[250px]"
             :src=" winner!.players && winner!.players[1].url  ?winner!.players[1].url  : '/images/u2.jpg'"
-            id="image2"
             ref="winnerImages"
-            class="image"
-            :width="186"
-            :height="200" />
-  
-  
+          />
+
         </div> 
       </div>
     </div>
@@ -65,7 +60,7 @@ const scoreMount = () => {
   t1.delay(1)
   t1.fromTo([winnerData.value, winnerImages.value],{opacity:0}, {
     duration: 0.75,
-    opacity: 1.5,
+    opacity: 1,
     ease: "linear",
   });
 };

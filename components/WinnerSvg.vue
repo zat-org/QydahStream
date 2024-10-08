@@ -1,10 +1,11 @@
 <template>
  
 <svg
+v-pre
    version="1.1"
    id="svg2"
    xml:space="preserve"
-   width="250"
+   width="400"
    height="300"
    viewBox="0 0 1295.6782 1035.5426"
    sodipodi:docname="Qydha Winner Layers (1).svg"
@@ -4545,7 +4546,8 @@
        clipPathUnits="userSpaceOnUse"
        id="clipPath4496"><path
          d="M 0,1080 H 1920 V 0 H 0 Z"
-         id="path4494" /></clipPath></defs><sodipodi:namedview
+         id="path4494" /></clipPath></defs>
+         <!-- <sodipodi:namedview
      id="namedview4"
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -4563,7 +4565,8 @@
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g8" /><g
+     inkscape:current-layer="g8" /> -->
+     <g
      id="g8"
      inkscape:groupmode="layer"
      inkscape:label="be2771951d18a91e0bc17441fe2d489e"
@@ -5705,15 +5708,16 @@ const enterAnimation = () => {
   .to(".Name",{opacity:1 ,duration:.5},"<")
   .fromTo(".RightImage",{opacity:1 ,rotation:15 ,x:-190,transformOrigin:"center center"},{rotation:0,x:0,duartion:1},"<")
   .fromTo(".LeftImage",{opacity:1 ,rotation:-15,x:190 ,transformOrigin:"center center"},{rotation:0,x:0,duration:1},"<")
-  .fromTo(".One",{opacity:1,scaleX:0 ,transformOrigin:"center bottom"},{scaleX:1,duration:1 })
+  .fromTo(".One",{opacity:1,scaleY:0 ,transformOrigin:"center top"},{scaleY:1,duration:1 })
+  .to(".LeftArt",{opacity:1 ,duration:1},">")
+  .to(".RightArt",{opacity:1 ,duration:1},"<")
+
 }
 const leaveAnimation = () => {
+  t1.timeScale(2)
   t1.reverse()
 }
-onMounted(() => {
 
-  enterAnimation()
-})
 defineExpose({
   enterAnimation, leaveAnimation
 })

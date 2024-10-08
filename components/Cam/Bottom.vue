@@ -84,4 +84,6 @@ console.log("right", right.value)
 
 </script>
 
-<style></style>
+<style>
+
+</style>

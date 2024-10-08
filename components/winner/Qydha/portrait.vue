@@ -1,76 +1,59 @@
 <template>
   <div class="winner-comp  h-[300] w-[400px]" ref="winnerComp">
-    <div  class="absolute w-[400px] h-[300px] flex justify-center  items-center top-[160px]  z-[10] " id="winner-data" ref="winnerData">
+    <div  class="absolute w-[400px] h-[300px] flex justify-center  items-center top-[105px]  z-[10] " id="winner-data" ref="winnerData">
       <p id="winner-name">
         {{ winner!.name }}
       </p>
     </div>
-    <div class="absolute h-[1080px] w-[1920px] flex justify-center gap-5 items-center">
+    <div class="absolute h-[300px] w-[400px] flex justify-center gap-5 items-center">
       <div class=" relative     ">
-        <div class=" absolute  w-[186px] h-[200px]  left-[34px] top-[-85px] rotate-[15deg] z-[-2]  ">
+        <div class=" absolute  w-[120px] h-[100px]  left-[20px] top-[-45px] rotate-[15deg] z-[-2]  ">
           <img
             :src=" winner!.players && winner!.players[0].url   ?winner!.players[0].url  : '/images/u1.jpg'"
-            id="image1"
-            ref="winnerImages"
-            class="image"
-            :width="186"
-            :height="200" />
+           class="h-[150px]"
+            ref="image1"
+         
+           />
   
   
         </div>
-        <div class="absolute  w-[186px] h-[200px] left-[-220px]  top-[-85px] rotate-[-15deg]  z-[-2] ">
+        <div class="absolute  w-[117px] h-[100px] left-[-140px]  top-[-45px] rotate-[-15deg]  z-[-2] ">
           <img
+          class="h-[150px]"
             :src=" winner!.players && winner!.players[1].url  ?winner!.players[1].url  : '/images/u2.jpg'"
-            id="image2"
-            ref="winnerImages"
-            class="image"
-            :width="186"
-            :height="200" />
+          
+            ref="image2"
+          />
   
   
         </div> 
       </div>
     </div>
    
-    <video
-      ref="mediaElm"
-      class="video-elm"
-      muted
-      src="/videos/qydha/portrait/Winner.webm"
-      height="300"
-      width="400"></video>
+    <WinnerSvg ref="Winnersvg"/>
   </div>
 </template>
 
 <script lang="ts" setup>
 
-const route =useRoute()
-
-const theme =ref()
-const orientaion = ref()
-
-theme.value =route.query.theme
-orientaion.value =route.query.orienation  
 
 
 const store = useMyGameStore();
 import gsap from "gsap";
 const { snapshot, game } = storeToRefs(store);
 const { gameService } = store;
-const mediaElm = ref<HTMLVideoElement>();
 
-const intro_start_sec = 0;
-const intro_end_sec = 5;
-const score_sec = intro_end_sec;
-const outro_start = score_sec;
+const Winnersvg =ref() 
 const winnerData = ref(null);
-const winnerImages = ref(null);
+const image2= ref(null);
+const image1= ref(null);
+
 const winnerComp = ref(null);
 
 const scoreMount = () => {
   const t1 = gsap.timeline();
   t1.delay(1)
-  t1.fromTo([winnerData.value, winnerImages.value],{opacity:0}, {
+  t1.fromTo([winnerData.value, image1.value,image2.value],{opacity:0}, {
     duration: 0.75,
     opacity: 2,
     ease: "linear",
@@ -80,7 +63,7 @@ const scoreMount = () => {
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
   t2.to([winnerComp.value], {
-    duration: 3,
+    duration: 1,
     opacity: 0,
     ease: "linear",
   });
@@ -109,39 +92,30 @@ onMounted(() => {
   watchEffect(async () => {
     console.log(snapshot);
     if (snapshot.value.matches("winner.intro")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = intro_start_sec;
+      if (Winnersvg.value) {
         scoreMount();
-        mediaElm.value.play();
-        mediaElm.value.ontimeupdate = () => {
-          if (mediaElm.value && mediaElm.value?.currentTime! >= intro_end_sec) {
-            mediaElm.value.ontimeupdate = null;
-            mediaElm.value.currentTime = score_sec;
-            mediaElm.value.pause();
-            gameService.send({ type: "NEXT" });
-          }
-        };
+        Winnersvg.value.enterAnimation()
+
+        await sleep(5000);
+        gameService.send({ type: "NEXT" });
+      
       }
     }
     if (snapshot.value.matches("winner.main")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = score_sec;
-        await sleep(250);
-        gameService.send({ type: "NEW_GAME" });
+      if (Winnersvg.value) {
+        Winnersvg.value.leaveAnimation()
         scoreUnMount();
+        await sleep(1500);
+        gameService.send({ type: "NEW_GAME" });
       }
     }
   });
 });
 </script>
 <style scoped>
-/*
-  Based on TailwindCSS recommendations,
-  consider using classes instead of the `@apply` directive
-  @see https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction
-*/
+
 .winner-comp {
-  @apply relative;
+  @apply relative mx-auto mt-[50px];
 }
 .video-elm {
   @apply relative z-[-1] left-0 top-0;
