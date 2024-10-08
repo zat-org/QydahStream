@@ -9,7 +9,38 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss", "nuxt-vuefire", '@pinia/nuxt', "nuxt-svgo"],
   svgo: {
     autoImportPath: './assets/SVG/',
-       defaultImport: 'component'
+       defaultImport: 'component',
+       svgo:false,
+       svgoConfig: {
+       plugins: [
+        {
+          name: "prefixIds",
+          params: {
+            delim: "__",
+            prefixIds: false,
+            prefixClassNames: false
+          }
+        },
+        {
+          name: "removeHiddenElems",
+          params: {
+            isHidden: false,
+            displayNone: false,
+            opacity0: false,
+            circleR0: false,
+            ellipseRX0: false,
+            ellipseRY0: false,
+            rectWidth0: false,
+            rectHeight0: false,
+            patternWidth0: false,
+            patternHeight0: false,
+            imageWidth0: false,
+            imageHeight0: false,
+            pathEmptyD: false,
+            polylineEmptyPoints: false,
+            polygonEmptyPoints: false
+          }}
+      ]}
   },
   vuefire: {
     config: {
