@@ -314,9 +314,9 @@ import SVGScore from '~/public/SVG/score.svg?component'
 const t1 = gsap.timeline();
 const shapes = [".Shape4", ".Shape3", ".Shape2", ".Shape1"];
  const enteranimation = () => {
-  t1.fromTo(".Logo", { y: 30 }, { y: 0, opacity: 1, duration: .5 })
-    .fromTo (".Bar",{opacity:1 ,scaleY:0,transformOrigin: "bottom center" },{scaleY:1 ,duration:.5},"-=.2")
-    .to(shapes, { opacity: 1, stagger: 0.1 },"<" )
+  t1.fromTo(".Logo", {opacity:0, y: 30 }, { y: 0, opacity: 1, duration: .5 })
+    .fromTo (".Bar",{opacity:0 ,scaleY:0,transformOrigin: "bottom center" },{opacity:1 ,scaleY:1 ,duration:.5},"-=.2")
+    .fromTo(shapes, {opacity: 0},{ opacity: 1, stagger: 0.1 },"<" )
     .fromTo(".RightArm .Orange", { scaleX: 0,opacity: 1 }, {scaleX: 1, duration: 1 },">")
     .fromTo(
       ".LeftArm .Orange",

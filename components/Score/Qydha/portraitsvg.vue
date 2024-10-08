@@ -128,7 +128,7 @@ onMounted(() => {
       if (svgQydha.value) {
         scoreUnMount();
         svgQydha.value!.outAnimation()
-        await sleep(2000)
+        await sleep(3000)
         gameService.send({ type: "NEXT" });
         
       }
