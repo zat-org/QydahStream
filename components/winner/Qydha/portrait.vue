@@ -30,7 +30,7 @@
       </div>
     </div>
    
-    <WinnerSvg ref="Winnersvg" v-pre />
+    <WinnerSvg ref="Winnersvg"  />
   </div>
 </template>
 
