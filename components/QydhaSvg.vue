@@ -1,6 +1,6 @@
 <template >
 
-<svg v-pre
+<svg 
       version="1.1"
       id="svg2"
       width="300"
