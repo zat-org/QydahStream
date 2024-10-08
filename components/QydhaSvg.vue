@@ -16,7 +16,7 @@ const {sleep} =useSleep()
 //   console.log(`X: ${x}, Y: ${y}`);
 // });
 
-import SVGScore from '~/assets/SVG/score.svg?skipsvgo' 
+import SVGScore from '~/public/SVG/score.svg?skipsvgo' 
 const t1 = gsap.timeline();
 const shapes = [".Shape4", ".Shape3", ".Shape2", ".Shape1"];
  const enteranimation = () => {
