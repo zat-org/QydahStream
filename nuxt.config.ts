@@ -6,8 +6,11 @@ export default defineNuxtConfig({
     enabled: false,
   },
   ssr: false,
-  modules: ["@nuxtjs/tailwindcss", "nuxt-vuefire",'@pinia/nuxt'],
-
+  modules: ["@nuxtjs/tailwindcss", "nuxt-vuefire", '@pinia/nuxt', "nuxt-svgo"],
+  svgo: {
+    autoImportPath: './assets/SVG/',
+       defaultImport: 'component'
+  },
   vuefire: {
     config: {
       apiKey: "AIzaSyDxy9R-o8te_2MAqKvZZpS5l-PUS3Y7_FM",
@@ -28,11 +31,11 @@ export default defineNuxtConfig({
       ],
     },
   },
-  vite: 
-  {
-    plugins: [
-      svgLoader()
-  ]
+  // vite: 
+  // {
+  //   plugins: [
+  //     svgLoader()
+  // ]
  
   //   optimizeDeps: {
   //   exclude: ['gsap']
@@ -40,5 +43,5 @@ export default defineNuxtConfig({
   //   build: {
   //     minify: false
   //   }
-  }
+  // }
 });
