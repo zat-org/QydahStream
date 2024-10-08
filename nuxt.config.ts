@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import svgLoader from 'vite-svg-loader'
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: {
@@ -29,12 +30,15 @@ export default defineNuxtConfig({
   },
   vite: 
   {
+    plugins: [
+      svgLoader()
+  ]
  
-    optimizeDeps: {
-    exclude: ['gsap']
-  },
-    build: {
-      minify: false
-    }
+  //   optimizeDeps: {
+  //   exclude: ['gsap']
+  // },
+  //   build: {
+  //     minify: false
+  //   }
   }
 });

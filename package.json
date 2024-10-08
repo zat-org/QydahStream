@@ -19,6 +19,7 @@
     "nuxt": "^3.13.0",
     "nuxt-vuefire": "^1.0.4",
     "pinia": "^2.2.2",
+    "vite-svg-loader": "^5.1.0",
     "vue": "latest",
     "vue-router": "latest",
     "xstate": "^5.18.1"
