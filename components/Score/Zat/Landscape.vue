@@ -1,24 +1,16 @@
 <template>
   <div>
-    <video
-      ref="mediaElm"
-      class="video"
-      muted
-      height="1080"
-      width="1920"
-      :src="'/videos/zat/Corner_Score.webm'"></video>
+    <video ref="mediaElm" class="video" muted height="1080" width="1920" :src="'/videos/zat/Corner_Score.webm'"></video>
     <div class="left-[976px] teamWrap" ref="team1wrapper">
-      <img
-        :src="'/images/zat/zat_white.svg'"
-        class="SponsorImage left-[254px]" />
+      <img :src="'/images/zat/zat_white.svg'" class="SponsorImage left-[254px]" />
       <transition name="fade" mode="out-in">
         <p :key="game?.usName" class="left-14 teamName">
           {{
             game?.usName
               ? game?.usName
               : game?.usPlayers.length == 0
-              ? "لنا"
-              : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
+                ? "لنا"
+                : game?.usPlayers[0].name + " | " + game?.usPlayers[1].name
           }}
         </p>
       </transition>
@@ -39,8 +31,8 @@
             game?.themName
               ? game?.themName
               : game?.themPlayers.length == 0
-              ? "لهم"
-              : game?.themPlayers[0].name + "  |   " + game?.themPlayers[1].name
+                ? "لهم"
+                : game?.themPlayers[0].name + " | " + game?.themPlayers[1].name
           }}
         </p>
       </transition>
@@ -53,12 +45,14 @@
 <script lang="ts" setup>
 
 
-const store = useMyGameStore();
 import gsap from "gsap";
+
+
+const store = useMyGameStore();
 const { snapshot, game, sakka_ended, newGameFlag, game_updated } =
   storeToRefs(store);
-
 const { gameService } = store;
+
 const mediaElm = ref<HTMLVideoElement>();
 const { sleep } = useSleep();
 const intro_start_sec = 0;
@@ -100,7 +94,8 @@ const scoreUnMount = () => {
     ease: "linear",
   });
 };
-let last_sakka =computed(()=>{
+let last_sakka = computed(() => {
+  console.log(game.value)
   return game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
 
 })
@@ -119,7 +114,7 @@ watch(game_updated, (new_value, old_value) => {
       last_sakka.value!.usSakkaScore!;
     tweenedScores.team2 =
       last_sakka.value!.themSakkaScore!;
-      game_updated.value = false;
+    game_updated.value = false;
   }
 })
 
@@ -130,7 +125,7 @@ onMounted(async () => {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
-     
+
         scoreMount(last_sakka.value!.usSakkaScore!, last_sakka.value!.themSakkaScore!);
         await sleep(intro_end_sec * 1000);
         mediaElm.value.pause();
@@ -165,7 +160,12 @@ onMounted(async () => {
 .fade-leave-active {
   @apply transition-opacity duration-[1s] ease-[ease];
 }
-.fade-enter-from, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+
+.fade-enter-from,
+.fade-leave-to
+
+/* .fade-leave-active in <2.1.8 */
+  {
   @apply opacity-0;
 }
 
@@ -175,7 +175,7 @@ onMounted(async () => {
 }
 
 .teamName {
-  @apply absolute w-[185px]  text-[1.75rem] h-[40px] flex justify-center items-center top-1.5;
+  @apply absolute w-[185px] text-[1.75rem] h-[40px] flex justify-center items-center top-1.5;
 }
 
 .teamWrap {
@@ -189,6 +189,7 @@ onMounted(async () => {
 .wrapcomp {
   @apply relative h-screen w-screen;
 }
+
 .SponsorImage {
   @apply absolute w-[71px] h-[65px] -top-[5px] box-border overflow-hidden;
 }

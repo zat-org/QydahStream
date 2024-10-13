@@ -153,7 +153,7 @@ onMounted(() => {
 }
 
 .teamName {
-  @apply absolute w-[185px]   text-[1.75rem] h-[40px] flex justify-center items-center top-1.5;
+  @apply absolute w-[185px]   text-[1.5rem] h-[40px] flex justify-center items-center top-1.5;
 }
 
 .teamWrap {
