@@ -33,7 +33,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   });
 
   const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://sam-baloot-admin.online/dev/baloot-games-hub", {
+    .withUrl("https://sam-baloot-admin.online/qydha/baloot-games-hub", {
       withCredentials: true,
     })
     .build();
@@ -58,7 +58,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       console.log(error);
     }
 
-    connection.on(
+    connection.on(  
       "BalootGameStateChanged",
       (eventName: string, gameData: string) => {
         newGameFlag.value = false;
