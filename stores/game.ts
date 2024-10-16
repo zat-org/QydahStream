@@ -46,15 +46,17 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       const player_table_id =  route.params.id?.toString() 
       const table_id = route.params.table_id?.toString()
       const tour_id = route.params.tour_id?.toString()
-      console.log(player_table_id,table_id,tour_id)
+
+      console.log(table_id && tour_id)
+
       if (table_id && tour_id) {
       gameString.value = await connection.invoke("AddToTournamentTableGroup",+tour_id , +table_id);
       }else{
-        gameString.value = await connection.invoke("AddToBoardGroup", +player_table_id);
+        console.log("connection to addn to board group ")
+        gameString.value = await connection.invoke("AddToBoardGroup", player_table_id);
       }
 
       game.value = JSON.parse(gameString.value);
-      console.log(game.value)
     } catch (error) {
       console.log(error);
     }
