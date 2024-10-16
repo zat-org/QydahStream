@@ -16,7 +16,7 @@ const table_id =
 const game = useMyGameStore();
 const { gameService, initializeConnection, connection } = game;
 if ((connection.state as string) != "Connected") {
-  await initializeConnection(table_id);
+  await initializeConnection();
 }
 
 // Allowed positions
