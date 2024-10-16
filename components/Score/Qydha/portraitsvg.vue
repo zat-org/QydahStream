@@ -1,11 +1,11 @@
 <template>
 
- <div class="flex justify-center w-full bg-red-500 ">
+ <div class="flex justify-center w-full h-screen relative bg-red-500 ">
     <div class="relative w-[300px] h-[100px]    ">
     <!-- <div class="relative w-[300px] h-[100px] z-[-5] top-[-19px]"> -->
 
 
-      <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 bg-red-5500 " />
+      <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 bg-red-500 " />
 
       <div
         class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
@@ -45,6 +45,11 @@
         </div>
       </div>
     </div>
+
+    <div class="absolute left-0 top-[50%] p-5 bg-green-500 "></div>
+    <div class="absolute right-0 top-[50%] p-5 bg-green-500 "></div>
+    <div class="absolute left-[50%] bottom-0 p-5 bg-green-500 "></div>
+
   </div> 
 </template>
 
