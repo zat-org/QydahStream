@@ -45,10 +45,9 @@
       </div>
     </div>
 
-    <div class="absolute   left-0 origin-center " style="top:calc(50% - 50px) " v-if="left && left.url">
+    <div :class="'absolute   left-0 origin-center bg-[url('+left?.url+')]'  " style="top:calc(50% - 50px) " v-if="left && left.url">
       <div class="relative w-[100px] h-[100px]">
         <img class=" absolute z-[10] " src='/images/left-square.svg' />
-        <img :src="left?.url" class=" absolute w-[99px] h-[99px]  rounded-2xl " />
       </div>
     </div>
     <div class="absolute right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url">
