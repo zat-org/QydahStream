@@ -45,21 +45,20 @@
       </div>
     </div>
 
-    <div class="absolute  left-0 origin-center  " :style="{ 'top' : 'calc(50% - 50px)' , }" v-if="left && left.url &&showPlayers" >
-      <div class="relative   bg-center  rounded-xl w-[100px] h-[100px]"  :style="{'background': `url(${left.url}) padding-box` }">
+    <div class="absolute  left-0 origin-center   " :style="{ 'top' : 'calc(50% - 50px)' , }" v-if="left && left.url &&showPlayers" >
+      <div class="relative   bg-center bg-cover  rounded-xl w-[90px] h-[90px]"  :style="{'background': `url(${left.url}) ` }">
         <img class=" absolute z-[10] " src='/images/left-square.svg' />
       </div>
     </div>
     <div class="absolute right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url && showPlayers">
-      <div class="relative bg-center bg-cover rounded-xl  w-[100px] h-[100px]">
+      <div class="relative bg-center bg-cover rounded-xl   w-[90px] h-[90px]"  :style="{'background': `url(${right.url}) ` }">
         <img class=" absolute z-[10]  rotate-180" src='/images/right-square.svg' />
-        <img :src="right?.url" class="absolute w-[99px] h-[99px]  rounded-2xl " />
+       
       </div>
     </div>
-    <div class=" absolute  bottom-0  origin-center " style="left:calc(50% - 32px)" v-if="bottom && bottom.url && showPlayers">
-      <div class="relative w-[100px] h-[100px] bg-center bg-cover rounded-xl">
+    <div class=" absolute  bottom-0  origin-center " style="left:calc(50% - 45px)" v-if="bottom && bottom.url && showPlayers">
+      <div class="relative  bg-center bg-cover rounded-xl  w-[90px] h-[90px]" :style="{'background': `url(${bottom.url}) ` }">
         <img class="absolute   z-[10]  rotate-270" src='/images/bottom-square.svg' />
-        <img :src="bottom?.url" class="absolute w-[99px] h-[99px]  rounded-2xl " />
       </div>
 
     </div>
