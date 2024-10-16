@@ -46,9 +46,9 @@
     </div>
 
     <div class="absolute  left-0 origin-center   " :style="{ 'top' : 'calc(50% - 50px)' , }" v-if="left && left.url &&showPlayers" >
-      <div class="relative   bg-center bg-cover  rounded-xl w-[90px] h-[90px]"  :style="{'background-image': `url(${left.url}) ` }">
-        <img class=" absolute z-[10]  w-[95px] h-[95px] " src='/images/left-square.svg' />
-      </div>
+      <img class=" absolute z-[10] bg-center bg-cover   w-[95px] h-[95px] " src='/images/left-square.svg' :style="{'background-image': `url(${left.url}) ` }"   />
+      <!-- <div class="relative    rounded-xl w-[90px] h-[90px]" >
+      </div> -->
     </div>
     <div class="absolute right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url && showPlayers">
       <div class="relative bg-center bg-cover rounded-xl   w-[90px] h-[90px]"  :style="{'background-image': `url(${right.url}) ` }">
