@@ -1,10 +1,10 @@
 <template>
 
  <div class="flex justify-center w-full bg-red-500 ">
-    <div class="relative w-[300px] h-[100px] z-[-5] ">
+    <div class="relative w-[300px] h-[100px]    ">
     <!-- <div class="relative w-[300px] h-[100px] z-[-5] top-[-19px]"> -->
 
-      
+
       <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 bg-red-5500 " />
 
       <div
