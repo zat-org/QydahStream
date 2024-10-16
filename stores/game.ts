@@ -4,6 +4,7 @@ import type { GameI } from "~/models/game";
 import { interpret } from "xstate";
 export const useMyGameStore = defineStore("myGameStore", () => {
   const gameString = ref("");
+  const config = useRuntimeConfig();
   // const game = computed<GameI | null>(() => {
   //   if (gameString.value === "") return null;
   //   return JSON.parse(gameString.value);
@@ -33,7 +34,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   });
 
   const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://sam-baloot-admin.online/qydha/baloot-games-hub", {
+    .withUrl(config.public.qydhaapi , {
       withCredentials: true,
     })
     .build();
