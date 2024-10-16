@@ -45,7 +45,7 @@
       </div>
     </div>
 
-    <div :class="'absolute   left-0 origin-center bg-[url('+left?.url+')]'  " style="top:calc(50% - 50px) " v-if="left && left.url">
+    <div :class="'absolute  bg-center bg-cover  left-0 origin-center bg-[url('+left?.url+')]'  " style="top:calc(50% - 50px) " v-if="left && left.url">
       <div class="relative w-[100px] h-[100px]">
         <img class=" absolute z-[10] " src='/images/left-square.svg' />
       </div>
