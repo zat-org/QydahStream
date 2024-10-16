@@ -47,6 +47,7 @@
 
     <div class="relative   left-0    origin-center " style="top:calc(50% - 50px) " v-if="left && left.url">
       <img class="  absolute z-[10]" src='/images/left-square.svg' />
+      
       <img :src="left?.url" class="w-[75px] h-[100px]  rounded-2xl " />
     </div>
     <div class="relative right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url">
