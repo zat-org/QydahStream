@@ -1,9 +1,9 @@
 <template>
 
  <div class="flex justify-center min-w-[325px] bg-transparent">
-    <div class="relative w-[300px] h-[100px] z-[-5]">
+    <div class="relative w-[300px] h-[100px] z-[-5] top-[-19px]">
       
-      <QydhaSvg  ref="svgQydha" class="absolute top-[-5] left-0 " />
+      <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 bg-red-5500 " />
 
       <div
         class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
