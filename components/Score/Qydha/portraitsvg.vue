@@ -48,19 +48,19 @@
     <div class="absolute   left-0 origin-center " style="top:calc(50% - 50px) " v-if="left && left.url">
       <div class="relative w-[100px] h-[100px]">
         <img class=" absolute z-[10] " src='/images/left-square.svg' />
-        <img :src="left?.url" class=" absolute w-[95px] h-[95px]  rounded-2xl " />
+        <img :src="left?.url" class=" absolute w-[99px] h-[99px]  rounded-2xl " />
       </div>
     </div>
     <div class="absolute right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url">
       <div class="relative w-[100px] h-[100px]">
         <img class=" absolute z-[10]  rotate-180" src='/images/right-square.svg' />
-        <img :src="right?.url" class="absolute w-[95px] h-[95px]  rounded-2xl " />
+        <img :src="right?.url" class="absolute w-[99px] h-[99px]  rounded-2xl " />
       </div>
     </div>
     <div class=" absolute  bottom-0  origin-center " style="left:calc(50% - 32px)" v-if="bottom && bottom.url">
       <div class="relative w-[100px] h-[100px]">
         <img class="absolute   z-[10]  rotate-270" src='/images/bottom-square.svg' />
-        <img :src="bottom?.url" class="absolute w-[95px] h-[95px]  rounded-2xl " />
+        <img :src="bottom?.url" class="absolute w-[99px] h-[99px]  rounded-2xl " />
       </div>
 
     </div>
