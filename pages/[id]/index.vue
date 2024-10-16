@@ -38,6 +38,8 @@ const table_id =
 console.log(table_id);
 const theme = ref("zat");
 const orienation = ref("landscape");
+const showPlayers= ref(false);
+
 
 
 if (
@@ -56,12 +58,9 @@ if (
     : "landscape";
 }
 
-if (
-  route.query.platform &&
-  ((route.query.platform as string).toLowerCase() == "android" ||
-    (route.query.platform as string).toLowerCase() == "ios")
-) {
- 
+
+if ( route.query.showPlayers ){
+  showPlayers.value = route.query.showPlayers == "true"?true :false 
 }
 
 router.push({
@@ -69,6 +68,7 @@ router.push({
   query: {
     theme: theme.value,
     orienation: orienation.value,
+    showPlayers:`${showPlayers.value}`
   },
 });
 

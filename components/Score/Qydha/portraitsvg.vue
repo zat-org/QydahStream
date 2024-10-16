@@ -45,19 +45,19 @@
       </div>
     </div>
 
-    <div class="absolute  bg-center bg-cover  left-0 origin-center " :style="{ 'top' : 'calc(50% - 50px)' , 'background-image': `url(${left.url})`}" v-if="left && left.url">
-      <div class="relative w-[100px] h-[100px]">
+    <div class="absolute  left-0 origin-center  " :style="{ 'top' : 'calc(50% - 50px)' , }" v-if="left && left.url &&showPlayers" >
+      <div class="relative   bg-center bg-cover rounded-xl w-[100px] h-[100px]"  :style="{'background-image': `url(${left.url})`}">
         <img class=" absolute z-[10] " src='/images/left-square.svg' />
       </div>
     </div>
-    <div class="absolute right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url">
-      <div class="relative w-[100px] h-[100px]">
+    <div class="absolute right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url && showPlayers">
+      <div class="relative bg-center bg-cover rounded-xl  w-[100px] h-[100px]">
         <img class=" absolute z-[10]  rotate-180" src='/images/right-square.svg' />
         <img :src="right?.url" class="absolute w-[99px] h-[99px]  rounded-2xl " />
       </div>
     </div>
-    <div class=" absolute  bottom-0  origin-center " style="left:calc(50% - 32px)" v-if="bottom && bottom.url">
-      <div class="relative w-[100px] h-[100px]">
+    <div class=" absolute  bottom-0  origin-center " style="left:calc(50% - 32px)" v-if="bottom && bottom.url && showPlayers">
+      <div class="relative w-[100px] h-[100px] bg-center bg-cover rounded-xl">
         <img class="absolute   z-[10]  rotate-270" src='/images/bottom-square.svg' />
         <img :src="bottom?.url" class="absolute w-[99px] h-[99px]  rounded-2xl " />
       </div>
@@ -68,6 +68,11 @@
 </template>
 
 <script lang="ts" setup>
+const route = useRoute()
+let showPlayers  = route.query.showPlayers?.toString() ?? "false"
+showPlayers = JSON.parse(showPlayers)
+console.log(showPlayers)
+
 const store = useMyGameStore();
 const svgQydha = ref()
 const { sleep } = useSleep()
