@@ -1,11 +1,11 @@
 <template>
 
-  <div class="flex justify-center w-full h-screen relative bg-red-500 ">
+  <div class="flex justify-center w-full h-screen relative  ">
     <!-- <div class="relative w-[300px] h-[100px]    "> -->
     <div class="relative w-[300px] h-[100px]   origin-center top-[-20px]">
 
 
-      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 bg-red-500 " />
+      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0  " />
 
       <div class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
