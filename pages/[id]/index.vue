@@ -109,9 +109,9 @@ const winnerComponent = computed(() => {
 //   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
 const game = useMyGameStore();
 const { gameService, initializeConnection ,connection} = game;
-await initializeConnection(table_id);
+await initializeConnection();
 if( (connection.state as string) !="Connected"){
-  await initializeConnection(table_id);
+  await initializeConnection();
 }
 
 const { snapshot } = storeToRefs(game);
