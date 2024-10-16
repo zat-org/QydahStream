@@ -1,27 +1,26 @@
 <template>
 
- <div class="flex justify-center w-full h-screen relative bg-red-500 ">
+  <div class="flex justify-center w-full h-screen relative bg-red-500 ">
     <!-- <div class="relative w-[300px] h-[100px]    "> -->
-    <div class="relative w-[300px] h-[100px]  top-[-24px]">
+    <div class="relative w-[300px] h-[100px]  top-[-20px]">
 
 
-      <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 bg-red-500 " />
+      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 bg-red-500 " />
 
-      <div
-        class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
+      <div class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
           <transition name="fade" mode="out-in">
-          <p class="grow mt-[-5px]" :key="game?.themName">
-            {{
-              game?.themName
-                ? game?.themName
-                : game?.themPlayers.length == 0
-                ? "لهم"
-                : game?.themPlayers[0].name +
-                  "  |   " +
-                  game?.themPlayers[1].name
-            }}
-          </p>
+            <p class="grow mt-[-5px]" :key="game?.themName">
+              {{
+                game?.themName
+                  ? game?.themName
+                  : game?.themPlayers.length == 0
+                    ? "لهم"
+                    : game?.themPlayers[0].name +
+                    " | " +
+                    game?.themPlayers[1].name
+              }}
+            </p>
           </transition>
           <p class="w-[38px] mr-[5px] score">
             {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }}
@@ -37,8 +36,8 @@
                 game?.usName
                   ? game?.usName
                   : game?.usPlayers.length == 0
-                  ? "لنا"
-                  : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
+                    ? "لنا"
+                    : game?.usPlayers[0].name + " | " + game?.usPlayers[1].name
               }}
             </p>
           </transition>
@@ -46,19 +45,27 @@
       </div>
     </div>
 
-    <div class="absolute left-0 top-[50%] p-5 bg-green-500 "></div>
-    <div class="absolute right-0 top-[50%] p-5 bg-green-500 "></div>
-    <div class="absolute left-[45%] bottom-0 p-5 bg-green-500 "></div>
+    <div class="absolute left-0 top-[50%]  origin-center " v-if="left && left.url">
+      <img :src="left?.url" class="w-[140px] h-[187px]  rounded-2xl " />
+    </div>
+    <div class="absolute right-0 top-[50%]  origin-center " v-if="right &&right.url">
+      <img :src="right?.url" class="w-[140px] h-[187px]  rounded-2xl " />
 
-  </div> 
+    </div>
+    <div class="absolute left-[50%] bottom-0  origin-center " v-if="bottom &&bottom.url">
+      <img :src="bottom?.url" class="w-[140px] h-[187px]  rounded-2xl " />
+
+    </div>
+
+  </div>
 </template>
 
 <script lang="ts" setup>
 const store = useMyGameStore();
-const svgQydha =ref()
-const {sleep} =useSleep()
+const svgQydha = ref()
+const { sleep } = useSleep()
 import gsap from "gsap";
-const { snapshot, game, sakka_ended, newGameFlag, game_updated  } = storeToRefs(store);
+const { snapshot, game, sakka_ended, newGameFlag, game_updated } = storeToRefs(store);
 
 const { gameService } = store;
 const team1wrapper = ref(null);
@@ -83,7 +90,7 @@ const scoreMount = (score1: number, score2: number) => {
     team1: score1,
     team2: score2,
     duration: 0.75,
-  },"<");
+  }, "<");
 };
 
 const scoreUnMount = () => {
@@ -118,14 +125,14 @@ watch(game_updated, (new_value, old_value) => {
 
 console.log(game);
 onMounted(() => {
-  watchEffect(async() => {
+  watchEffect(async () => {
     if (snapshot.value.matches("score.intro")) {
       if (svgQydha.value) {
         svgQydha.value.enteranimation()
-        scoreMount( last_sakka.value!.usSakkaScore!,
-        last_sakka.value!.themSakkaScore!);
+        scoreMount(last_sakka.value!.usSakkaScore!,
+          last_sakka.value!.themSakkaScore!);
         gameService.send({ type: "NEXT" });
-        
+
       }
     }
     if (snapshot.value.matches("score.main")) {
@@ -137,28 +144,64 @@ onMounted(() => {
         svgQydha.value!.outAnimation()
         await sleep(3000)
         gameService.send({ type: "NEXT" });
-        
+
       }
     }
   });
 });
+
+const top = computed(() => {
+
+  if (game.value?.themPlayers.length! > 0) {
+    return game.value?.usPlayers[0]
+  }
+  else {
+    return null
+  }
+})
+
+const bottom = computed(() => {
+  if (game.value?.themPlayers.length! > 0) {
+
+    return game.value?.usPlayers[1]
+  } else {
+    return null
+  }
+})
+
+const left = computed(() => {
+  if (game.value?.themPlayers.length! > 0) {
+    return game.value?.themPlayers[1]
+  } else { return null }
+})
+const right = computed(() => {
+  if (game.value?.themPlayers.length! > 0) {
+    return game.value?.themPlayers[0]
+  } else { return null }
+})
+
 </script>
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
   @apply transition-opacity duration-[1s] ease-[ease];
 }
-.fade-enter-from, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+
+.fade-enter-from,
+.fade-leave-to
+
+/* .fade-leave-active in <2.1.8 */
+  {
   @apply opacity-0;
 }
 
 .score {
-  @apply text-slate-700  text-[1rem];
+  @apply text-slate-700 text-[1rem];
   font-family: "CairoSemiBold";
 }
 
 .teamName {
-  @apply absolute w-[85px]   text-[1rem] h-[40px] flex justify-end items-center top-1.5;
+  @apply absolute w-[85px] text-[1rem] h-[40px] flex justify-end items-center top-1.5;
 }
 
 .teamWrap {
