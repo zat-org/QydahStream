@@ -45,10 +45,10 @@
       </div>
     </div>
 
-    <div class="absolute  left-0 origin-center   " :style="{ 'top' : 'calc(50% - 50px)' , }" v-if="left && left.url && showPlayers" >
+    <div class="absolute  left-0 origin-center  w-[95px] h-[95px]    " :style="{ 'top' : 'calc(50% - 50px)' , }" v-if="left && left.url && showPlayers" >
       <div class="relative    rounded-xl "  >
-      <img class=" absolute z-[10] bg-center bg-cover   w-[95px] h-[95px] " :style="{'background-image': `url(${left.url}) ` }"   />
-      <img class=" absolute z-[10]  rotate-180 w-[85px] h-[85px]" src='/images/right-square.svg' />
+      <img class=" absolute z-[10] bg-center bg-cover top-[50%] left[50%]   w-[85px] h-[85px] " :style="{'background-image': `url(${left.url}) ` }"   />
+      <img class=" absolute z-[10]  rotate-180 w-[95px] h-[95px] top-[50%] left-[50%] " src='/images/right-square.svg' />
       
     </div>
     </div>
