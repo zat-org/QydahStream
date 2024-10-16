@@ -46,7 +46,7 @@
     </div>
 
     <div class="absolute  left-0 origin-center  " :style="{ 'top' : 'calc(50% - 50px)' , }" v-if="left && left.url &&showPlayers" >
-      <div class="relative   bg-center bg-cover rounded-xl w-[100px] h-[100px]"  :style="{'background-image': `url(${left.url})`}">
+      <div class="relative   bg-center bg-cover rounded-xl w-[100px] h-[100px]"  :style="{'background': `url(${left.url}) padding-box` }">
         <img class=" absolute z-[10] " src='/images/left-square.svg' />
       </div>
     </div>
