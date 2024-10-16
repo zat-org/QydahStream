@@ -1,8 +1,8 @@
 <template>
 
-  <div class="flex justify-center w-full h-screen relative bg-red-500 ">
+  <div class="flex justify-center w-screen h-screen relative bg-red-500 ">
     <!-- <div class="relative w-[300px] h-[100px]    "> -->
-    <div class="relative w-[300px] h-[100px]  top-[-20px]">
+    <div class="relative w-[300px] h-[100px]  left-[50vw] top-[-20px]">
 
 
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 bg-red-500 " />
