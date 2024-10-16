@@ -1,8 +1,8 @@
 <template>
 
-  <div class="flex justify-center w-screen h-screen relative bg-red-500 ">
+  <div class="flex justify-center w-full h-screen relative bg-red-500 ">
     <!-- <div class="relative w-[300px] h-[100px]    "> -->
-    <div class="relative w-[300px] h-[100px]  left-[50vw] top-[-20px]">
+    <div class="relative w-[300px] h-[100px]   origin-center top-[-20px]">
 
 
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 bg-red-500 " />
@@ -45,14 +45,14 @@
       </div>
     </div>
 
-    <div class="absolut h-full  left-0 top-0 translate-y-[50vh]   origin-center " v-if="left && left.url">
+    <div class="absolute   left-0 top-[calc(50% - 90px)]    origin-center " v-if="left && left.url">
       <img :src="left?.url" class="w-[140px] h-[187px]  rounded-2xl " />
     </div>
-    <div class="absolute h-full right-0 top-0  translate-y-[50vh] origin-center " v-if="right &&right.url">
+    <div class="absolute right-0 top-[calc(50% - 90px)]  origin-center " v-if="right &&right.url">
       <img :src="right?.url" class="w-[140px] h-[187px]  rounded-2xl " />
 
     </div>
-    <div class=" absolute w-full left-0 translate-x-[50vw] bottom-0  origin-center " v-if="bottom &&bottom.url">
+    <div class=" absolute left-[calc(50% - 70px)] bottom-0  origin-center " v-if="bottom &&bottom.url">
       <img :src="bottom?.url" class="w-[140px] h-[187px]  rounded-2xl " />
 
     </div>
