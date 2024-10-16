@@ -45,14 +45,14 @@
       </div>
     </div>
 
-    <div class="absolut h-full e left-0 top-0 translate-y-[50%]   origin-center " v-if="left && left.url">
+    <div class="absolut h-full  left-0 top-0 translate-y-[50vh]   origin-center " v-if="left && left.url">
       <img :src="left?.url" class="w-[140px] h-[187px]  rounded-2xl " />
     </div>
-    <div class="absolute h-full right-0 top-0  translate-y-[550%] origin-center " v-if="right &&right.url">
+    <div class="absolute h-full right-0 top-0  translate-y-[50vh] origin-center " v-if="right &&right.url">
       <img :src="right?.url" class="w-[140px] h-[187px]  rounded-2xl " />
 
     </div>
-    <div class=" absolute w-full left-0 translate-x-[50%] bottom-0  origin-center " v-if="bottom &&bottom.url">
+    <div class=" absolute w-full left-0 translate-x-[50vw] bottom-0  origin-center " v-if="bottom &&bottom.url">
       <img :src="bottom?.url" class="w-[140px] h-[187px]  rounded-2xl " />
 
     </div>
