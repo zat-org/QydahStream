@@ -2,7 +2,7 @@
 
  <div class="flex justify-center w-full h-screen relative bg-red-500 ">
     <!-- <div class="relative w-[300px] h-[100px]    "> -->
-    <div class="relative w-[300px] h-[100px] z-[-5] top-[-24px]">
+    <div class="relative w-[300px] h-[100px]  top-[-24px]">
 
 
       <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 bg-red-500 " />
