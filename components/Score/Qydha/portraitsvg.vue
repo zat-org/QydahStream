@@ -45,14 +45,17 @@
       </div>
     </div>
 
-    <div class="absolute   left-0    origin-center " style="top:calc(50% - 50px) " v-if="left && left.url">
+    <div class="relative   left-0    origin-center " style="top:calc(50% - 50px) " v-if="left && left.url">
+      <img class="  absolute z-[10]" src='/images/left-square.svg' />
       <img :src="left?.url" class="w-[75px] h-[100px]  rounded-2xl " />
     </div>
-    <div class="absolute right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url">
+    <div class="relative right-0   origin-center " style="top:calc(50% - 50px) " v-if="right && right.url">
+      <img class="  absolute z-[10]" src='/images/right-square.svg' />
       <img :src="right?.url" class="w-[75px] h-[100px]  rounded-2xl " />
 
     </div>
-    <div class=" absolute  bottom-0  origin-center " style="left:calc(50% - 25px)" v-if="bottom && bottom.url">
+    <div class=" relative  bottom-0  origin-center " style="left:calc(50% - 32px)" v-if="bottom && bottom.url">
+      <img class="  absolute z-[10]" src='/images/bottom-square.svg' />
       <img :src="bottom?.url" class="w-[75px] h-[100px]  rounded-2xl " />
 
     </div>
