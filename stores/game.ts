@@ -32,7 +32,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       game.value = newGame.value;
     }
   });
-
+  console.log(config.public.qydhaapi)
   const connection = new signalR.HubConnectionBuilder()
     .withUrl(config.public.qydhaapi , {
       withCredentials: true,
