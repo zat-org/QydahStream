@@ -1,16 +1,16 @@
 <template v-if="gameService">
   <div v-show="snapshot.matches('score')">
-    <component :is="scoreComponent" v-if="snapshot.matches('score')" />
+    <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>
 
   <!-- Detail Screen -->
   <div v-show="snapshot.matches('detail')">
-    <component :is="detailComponent" v-if="snapshot.matches('detail')" />
+    <component :is="detailComponent" v-if="snapshot.matches('detail') && game" />
   </div>
 
   <div v-show="snapshot.matches('winner')">
     <transition name="fade" mode="out-in">
-      <component :is="winnerComponent" v-if="snapshot.matches('winner')" />
+      <component :is="winnerComponent" v-if="snapshot.matches('winner') && game " />
     </transition>
   </div>
 </template>
@@ -107,14 +107,14 @@ const winnerComponent = computed(() => {
 
 // const table_id =
 //   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
-const game = useMyGameStore();
-const { gameService, initializeConnection ,connection} = game;
+const gamestore = useMyGameStore();
+const { gameService, initializeConnection ,connection,} = gamestore;
 await initializeConnection();
 if( (connection.state as string) !="Connected"){
   await initializeConnection();
 }
 
-const { snapshot } = storeToRefs(game);
+const { snapshot ,game} = storeToRefs(gamestore);
 </script>
 
 <style>
