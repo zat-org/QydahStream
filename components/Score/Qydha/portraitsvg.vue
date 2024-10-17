@@ -31,7 +31,7 @@
             {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }}
           </p>
           <transition name="fade" mode="out-in">
-            <p class="grow mt-[-5px]" key="game?.usName">
+            <p class="grow mt-[-5px]" :key="game?.usName">
               {{
                 game?.usName
                   ? game?.usName
@@ -44,8 +44,8 @@
         </div>
       </div>
     </div>
-
-    <div class="absolute  left-0   w-[95px] h-[95px]    " :style="{ 'top': 'calc(50% - 50px)', }"
+    <transition name="fade" mode="out-in">
+    <div class="absolute  left-0   w-[95px] h-[95px]" :key="left.url" :style="{ 'top': 'calc(50% - 50px)', }"
       v-if="left && left.url && showPlayers">
       <div class="relative    w-full h-full ">
         <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[5px] left-[5px] "
@@ -54,16 +54,19 @@
 
       </div>
     </div>
-    <div class="absolute right-0  w-[95px] h-[95px]  origin-center " style="top:calc(50% - 50px) "
+    </transition>
+    <transition name="fade" mode="out-in">
+    <div class="absolute right-0  w-[95px] h-[95px]  origin-center "  :key="right.url"  style="top:calc(50% - 50px) "
       v-if="right && right.url && showPlayers">
       <div class="relative    w-full h-full">
         <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[5px] left-[5px] "
           :style="{ 'background-image': `url(${right.url}) ` }" />
         <img class=" absolute z-[10]  rotate-180 w-full h-full " src='/images/right-square.svg' />
-
       </div>
     </div>
-    <div class=" absolute  bottom-0  w-[95px] h-[95px] origin-center " style="left:calc(50% - 45px)"
+    </transition>
+    <transition name="fade" mode="out-in">
+    <div class=" absolute  bottom-0  w-[95px] h-[95px] origin-center " :key="left.url" style="left:calc(50% - 45px)"
       v-if="bottom && bottom.url && showPlayers">
       <div class="relative   rounded-xl  w-full  h-full">
         <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[5px] left-[5px] "
@@ -71,9 +74,8 @@
 
         <img class="absolute   z-[10]  rotate-270 w-full h-full" src='/images/bottom-square.svg' />
       </div>
-
     </div>
-
+</transition>
   </div>
 </template>
 
