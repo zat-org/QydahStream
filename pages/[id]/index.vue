@@ -105,8 +105,7 @@ const winnerComponent = computed(() => {
   return null;
 });
 
-// const table_id =
-//   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
+
 const gamestore = useMyGameStore();
 const { gameService, initializeConnection ,connection,} = gamestore;
 await initializeConnection();

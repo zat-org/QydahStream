@@ -310,7 +310,6 @@ const svg=ref(`<svg
 
     
 `)
-import SVGScore from '~/public/SVG/score.svg?component' 
 const t1 = gsap.timeline();
 const shapes = [".Shape4", ".Shape3", ".Shape2", ".Shape1"];
  const enteranimation = () => {

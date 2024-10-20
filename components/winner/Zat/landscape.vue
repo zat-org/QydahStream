@@ -79,13 +79,13 @@ const winner = computed(() => {
   if (game?.value?.winner) {
     console.log(game?.value?.winner);
     if (game.value.winner == "Us") {
-      console.log(game.value.usPlayers);
+
       return {
         players: game.value.usPlayers.length > 0 ? game.value.usPlayers : null,
         name: game.value.usName,
       };
     } else {
-      console.log(game.value.themPlayers);
+
       return {
         players:
           game.value.themPlayers.length > 0 ? game.value.themPlayers : null,
