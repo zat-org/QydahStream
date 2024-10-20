@@ -110,7 +110,9 @@ export const useMyGameStore = defineStore("myGameStore", () => {
                 // game.value = newGame.value;
               }
         }
+        else if (!snapshot.value.matches("score") && !snapshot.value.matches("score") && !snapshot.value.matches("score")){
 
+        }
 
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
