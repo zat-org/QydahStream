@@ -5,10 +5,7 @@ import { interpret } from "xstate";
 export const useMyGameStore = defineStore("myGameStore", () => {
   const gameString = ref("");
   const config = useRuntimeConfig();
-  // const game = computed<GameI | null>(() => {
-  //   if (gameString.value === "") return null;
-  //   return JSON.parse(gameString.value);
-  // });
+
   const sakka_ended = ref(false);
   const newGameFlag = ref(false);
   const game_updated = ref(false);
@@ -16,12 +13,10 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   const game = ref<GameI>()!;
   const newGame = ref<GameI>()!;
   const { gameMachine } = useNashraMachine();
-  // const { send, snapshot } = useMachine(gameMachine);
   const gameService = interpret(gameMachine).start();
   const snapshot = ref(gameService.getSnapshot());
   gameService.subscribe((state) => {
     snapshot.value = state;
-
     if (
       snapshot.value.matches("score") &&
       newGame.value &&
@@ -87,12 +82,12 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           
           if (events.includes("NamesChanged") ) {
             game.value = newGame.value
-            game.value = newGame.value
-  
+
           }
 
           if (newGameEvent) {
-            game.value = newGame.value;
+
+            // game.value = newGame.value;
           } 
           else if (events.includes("ScoreIncreased")) {
             gameService.send({ type: "TO_OUTRO" });
