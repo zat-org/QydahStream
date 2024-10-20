@@ -29,7 +29,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   });
 
   const connection = new signalR.HubConnectionBuilder()
-    .withUrl(config.public.qydhaapi , {
+    .withUrl(config.public.qydhaapi, {
       withCredentials: true,
     })
     .build();
@@ -37,15 +37,15 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   async function initializeConnection() {
     try {
       await connection.start();
-      const route =useRoute()
-      const player_table_id =  route.params.id?.toString() 
+      const route = useRoute()
+      const player_table_id = route.params.id?.toString()
       const table_id = route.params.table_id?.toString()
       const tour_id = route.params.tour_id?.toString()
 
-    
+
       if (table_id && tour_id) {
-      gameString.value = await connection.invoke("AddToTournamentTableGroup",+tour_id , +table_id);
-      }else{
+        gameString.value = await connection.invoke("AddToTournamentTableGroup", +tour_id, +table_id);
+      } else {
         console.log("connection to addn to board group ")
         gameString.value = await connection.invoke("AddToBoardGroup", player_table_id);
       }
@@ -55,7 +55,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       console.log(error);
     }
 
-    connection.on(  
+    connection.on(
       "BalootGameStateChanged",
       (eventName: string, gameData: string) => {
         newGameFlag.value = false;
@@ -78,41 +78,42 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           }
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("score")) {
-          
-          if (events.includes("NamesChanged") ) {
+
+          if (events.includes("NamesChanged")) {
             game.value = newGame.value
           }
 
-          if (newGameEvent|| events.includes("GameEnded")) {
+          if (newGameEvent) {
 
-            // game.value = newGame.value;
-          } 
-          else if (events.includes("ScoreIncreased")) {
-            gameService.send({ type: "TO_OUTRO" });
-            game.value = newGame.value;
-          } else if (
-            events.includes("ScoreUpdated") ||
-            events.includes("ScoreDecreased")
-          ) {
-            if (
-              events.includes("ScoreUpdated") &&
-              newGame.value?.winner !== null
-            ) {
-              gameService.send({ type: "TO_OUTRO" });
-            }
-            game.value = newGame.value;
-            game_updated.value = true;
-          } else {
-            game.value = newGame.value;
           }
+          else
+            if (events.includes("ScoreIncreased")) {
+              gameService.send({ type: "TO_OUTRO" });
+              game.value = newGame.value;
+            } else
+              if (
+                events.includes("ScoreUpdated") ||
+                events.includes("ScoreDecreased")
+              ) {
+                if (
+                  events.includes("ScoreUpdated") &&
+                  newGame.value?.winner !== null
+                ) {
+                  gameService.send({ type: "TO_OUTRO" });
+                }
+                game.value = newGame.value;
+                game_updated.value = true;
+              } else {
+                // game.value = newGame.value;
+              }
         }
 
-   
+
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
         }
         if (events.includes("GameEnded")) {
-          console.log("game ended");
+
 
           let winner = false;
 
