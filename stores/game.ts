@@ -23,7 +23,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       game.value &&
       newGame.value.id !== game.value.id
     ) {
-      console.log("stat nwe game");
       game.value = newGame.value;
     }
   });
@@ -46,7 +45,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       if (table_id && tour_id) {
         gameString.value = await connection.invoke("AddToTournamentTableGroup", +tour_id, +table_id);
       } else {
-        console.log("connection to addn to board group ")
+    
         gameString.value = await connection.invoke("AddToBoardGroup", player_table_id);
       }
 

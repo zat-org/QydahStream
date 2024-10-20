@@ -77,7 +77,6 @@ const scoreUnMount = () => {
 const { sleep } = useSleep();
 const winner = computed(() => {
   if (game?.value?.winner) {
-    console.log(game?.value?.winner);
     if (game.value.winner == "Us") {
 
       return {
