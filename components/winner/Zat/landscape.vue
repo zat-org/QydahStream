@@ -4,8 +4,8 @@
       <div
         class=" bg-black/10 p-3 rounded-xl w-[365px]  relative flex flex-col justify-center items-center gap-4 left-[-260px]">
         <p class="text-3xl self-end">الفريق الفائز</p>
-        <p class="h-[100px] bg-gray-400">
-          {{ winner!.name }}
+        <p class="h-[100px] bg-gray-400" v-if="winner">
+          {{ winner.name }}
         </p>
       </div>
     </div>

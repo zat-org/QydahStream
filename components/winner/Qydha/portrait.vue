@@ -1,8 +1,8 @@
 <template>
   <div class="winner-comp  h-[300] w-[400px]" ref="winnerComp">
     <div  class="absolute w-[400px] h-[300px] flex justify-center  items-center top-[105px]  z-[10] " id="winner-data" ref="winnerData">
-      <p id="winner-name">
-        {{ winner!.name }}
+      <p id="winner-name" v-if="winner">
+        {{ winner.name }}
       </p>
     </div>
     <div class="absolute h-[300px] w-[400px] flex justify-center gap-5 items-center">
