@@ -71,7 +71,8 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         newGame.value = JSON.parse(gameString.value);
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
-          if (newGameEvent || events.includes("GameEnded")) {
+          if (newGameEvent ) {
+            gameService.send({ type: "UPDATE_CONTEXT", ended: false });
           } else {
             game.value = newGame.value;
           }
