@@ -27,7 +27,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       game.value = newGame.value;
     }
   });
-  console.log(config.public.qydhaapi)
+
   const connection = new signalR.HubConnectionBuilder()
     .withUrl(config.public.qydhaapi , {
       withCredentials: true,
@@ -42,8 +42,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       const table_id = route.params.table_id?.toString()
       const tour_id = route.params.tour_id?.toString()
 
-      console.log(table_id && tour_id)
-
+    
       if (table_id && tour_id) {
       gameString.value = await connection.invoke("AddToTournamentTableGroup",+tour_id , +table_id);
       }else{
@@ -82,10 +81,9 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           
           if (events.includes("NamesChanged") ) {
             game.value = newGame.value
-
           }
 
-          if (newGameEvent) {
+          if (newGameEvent|| events.includes("GameEnded")) {
 
             // game.value = newGame.value;
           } 
