@@ -83,7 +83,10 @@ export const useMyGameStore = defineStore("myGameStore", () => {
             game.value = newGame.value
           }
 
-          if (newGameEvent) {
+          if (newGameEvent &&
+             events.includes("NamesChanged") &&
+           events.includes("MaxSakkaCountChanged") && 
+           events.includes("IsCurrentSakkaMashdodaChanged")) {
 
           }
           else
