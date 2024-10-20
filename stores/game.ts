@@ -73,7 +73,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         newGame.value = JSON.parse(gameString.value);
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
-          if (newGameEvent) {
+          if (newGameEvent || events.includes("GameEnded")) {
           } else {
             game.value = newGame.value;
           }
