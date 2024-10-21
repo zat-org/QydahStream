@@ -19,6 +19,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     snapshot.value = state;
     if (
       snapshot.value.matches("score") &&
+      snapshot.value.matches("score.intro") &&
       newGame.value &&
       game.value &&
       newGame.value.id !== game.value.id
