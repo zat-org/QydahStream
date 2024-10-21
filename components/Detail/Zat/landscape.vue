@@ -161,6 +161,6 @@ onMounted(() => {
 }
 
 .score {
-  @apply font-extrabold text-5xl leading-[3rem] m-0 p-0;
+  @apply font-extrabold text-4xl leading-[3rem] m-0 p-0;
 }
 </style>

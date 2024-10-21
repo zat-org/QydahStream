@@ -56,7 +56,7 @@ const { gameService } = store;
 const mediaElm = ref<HTMLVideoElement>();
 const { sleep } = useSleep();
 const intro_start_sec = 0;
-const intro_end_sec = 3.22;
+const intro_end_sec = 3.5;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
@@ -89,7 +89,7 @@ const scoreMount = (score1: number, score2: number) => {
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
   t2.to([team1wrapper.value, team2wrapper.value], {
-    duration: 0.8,
+    duration: 0.3,
     opacity: 0,
     ease: "linear",
   });
@@ -129,7 +129,6 @@ onMounted(async () => {
         scoreMount(last_sakka.value!.usSakkaScore!, last_sakka.value!.themSakkaScore!);
         await sleep(intro_end_sec * 1000);
         mediaElm.value.pause();
-
         mediaElm.value.currentTime = score_sec;
         gameService.send({ type: "NEXT" });
       }
