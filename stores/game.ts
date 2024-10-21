@@ -20,6 +20,8 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     if (
       snapshot.value.matches("score") &&
       snapshot.value.matches("score.intro") &&
+      snapshot.value.matches("score.main") &&
+
       newGame.value &&
       game.value &&
       newGame.value.id !== game.value.id
@@ -76,6 +78,11 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           if (newGameEvent ) {
           } else {
             console.log("game changed  in detail in not new ggame stated")
+
+            if (events.includes('ScoreDecreased') && newGame.value?.winner == null){
+              gameService.send({ type: "UPDATE_CONTEXT", ended: null });
+            }
+            
             if (snapshot.value.context.ended){
 
             }else{
