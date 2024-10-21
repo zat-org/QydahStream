@@ -23,6 +23,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       game.value &&
       newGame.value.id !== game.value.id
     ) {
+      console.log("game change ")
       game.value = newGame.value;
     }
   });
@@ -79,21 +80,22 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("score")) {
 
-          if (events.includes("NamesChanged")) {
-            game.value = newGame.value
-          }
+          if (events.includes("NamesChanged")) 
+            {
+              game.value = newGame.value
+            }
 
-          if (newGameEvent &&
-             events.includes("NamesChanged") &&
-           events.includes("MaxSakkaCountChanged") && 
-           events.includes("IsCurrentSakkaMashdodaChanged")) {
+          if (newGameEvent) 
+            {
 
-          }
+            }
           else
-            if (events.includes("ScoreIncreased")) {
-              gameService.send({ type: "TO_OUTRO" });
-              game.value = newGame.value;
-            } else
+            if (events.includes("ScoreIncreased"))
+              {
+                gameService.send({ type: "TO_OUTRO" });
+                game.value = newGame.value;
+              } 
+            else
               if (
                 events.includes("ScoreUpdated") ||
                 events.includes("ScoreDecreased")
@@ -110,9 +112,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
                 // game.value = newGame.value;
               }
         }
-        else if (!snapshot.value.matches("score") && !snapshot.value.matches("score") && !snapshot.value.matches("score")){
-
-        }
+        
 
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
