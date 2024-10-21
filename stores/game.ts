@@ -74,10 +74,13 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
           if (newGameEvent ) {
-            gameService.send({ type: "UPDATE_CONTEXT", ended: false });
           } else {
             console.log("game changed  in detail in not new ggame stated")
-            game.value = newGame.value;
+            if (snapshot.value.context.ended){
+
+            }else{
+              game.value = newGame.value;
+            }
           }
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("score")) {
@@ -125,7 +128,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         }
         if (events.includes("GameEnded")) {
 
-        }
           let winner = false;
 
           const us_photo =
@@ -148,7 +150,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           }
 
           gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
-       
+        }
       }
     );
   }
