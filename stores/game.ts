@@ -119,7 +119,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         }
         if (events.includes("GameEnded")) {
 
-
+        }
           let winner = false;
 
           const us_photo =
@@ -142,7 +142,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           }
 
           gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
-        }
+       
       }
     );
   }
