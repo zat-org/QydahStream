@@ -92,7 +92,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("score")) {
 
-          if (events.includes("NamesChanged")) 
+          if (events.includes("NamesChanged") &&events.length == 1 ) 
             { 
               console.log("game changed in score  in name changed ")
               game.value = newGame.value
