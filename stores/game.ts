@@ -23,7 +23,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       game.value &&
       newGame.value.id !== game.value.id
     ) {
-      console.log("game change ")
+      console.log("game change in watch state ")
       game.value = newGame.value;
     }
   });
@@ -75,13 +75,15 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           if (newGameEvent ) {
             gameService.send({ type: "UPDATE_CONTEXT", ended: false });
           } else {
+            console.log("game changed  in detail in not new ggame stated")
             game.value = newGame.value;
           }
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("score")) {
 
           if (events.includes("NamesChanged")) 
-            {
+            { 
+              console.log("game changed in score  in name changed ")
               game.value = newGame.value
             }
 
@@ -93,6 +95,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
             if (events.includes("ScoreIncreased"))
               {
                 gameService.send({ type: "TO_OUTRO" });
+                console.log("game changed in socre  score increase ")
                 game.value = newGame.value;
               } 
             else
@@ -106,6 +109,8 @@ export const useMyGameStore = defineStore("myGameStore", () => {
                 ) {
                   gameService.send({ type: "TO_OUTRO" });
                 }
+                console.log("game changed in socre  score increase 2")
+
                 game.value = newGame.value;
                 game_updated.value = true;
               } else {
