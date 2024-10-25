@@ -7,7 +7,7 @@
             src='/images/zat/usframe.svg'  />
           <img
             :src=" bottom?.url"
-            class="w-[268px] h-[361px] absolute rounded-2xl  top-[5px]" />
+            class="w-[268px] h-[361px] object-none object-center absolute rounded-2xl  top-[5px]" />
         </div>
       <div v-else>
       </div>
@@ -20,7 +20,7 @@
             src='/images/zat/themframe.svg' />
           <img
             :src=" left?.url"
-            class="w-[268px] h-[361px] absolute  rounded-2xl top-[5px]" />
+            class="w-[268px] h-[361px] absolute  object-none object-center rounded-2xl top-[5px]" />
         </div>
       <div v-else>
       </div>
@@ -37,7 +37,7 @@
             src='/images/zat/themframe.svg' />
           <img
             :src=" right?.url"
-            class="w-[268px] h-[361px] absolute top-[5px] rounded-2xl" />
+            class="w-[268px] h-[361px] object-none object-center absolute top-[5px] rounded-2xl" />
         </div>
       <div v-else>
       </div>
@@ -50,7 +50,7 @@
             src='/images/zat/usframe.svg'  />
           <img
             :src=" top?.url"
-            class="w-[268px] h-[361px] absolute  rounded-2xl top-[5px]" />
+            class="w-[268px] h-[361px] absolute  object-none object-center rounded-2xl top-[5px]" />
         </div>
       <div v-else>
       </div>
