@@ -37,24 +37,24 @@
     <div class="flex justify-between items-center p-5">
 
 
-      <div class="relative w-[140px] h-[195px]" v-if="top && top.url">
+      <div class="relative w-[268px] h-[361px]" v-if="top && top.url">
           <img
-            class="w-[140px] h-[195px]  absolute z-[10]"
+            class="w-[268px] h-[361px]  absolute z-[10]"
             src='/images/zat/usframe.svg'  />
           <img
             :src=" top?.url"
-            class="w-[140px] h-[187px] absolute  rounded-2xl top-[5px]" />
+            class="w-[268px] h-[361px] absolute  rounded-2xl top-[5px]" />
         </div>
       <div v-else>
       </div>
 
-      <div class="relative w-[140px] h-[195px] " v-if="left && left.url">
+      <div class="relative w-[268px] h-[361px] " v-if="left && left.url">
           <img
-            class="w-[140px] h-[195px]  absolute z-[10]"
+            class="w-[268px] h-[361px]  absolute z-[10]"
             src='/images/zat/themframe.svg' />
           <img
             :src=" left?.url"
-            class="w-[140px] h-[187px] absolute  rounded-2xl top-[5px]" />
+            class="w-[268px] h-[361px]absolute  rounded-2xl top-[5px]" />
         </div>
       <div v-else>
       </div>
