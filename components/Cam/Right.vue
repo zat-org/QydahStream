@@ -23,7 +23,7 @@
     </div>
     <div class="flex justify-between items-center p-5">
 
-      <div class="relativew-[140px] h-[195px]" v-if="bottom && bottom.url">
+      <div class="relative w-[140px] h-[195px]" v-if="bottom && bottom.url">
         <img class="w-[140px] h-[195px]  absolute z-[10]" src='/images/zat/usframe.svg' />
         <img :src="bottom?.url" class="w-[140px] h-[187px] object-cover object-center absolute rounded-2xl  top-[5px]" />
       </div>
