@@ -49,7 +49,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       if (table_id && tour_id) {
         gameString.value = await connection.invoke("AddToTournamentTableGroup", +tour_id, +table_id);
       } else {
-    
         gameString.value = await connection.invoke("AddToBoardGroup", player_table_id);
       }
 
@@ -91,7 +90,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           }
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("score")) {
-
           if (events.includes("NamesChanged") &&events.length == 1 ) 
             { 
               console.log("game changed in score  in name changed ")
