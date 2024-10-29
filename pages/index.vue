@@ -3,7 +3,7 @@
   
   <div class="absolute w-full h-full  left-0 top-0 flex justify-center items-center ">
     <div class=" font-state-field p-5  w-[50%] text-center font-bold bg-red-500/10 border border-red-500 ">
-      هذة صورة تجريبية برجاء تسجيل الدخول للاستمتاع بتجربة كاملة
+      هذة صورة تجريبية برجاءالتواصل معنا لتفعيل ميزة البث
     </div>
   </div>
 </template>
