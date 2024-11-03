@@ -51,7 +51,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       } else {
         gameString.value = await connection.invoke("AddToBoardGroup", player_table_id);
       }
-      console.log(gameString.value)
       game.value = JSON.parse(gameString.value);
     } catch (error) {
       console.log(error);
@@ -71,6 +70,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
+        console.log(gameString.value)
         newGame.value = JSON.parse(gameString.value);
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
