@@ -1,12 +1,12 @@
 export interface MoshtraI {
   advancedDetails: null;
-    id: number;
-    usAbnat: number;
-    themAbnat: number;
-    state: string;
+  id: number;
+  usAbnat: number;
+  themAbnat: number;
+  state: string;
 }
 
-export interface SakkaI{
+export interface SakkaI {
   moshtaras: MoshtraI[];
   id: number;
   state: string;
@@ -34,4 +34,44 @@ export interface GameI {
   usPlayers: { name: string; url: string }[];
   themPlayers: { name: string; url: string }[];
   winner: null | string;
+}
+
+
+export interface IStatics {
+  usStatistics: {
+    playedSakkas: number,
+    winnedSakkas: number,
+    lostSakka: number,
+    moshtaraSunCount: number,
+    moshtaraHokmCount: number,
+    wonMoshtaraCount: number,
+    lostMoshtaraCount:number,
+    ekak: number,
+    aklat: number,
+    sra: number,
+    khamsen: number,
+    me2a: number,
+    rob3ome2a: number,
+    baloot: number,
+    sunKaboot: number,
+    hokmKaboo: number
+  },
+  themStatistics: {
+    winnedSakkas: number,
+    playedSakkas: number,
+    lostSakka: number,
+    moshtaraSunCount:number,
+    moshtaraHokmCount: number,
+    wonMoshtaraCount: number,
+    lostMoshtaraCount: number,
+    ekak: number,
+    aklat: number,
+    sra: number,
+    khamsen: number,
+    me2a: number,
+    rob3ome2a:number,
+    baloot: number,
+    sunKaboot: number,
+    hokmKaboot: number
+  }
 }

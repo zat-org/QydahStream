@@ -1,9 +1,12 @@
 import { defineStore } from "pinia";
 import * as signalR from "@microsoft/signalr";
-import type { GameI } from "~/models/game";
+import type { GameI, IStatics } from "~/models/game";
 import { interpret } from "xstate";
 export const useMyGameStore = defineStore("myGameStore", () => {
   const gameString = ref("");
+  const staticString = ref("");
+  const statics =ref<IStatics>()
+
   const config = useRuntimeConfig();
 
   const sakka_ended = ref(false);
@@ -58,7 +61,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
     connection.on(
       "BalootGameStateChanged",
-      (eventName: string, gameData: string,gamestatics :string) => {
+      (eventName: string, gameData: string,gameStatics? :string) => {
         newGameFlag.value = false;
         game_updated.value = false;
         const events = eventName.split(",").map((e) => {
@@ -70,7 +73,11 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
-        console.log(gamestatics)
+        if (gameStatics){
+          staticString.value = gameStatics;
+          statics.value =JSON.parse(staticString.value )
+        }
+
         newGame.value = JSON.parse(gameString.value);
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
@@ -175,6 +182,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     snapshot,
     gameService,
     sakka_ended,
+    statics ,
     initializeConnection,
   };
 });
