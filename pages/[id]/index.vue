@@ -11,8 +11,8 @@
 
   <div v-show="snapshot.matches('statics')">
     <transition name="fade" mode="out-in">
-      <!-- <component :is="winnerComponent" v-if="snapshot.matches('statics') && game " /> -->
-      <StaticsZat />
+      <!-- <component :is="winnerComponent" /> -->
+      <StaticsZat v-if="snapshot.matches('statics') && game "  />
     </transition>
   </div>
 
