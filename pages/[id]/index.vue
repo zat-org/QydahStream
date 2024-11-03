@@ -12,7 +12,7 @@
   <div v-show="snapshot.matches('statics')">
     <transition name="fade" mode="out-in">
       <!-- <component :is="winnerComponent" v-if="snapshot.matches('statics') && game " /> -->
-      <StaticsZatLandscabe />
+      <StaticsZat />
     </transition>
   </div>
 
@@ -37,6 +37,8 @@ import ScoreQydhaPortraitsvg from "../../components/Score/Qydha/portraitsvg.vue"
 
 import DetailQydhaPortrait from "../../components/Detail/Qydha/portrait.vue";
 import WinnerQydhaPortrait from "../../components/winner/Qydha/portrait.vue";
+import StaticsZat from "../../components/Statics/Zat/landscape.vue";
+
 
 const route = useRoute();
 const router = useRouter();

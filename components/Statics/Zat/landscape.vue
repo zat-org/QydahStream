@@ -147,8 +147,8 @@ const statusThem = computed(() => {
 const { sleep } = useSleep()
 
 onMounted(async () => {
-  await sleep(2 * 100)
   gameStore.gameService.send({ type: "NEXT" });
+  await sleep(2 * 100)
 
   gameStore.gameService.send({ type: "TO_OUTRO" });
 
