@@ -8,6 +8,14 @@
     <component :is="detailComponent" v-if="snapshot.matches('detail') && game" />
   </div>
 
+
+  <div v-show="snapshot.matches('statics')">
+    <transition name="fade" mode="out-in">
+      <!-- <component :is="winnerComponent" v-if="snapshot.matches('statics') && game " /> -->
+      Hello in statics 
+    </transition>
+  </div>
+
   <div v-show="snapshot.matches('winner')">
     <transition name="fade" mode="out-in">
       <component :is="winnerComponent" v-if="snapshot.matches('winner') && game " />
