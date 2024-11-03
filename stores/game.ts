@@ -131,6 +131,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
+          gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:true  });
         }
         if (events.includes("GameEnded")) {
 
