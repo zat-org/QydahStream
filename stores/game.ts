@@ -51,7 +51,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       } else {
         gameString.value = await connection.invoke("AddToBoardGroup", player_table_id);
       }
-
+      console.log(gameString.value)
       game.value = JSON.parse(gameString.value);
     } catch (error) {
       console.log(error);
