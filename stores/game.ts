@@ -58,7 +58,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
     connection.on(
       "BalootGameStateChanged",
-      (eventName: string, gameData: string) => {
+      (eventName: string, gameData: string,gamestatics :string) => {
         newGameFlag.value = false;
         game_updated.value = false;
         const events = eventName.split(",").map((e) => {
@@ -70,7 +70,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
-        console.log(gameString.value)
+        console.log(gamestatics)
         newGame.value = JSON.parse(gameString.value);
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
