@@ -1,4 +1,7 @@
 <template v-if="gameService">
+      
+
+
   <div v-show="snapshot.matches('score')">
     <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>
@@ -11,8 +14,8 @@
 
   <div v-show="snapshot.matches('statics')">
     <transition name="fade" mode="out-in">
-      <!-- <component :is="winnerComponent" /> -->
       <StaticsZat v-if="snapshot.matches('statics') && game "  />
+      <!-- <component :is="winnerComponent" /> -->
     </transition>
   </div>
 
