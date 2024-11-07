@@ -1,7 +1,7 @@
 <template>
-  <div class=" w-[1920px] h-[1080px] flex  justify-center">
+  <div class=" w-[1920px] h-[1080px] flex  justify-center ">
     <!--header   -->
-    <div  id="dataHolder"class=" flex flex-col gap-2  opacity-90 rounded-[50px] pb-[30px] overflow-hidden  w-[50%]  bg-gradient-to-b   from-zinc-700  to-zinc-600   my-auto ">
+    <div  id="dataHolder"class=" flex flex-col gap-2   rounded-[50px] pb-[30px] overflow-hidden  w-[50%]  bg-gradient-to-b   from-zinc-700/55  to-zinc-600/55   my-auto ">
       
       <div class= " relative  h-[100px]  flex justify-evenly  items-center text-3xl ">
         <!-- <div class="w-[85%] absolute h-[20px] bg-white top-[-10px] rounded-xl"></div> -->
@@ -93,12 +93,12 @@ const {sleep} = useSleep()
 const t1 = gsap.timeline();
 
 const enterAnimation = ()=>{  
-  t1.fromTo( "#dataHolder",{opacity:0 },{opacity:.8,duration:.5})
+  t1.fromTo( "#dataHolder",{opacity:0 },{opacity:1,duration:.5})
   .fromTo( "#headerBg",{scaleX:0 , transformOrigin:'center' },{scaleX:1,duration:.5})
   .fromTo("#themHead",{scaleY:0 ,transformOrigin:'top'},{scaleY:1,duration:.25},'>')
   .fromTo("#usHead",{scaleY:0 ,transformOrigin:'top'},{scaleY:1,duration:.25},'<')
   .fromTo("#vsHead",{scaleY:0 ,transformOrigin:'top'},{scaleY:1,duration:.25},'<')
-  .fromTo(".row-bg",{opacity:0 },{opacity:.8,duration:.5},'>')
+  .fromTo(".row-bg",{opacity:0 },{opacity:1,duration:.5},'>')
   .fromTo(".titleData",{scaleY:0 ,transformOrigin:'top'},{scaleY:1,duration:.5},'<')
   .fromTo(".themData",{scaleX:0 ,transformOrigin:'left'},{scaleX:1,duration:.5},'>')
   .fromTo(".usData",{scaleX:0 ,transformOrigin:'right'},{scaleX:1,duration:.5},'<')
@@ -132,14 +132,14 @@ onMounted(async () => {
 
   
   enterAnimation()
-  await sleep(4000)
+  // await sleep(4000)
   
-  gameStore.gameService.send({ type: "NEXT" });
+  // gameStore.gameService.send({ type: "NEXT" });
   
-  gameStore.gameService.send({ type: "TO_OUTRO" });
-  outAnimation()
-  await sleep(2000)
-  gameStore.gameService.send({ type: "CHECK_END" });
+  // gameStore.gameService.send({ type: "TO_OUTRO" });
+  // outAnimation()
+  // await sleep(2000)
+  // gameStore.gameService.send({ type: "CHECK_END" });
 
   
 
@@ -154,10 +154,14 @@ onMounted(async () => {
   font-family: Cairo
 }
 .row-bg{
-  @apply bg-gradient-to-r  even:from-zinc-700  from-20%  even:via-zinc-600  via-45%  even:to-zinc-700   to-80%
-                           odd:from-zinc-600        odd:via-zinc-700              odd:to-zinc-600  
-                          py-2
+  @apply bg-gradient-to-r  even:from-zinc-700/20  from-20%  even:via-zinc-600/20  via-45%  even:to-zinc-700/20   to-80%
+                           odd:from-zinc-600/20        odd:via-zinc-700/20              odd:to-zinc-600/20  ;
+  @apply  py-2
    
 
 }
+.themData , .usData{
+  @apply text-center
+}
+
 </style>
