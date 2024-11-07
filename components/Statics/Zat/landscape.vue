@@ -160,8 +160,10 @@ onMounted(async () => {
    
 
 }
-.themData , .usData{
-  @apply text-center
+.themData {
+  @apply ml-[20px] mr-auto
 }
-
+.usData {
+  @apply mr-[20px] ml-auto
+}
 </style>
