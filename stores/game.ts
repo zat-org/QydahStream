@@ -71,7 +71,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         console.log(events);
 
         const newGameEvent = events.includes("GameStarted");
-
+        const sakaaEnded =events.includes("SakkaEnded")
 
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
@@ -83,7 +83,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         newGame.value = JSON.parse(gameString.value);
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
-          if (newGameEvent) {
+          if (newGameEvent || sakaaEnded) {
           } else {
             console.log("game changed  in detail in not new ggame stated")
 
