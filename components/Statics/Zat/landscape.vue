@@ -132,14 +132,14 @@ onMounted(async () => {
 
   
   enterAnimation()
-  // await sleep(4000)
+  await sleep(4000)
   
-  // gameStore.gameService.send({ type: "NEXT" });
+  gameStore.gameService.send({ type: "NEXT" });
   
-  // gameStore.gameService.send({ type: "TO_OUTRO" });
-  // outAnimation()
-  // await sleep(2000)
-  // gameStore.gameService.send({ type: "CHECK_END" });
+  gameStore.gameService.send({ type: "TO_OUTRO" });
+  outAnimation()
+  await sleep(2000)
+  gameStore.gameService.send({ type: "CHECK_END" });
 
   
 
@@ -161,9 +161,9 @@ onMounted(async () => {
 
 }
 .themData {
-  @apply ml-[20px] mr-auto
+  @apply ml-[100px] mr-auto
 }
 .usData {
-  @apply mr-[20px] ml-auto
+  @apply mr-[100px] ml-auto
 }
 </style>
