@@ -139,6 +139,7 @@ onMounted(async () => {
   gameStore.gameService.send({ type: "TO_OUTRO" });
   outAnimation()
   await sleep(2000)
+  gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
   gameStore.gameService.send({ type: "CHECK_END" });
 
   

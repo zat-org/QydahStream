@@ -16,13 +16,13 @@
       </transition>
       <p class="left-[0px] score">
         {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }}
-        <!-- {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }} -->
+        {{ !sakka_ended ? last_sakka?.usSakkaScore : game?.usGameScore }}
       </p>
     </div>
 
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="left-[269px] score">
-        <!-- {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }} -->
+        {{ !sakka_ended ? last_sakka?.themSakkaScore : game?.themGameScore }}
         {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }}
       </p>
       <transition name="fade" mode="out-in">

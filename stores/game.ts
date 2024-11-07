@@ -5,7 +5,7 @@ import { interpret } from "xstate";
 export const useMyGameStore = defineStore("myGameStore", () => {
   const gameString = ref("");
   const staticString = ref("");
-  const statics =ref<IStatics>()
+  const statics = ref<IStatics>()
 
   const config = useRuntimeConfig();
 
@@ -23,7 +23,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     if (
       snapshot.value.matches("score") &&
       snapshot.value.matches("score.intro") &&
-   
+
 
       newGame.value &&
       game.value &&
@@ -61,9 +61,10 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
     connection.on(
       "BalootGameStateChanged",
-      (eventName: string, gameData: string,gameStatics? :string) => {
+      (eventName: string, gameData: string, gameStatics?: string) => {
         newGameFlag.value = false;
         game_updated.value = false;
+        sakka_ended.value = false;
         const events = eventName.split(",").map((e) => {
           return e.trim();
         });
@@ -71,50 +72,50 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         const newGameEvent = events.includes("GameStarted");
 
+
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
-        if (gameStatics){
+        if (gameStatics) {
           staticString.value = gameStatics;
-          statics.value =JSON.parse(staticString.value )
+          statics.value = JSON.parse(staticString.value)
         }
 
         newGame.value = JSON.parse(gameString.value);
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
-          if (newGameEvent ) {
+          if (newGameEvent) {
           } else {
             console.log("game changed  in detail in not new ggame stated")
 
-            if (events.includes('ScoreDecreased') && newGame.value?.winner == null){
+            if (events.includes('ScoreDecreased') && newGame.value?.winner == null) {
               gameService.send({ type: "UPDATE_CONTEXT", ended: null });
             }
 
-            if (snapshot.value.context.ended){
+            if (snapshot.value.context.ended) {
 
-            }else{
+            } else {
               game.value = newGame.value;
             }
           }
         } else if (snapshot.value.matches("winner")) {
-        } else if (snapshot.value.matches("score")) {
-          if (events.includes("NamesChanged") &&events.length == 1 ) 
-            { 
-              console.log("game changed in score  in name changed ")
-              game.value = newGame.value
-            }
+        } else if (snapshot.value.matches("statics")) {
+        }
+        else if (snapshot.value.matches("score")) {
+          if (events.includes("NamesChanged") && events.length == 1) {
+            console.log("game changed in score  in name changed ")
+            game.value = newGame.value
+          }
 
-          if (newGameEvent) 
-            {
-              // console.log("game changed in score  in start game  ")
-              // game.value = newGame.value
-            }
+          if (newGameEvent) {
+            // console.log("game changed in score  in start game  ")
+            // game.value = newGame.value
+          }
           else
-            if (events.includes("ScoreIncreased"))
-              {
-                gameService.send({ type: "TO_OUTRO" });
-                console.log("game changed in socre  score increase ")
-                game.value = newGame.value;
-              } 
+            if (events.includes("ScoreIncreased")) {
+              gameService.send({ type: "TO_OUTRO" });
+              console.log("game changed in socre  score increase ")
+              game.value = newGame.value;
+            }
             else
               if (
                 events.includes("ScoreUpdated") ||
@@ -134,11 +135,11 @@ export const useMyGameStore = defineStore("myGameStore", () => {
                 // game.value = newGame.value;
               }
         }
-        
+
 
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
-          gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:true  });
+          gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended: true });
         }
         if (events.includes("GameEnded")) {
 
@@ -182,7 +183,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     snapshot,
     gameService,
     sakka_ended,
-    statics ,
+    statics,
     initializeConnection,
   };
 });
