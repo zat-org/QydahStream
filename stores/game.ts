@@ -27,7 +27,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
       newGame.value &&
       game.value &&
-      newGame.value.id !== game.value.id
+      (newGame.value.id !== game.value.id || sakka_ended.value)
     ) {
       console.log("game change in watch state ")
       game.value = newGame.value;
@@ -143,7 +143,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         }
         if (events.includes("SakkaStarted")) {
           sakka_ended.value = true;
-          game.value = newGame.value
         }
 
         if (events.includes("GameEnded")) {
