@@ -147,7 +147,7 @@ onMounted(() => {
 }
 
 .TeamScore {
-  @apply absolute text-[2.8rem] w-[85px] h-[97px] flex justify-center items-center top-0;
+  @apply absolute text-[2.5rem] w-[85px] h-[97px] flex justify-center items-center top-0;
   font-family: "CairoSemiBold";
 }
 
