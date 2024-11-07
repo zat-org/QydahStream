@@ -126,7 +126,8 @@ onMounted(async () => {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
 
-        scoreMount(last_sakka.value!.usSakkaScore!, last_sakka.value!.themSakkaScore!);
+        scoreMount(last_sakka.value?.isMashdoda ? last_sakka.value!.usSakkaScore! + 60 : last_sakka.value!.usSakkaScore!,
+          last_sakka.value?.isMashdoda ? last_sakka.value!.themSakkaScore! + 60 : last_sakka.value!.themSakkaScore!);
         await sleep(intro_end_sec * 1000);
         mediaElm.value.pause();
         mediaElm.value.currentTime = score_sec;

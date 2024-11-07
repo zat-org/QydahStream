@@ -71,7 +71,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         console.log(events);
 
         const newGameEvent = events.includes("GameStarted");
-        const sakaaEnded =events.includes("SakkaEnded")
+        const sakaaEnded = events.includes("SakkaEnded")
 
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
@@ -141,6 +141,10 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           sakka_ended.value = true;
           gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended: true });
         }
+        if (events.includes("SakkaStarted")) {
+          sakka_ended.value = true;
+        }
+
         if (events.includes("GameEnded")) {
 
           let winner = false;
