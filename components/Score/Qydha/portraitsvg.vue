@@ -62,7 +62,7 @@
       </div>
     </transition>
     <transition name="fade" mode="out-in">
-      <div class=" absolute  w-[80px] h-[80px] origin-center " :key="bottom.url" style="left:calc(50% - 45px)"
+      <div class=" absolute bottom-0 w-[80px] h-[80px] origin-center " :key="bottom.url" style="left:calc(50% - 45px)"
         v-if="bottom && bottom.url && showPlayers">
         <div class="relative   rounded-xl  w-full  h-full">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
