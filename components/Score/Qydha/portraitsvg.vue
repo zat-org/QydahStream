@@ -1,6 +1,6 @@
 <template>
 
-  <div class="flex justify-center w-full h-screen mt-5  relative  ">
+  <div class="flex justify-center  w-[90%]  h-screen mt-5  relative  mx-auto ">
     <div class="relative w-[300px] h-[100px]   origin-center top-[0px]">
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0  " />
       <div class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
@@ -41,7 +41,7 @@
       </div>
     </div>
     <transition name="fade" mode="out-in">
-      <div class="absolute  left-0   w-[95px] h-[95px]" :key="left.url" :style="{ 'top': 'calc(50% - 50px)', }"
+      <div class="absolute  left-0   w-[80px] h-[80px]" :key="left.url" :style="{ 'top': 'calc(50% - 50px)', }"
         v-if="left && left.url && showPlayers">
         <div class="relative    w-full h-full ">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
@@ -52,7 +52,7 @@
       </div>
     </transition>
     <transition name="fade" mode="out-in">
-      <div class="absolute right-0  w-[95px] h-[95px]  origin-center " :key="right.url" style="top:calc(50% - 50px) "
+      <div class="absolute right-0  w-[80px] h-[80px]  origin-center " :key="right.url" style="top:calc(50% - 50px) "
         v-if="right && right.url && showPlayers">
         <div class="relative    w-full h-full">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
@@ -62,12 +62,11 @@
       </div>
     </transition>
     <transition name="fade" mode="out-in">
-      <div class=" absolute  bottom-10  w-[95px] h-[95px] origin-center " :key="bottom.url" style="left:calc(50% - 45px)"
+      <div class=" absolute  bottom-15  w-[80px] h-[80px] origin-center " :key="bottom.url" style="left:calc(50% - 45px)"
         v-if="bottom && bottom.url && showPlayers">
         <div class="relative   rounded-xl  w-full  h-full">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
             :style="{ 'background-image': `url(${bottom.url})` }" />
-
           <img class="absolute   z-[10]  rotate-270 w-full h-full" src='/images/bottom-square.svg' />
         </div>
       </div>
