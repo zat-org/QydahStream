@@ -2,7 +2,7 @@
 
   <div class="flex justify-center w-full h-screen relative  ">
 
-    <div class="relative w-[300px] h-[100px]   origin-center top-[-20px]">
+    <div class="relative w-[300px] h-[100px]   origin-center top-[0px]">
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0  " />
       <div class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
