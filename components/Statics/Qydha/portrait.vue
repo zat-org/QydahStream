@@ -157,7 +157,7 @@ onMounted(async () => {
 .row-bg{
   @apply bg-gradient-to-r  even:from-zinc-700/20  from-20%  even:via-zinc-600/20  via-45%  even:to-zinc-700/20   to-80%
                            odd:from-zinc-600/20        odd:via-zinc-700/20              odd:to-zinc-600/20  ;
-  @apply  py-2
+  @apply  
    
 
 }
