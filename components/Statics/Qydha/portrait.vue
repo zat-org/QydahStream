@@ -9,7 +9,7 @@
         <p  id="themHead" class="z-[10]  text-white font-semibold"  > {{game?.themName}}</p>
         <div id="vsHead" class="relative  w-[100px] h-[100px] z-[10]   flex justify-center items-center ">
           <img    src="~/assets/svg/vsbg_g1.svg" class="   absolute w-[40px] " />
-            <p class=" absolute z-[20] top-[3px] text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500  " >vs </p>
+            <p class=" absolute z-[20] top-[50px]  text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500  " >vs </p>
         </div>
         <p id="usHead" class="  z-[10] text-white font-bold"> {{game?.usName}}</p>
       </div>
@@ -134,13 +134,13 @@ onMounted(async () => {
   enterAnimation()
   await sleep(4000)
   
-  gameStore.gameService.send({ type: "NEXT" });
+  // gameStore.gameService.send({ type: "NEXT" });
   
-  gameStore.gameService.send({ type: "TO_OUTRO" });
-  outAnimation()
-  await sleep(2000)
-  gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
-  gameStore.gameService.send({ type: "CHECK_END" });
+  // gameStore.gameService.send({ type: "TO_OUTRO" });
+  // outAnimation()
+  // await sleep(2000)
+  // gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
+  // gameStore.gameService.send({ type: "CHECK_END" });
 
   
 
