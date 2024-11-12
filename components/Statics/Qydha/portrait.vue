@@ -1,7 +1,7 @@
 <template>
-  <div class=" w-[1920px] h-[1080px] flex  justify-center ">
+  <div class=" aspect-[9/16] mt-5  flex  justify-center ">
     <!--header   -->
-    <div  id="dataHolder"class=" flex flex-col gap-2   rounded-[50px] pb-[30px] overflow-hidden  w-[50%]  bg-gradient-to-b   from-zinc-700/55  to-zinc-600/55   my-auto ">
+    <div  id="dataHolder"class=" flex flex-col gap-2   rounded-[50px] pb-[30px] overflow-hidden  w-[90%]  bg-gradient-to-b   from-zinc-700/55  to-zinc-600/55   my-auto ">
       
       <div class= " relative  h-[100px]  flex justify-evenly  items-center text-3xl ">
         <!-- <div class="w-[85%] absolute h-[20px] bg-white top-[-10px] rounded-xl"></div> -->
