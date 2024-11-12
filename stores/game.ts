@@ -23,8 +23,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     if (
       snapshot.value.matches("score") &&
       snapshot.value.matches("score.intro") &&
-
-
       newGame.value &&
       game.value &&
       (newGame.value.id !== game.value.id || sakka_ended.value)
@@ -140,7 +138,11 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
-          gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended: true });
+          if (statics.value) {
+            let moshtraCount = statics.value?.themStatistics.moshtaraHokmCount + statics.value?.themStatistics.moshtaraSunCount + statics.value?.usStatistics.moshtaraHokmCount + statics.value?.usStatistics.moshtaraSunCount
+
+            gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended: moshtraCount > 0 ? true : false });
+          }
         }
         if (events.includes("SakkaStarted")) {
           sakka_ended.value = true;

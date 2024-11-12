@@ -2,7 +2,7 @@ import { assign, createMachine } from "xstate";
 export const useNashraMachine = () => {
   const gameMachine = createMachine(
     {
-      /** @xstate-layout N4IgpgJg5mDOIC5RQIYFswGICqAFAIgIIAqAogPoDCA8gHJkAaxA2gAwC6ioADgPawBLAC4DeAOy4gAHogCMAJgAs8gHSKAbAA5ZrWToCcAZgDs+xQBoQATznyAvncuoMK2AGNeAJzAqBYoZ68mLSkTGycSCB8giLikjII6oqGKpqK+qzyhqysZskArJY2CDqs6iqmxpqshvlKGvmGDk7oPu5ePmgofpjE1OTU2MQAStThktHCohKRCfrqKca1+kuyWrL5mkVyOeWV1bX16o3NIM5tHt4qvACuAUEhYRwT-FNxs3LKmiprspqb+Uq+WB2xKuwqKwOdUUDXyp3OKggYCE3QANr5-IFgqEWM9IpNYjNQAk-opWCotBk1voNhtkqCdIpjCpDJp5vl1CtDMktPDWojkWiVF0en0BkNRuN8a9CfFEPI1uT5PI6gpGoZ1Op5MYGawmSy2cdOUseZo+S4kSiBOjbvdMJQABKkSgAaXIpFo+ClPBl0zlCEBDM0KVkxm1mjZhnk+m1ZnNPktQttWMdzrdHq9sgiPpifo+CHkOQqih0ek08nUxjKEYZof0qTZ+XS-2BWjhjjO-NgKJEblgGLtj1x2aivvexMQJm++VDeu00bM0NBGhSunmmqWbP0MfU8dcPYEfeF3TEvX6gxGYzxObeROkiC0qmM1KSyufhcK1kQK5Ua81ldZbcdz3bsUF7ftkyCVNXXdT1vVHXNx3vEoNhSYM2U0LVjGOHQdS-BAmWZVkNQjHCTF0ECDyPSD7SdGCM2YLMXkQu8EkrUEjFkFQlG5YwmWjWRDHmPcAHc-DEMBPAHLEh3ggk8wnEpsK47DFH+NIo1YCM8OKGdmRWQEm1ZNJtF3DsETEsQJKkkVTxCAB1cgAHFCAAWVIOSx1YxBA3w-RtG41hAVqYMDPyfQHA7MReCReBInOZjb39ABaCw-MUFQzFjZ9MLKEtjBAy4wES2V80MNZf2BHIhMUGdOVBNkMv0DlNU0bC9SbdsWhcdorj8e4SoU5CNQyoL8mqxdqQ44Mfkw4xwu1Z9mvscyuyK48-EGpCEj4vZnzKDU21kdJppDOaFuMJa6kKjprjuQItu8lCyky5QyiCiNyp0xB-LOysLqulbuoTQVrUe-1aVXNIcmDPVo1qDjahUJsIwKBYankM1VotUH0X6h7pRYiGOS4rSyS07JlCMT9ih0LIKiqJa0jJWoCuxkGrXRWzwfzWQzBSdQ9CC+a+OVdRdXpy62r55makBPdE2tO6BsJpL8yyGo1HKvmtM+ptxfwunFkZmWYTltngf3MDDzim9SsUmFQVqLjQ3+QwhOVTZBa6zseqo-t8d4HnFJjZchLULStRhISo15dmrfAja73k7bvwC5IMm5FUtWDTUw-rMlMPqGOKyxy3QMTyDg+Q8t8ky5Uss2P4FH0fOI6L6OjFLxRRPEyTq5JZRyk65rmdq8bDGXF7BI0BVAULNsLd9nxLOs6Sg9V+3kOOvjkdq0eYXHmplzMFkknfXXqhjXurMkpOB7kTCMq0SkMhpRVJ-w9IMpGi+IyvlaDggA */
+      /** @xstate-layout N4IgpgJg5mDOIC5RQIYFswGICqAFAIgIIAqAogPoDCA8gHJkAaxA2gAwC6ioADgPawBLAC4DeAOy4gAHogCMrAGysAdAE4AzABZNAJlY71qgOyz16gDQgAnnMXLWAVlbOAHKodH3rF7IC+vy1QMHAISClJafABlQgBpWMI2TiQQPkERcUkZBHkHB2UXE1UdU00XR1lLGxydf0D0MGVYAGNeACdGgTEhNt5MWlImJMk04VEJFOz1HwL1IwdNVRcdA1kFSus5cqNlU0M8w1VjMzqQIMaW9sa0FC7MYmpyamxiACVqYZTRjInQbKNnMoFJpprpWKp5IoNtVZNtdmZ3A5Dsd1Kdzk1Wh1lLwAK49PoDIYcEb8MaZSaIQpVRCefJ6FzLfTTNwGNENZQQMBCW4AG2UXXx-UGLGJX1JPyyiDmsiB6lksnciwU6j0impCE0Chcymm03Bsk08oNfgCZ3ZnO5Aj5NzuDyeL3enx44vGkoQClUKm88q8eiM-oU6s12t15QhhvlhrZGA5XN52LxvUwlAAEqRKLFyBF8E7Ui7yX85Gt1ModHklvM9HLNUHNCoNNMHDp1s51PojNHGhb47jBan05ns8xZMlnelXRScsXS+XCk3WNXA5sNW5lJ5lYt1B7WCYTfUY92rQm+2mM1nIswdKO8+OC9IaUZ1RD8gbnEdlu4jHNO01uSJmrA-LdEmhIite3wToWCDMsoDhakYLianByxGEuMKKKoQIOAyqgKPMSKIXuZoxrAf4CAByg2mI9yPM8bwfKKY5kr897uhCQI+KssieAYrCaOq8gelhOF4QchE-qRKD-oBvZJv2Z5DoxN7MW68rrGu8z6GU2GIf6AneCWDYMnKsgOPIqiaBJZEUbJfTyYOF4jiSt4sdkakyv6Tg6NpDKaHpy7yOo+Q7qYZl4QCzgKD+ADuXRiGAbRAYKoG5hBd5uah2oenqTbAssOgCc2OzlG4rBrJGiioqa6KxWI8WJVRQoAOrkAA4oQACypCpfmrmICUO6yns6xGCUcH8QFRUFN4nrla+UWnGIvCcvAKTnM5KmTgAtBN1TNphr5lZ4pmzR21XspcHQbRKk4LAJHr5HBZkIboyyghJmKdMBvDXZBrHyAVAUISW3n6JCJTebhH1XJRtwsWlfUriWChwTonpfsCwIWQJwOlnWA1g5DC37hcn3Hr0v3pZSugaU4LhNmWr04y4IP4+DshEz+h48pTiPaOqQUKAUpkLiU2WeHxXNxkeAoU2KLlusUtaaMoiyRXMCgGJ6DhS5a1pw7zbp+SWmhOM4HhakoDjK6rnqVahWuOLrPaJj98ubVBLM6KWHPTM2lvozbav25rhhO+dJHWatTE3VBd3Lu42rgmV0qrCzVlSeRgGy27Md-W5+j6aba4o6UC4mM2OsRxcUew10huTmrOpzmWHjgqh-MBXx+SoWZWjlxzKMZ9J5O58psesSzJacX5IKmCjBhFz3pf96nQ-V8otX1Q3UEGmYqtym2jgqosSwCaZQugydcqFIYtQb1vCVJXLedUzkZQynPR9IpDZ+TSCahTIXwMM2ZYxNiKNEfg1A27sJ5uUKCoMyzZTJIhMIoR8-9DJANRiqLUzZ-D+CAA */
       id: "game",
 
       // Start in the score state by default
@@ -58,6 +58,7 @@ export const useNashraMachine = () => {
                 CHECK_END: [
                   // { target: "#game.winner", guard: "isMatchEnded" }, // If match ended, go to winner
                   { target: "#game.statics", guard: "isSakkaEnded" }, // If match ended, go to winner      
+                  { target: "#game.winner", guard: "isMatchEnded" },
                   { target: "#game.score" }, // Otherwise, return to score state
                 ],
               },
@@ -85,6 +86,7 @@ export const useNashraMachine = () => {
               on: {
                 CHECK_END: [
                   { target: "#game.winner", guard: "isMatchEnded" }, // If match ended, go to winner
+     
                   { target: "#game.score" }, // Otherwise, return to score state
                 ],
               },
