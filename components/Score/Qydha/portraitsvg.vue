@@ -41,7 +41,7 @@
       </div>
     </div>
     <transition name="fade" mode="out-in">
-      <div class="absolute  left-0   w-[60px] h-[60px]" :key="left.url" :style="{ 'top': 'calc(50% - 30px)', }"
+      <div class="absolute  left-[10px]   w-[60px] h-[60px]" :key="left.url" :style="{ 'top': 'calc(50% - 30px)', }"
         v-if="left && left.url && showPlayers">
         <div class="relative    w-full h-full ">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
@@ -52,7 +52,7 @@
       </div>
     </transition>
     <transition name="fade" mode="out-in">
-      <div class="absolute right-0  w-[60px] h-[60px]  origin-center " :key="right.url" style="top:calc(50% - 30px) "
+      <div class="absolute right-[10px]  w-[60px] h-[60px]  origin-center " :key="right.url" style="top:calc(50% - 30px) "
         v-if="right && right.url && showPlayers">
         <div class="relative    w-full h-full">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
