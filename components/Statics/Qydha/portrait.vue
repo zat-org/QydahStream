@@ -1,176 +1,170 @@
 <template>
-  <div class="flex justify-center min-w-[325px] bg-transparent">
-    <div class="relative w-[300px] h-[100px] top-[-19px]">
-      <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 " />
+  <div class=" w-[1920px] h-[1080px] flex  justify-center ">
+    <!--header   -->
+    <div  id="dataHolder"class=" flex flex-col gap-2   rounded-[50px] pb-[30px] overflow-hidden  w-[50%]  bg-gradient-to-b   from-zinc-700/55  to-zinc-600/55   my-auto ">
+      
+      <div class= " relative  h-[100px]  flex justify-evenly  items-center text-3xl ">
+        <!-- <div class="w-[85%] absolute h-[20px] bg-white top-[-10px] rounded-xl"></div> -->
+        <img id="headerBg" class="absolute w-full "  src="~/assets/svg/headerbg.svg" alt="">
+        <p  id="themHead" class="z-[10]  text-white font-semibold"  > {{game?.themName}}</p>
+        <div id="vsHead" class="relative  w-[100px] h-[100px] z-[10]  top-[-14px] flex justify-center items-center ">
+          <img    src="~/assets/svg/vsbg_g1.svg" class="   absolute " />
+            <p class=" absolute z-[20] top-[10px] text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500  " >vs </p>
+        </div>
+        <p id="usHead" class="  z-[10] text-white font-semibold"> {{game?.usName}}</p>
+      </div>
+      
+      <div class="flex flex-col gap-5 mt-5  text-xl text-white font-semibold  ">
+        <div class="row-bg  flex justify-around  items-center  ">
+          <p class="themData"> {{statusThem?.moshtaraSunCount}} </p>
+          <p class="titleData">مشترى صن </p>
+          <p class="usData">  {{statusUs?.moshtaraSunCount}} </p>
+        </div>
 
-      <div
-        class="absolute text-center text-white flex h-[28px] top-[64px]  -translate-x-1/2 left-1/2 w-[280px]">
-        <div class="w-1/2 flex items-center" ref="team2wrapper">
-          <transition name="fade" mode="out-in">
-            <p class="grow  mt-[-5px]" :key="game?.themName">
-              {{
-                game?.themName
-                  ? game?.themName
-                  : game?.themPlayers.length == 0
-                  ? "لهم"
-                  : game?.themPlayers[0].name +
-                    "  |   " +
-                    game?.themPlayers[1].name
-              }}
-            </p>
-          </transition>
-          <p class="w-[38px] mr-[4px] score">
-            {{ last_sakka?.themSakkaScore }}
-          </p>
+        <div class="row-bg   flex justify-around  items-center ">
+          <p class="themData"> {{statusThem?.moshtaraHokmCount}} </p>
+          <p class="titleData">مشترى حكم</p>
+          <p class="usData"> {{statusUs?.moshtaraHokmCount}} </p>
         </div>
-        <div class="w-1/2 flex items-center" ref="team1wrapper">
-          <p class="w-[38px] ml-[4px] score">
-            {{ last_sakka?.usSakkaScore }}
-          </p>
-          <transition name="fade" mode="out-in">
-            <p class="grow  mt-[-5px]" key="game?.usName">
-              {{
-                game?.usName
-                  ? game?.usName
-                  : game?.usPlayers.length == 0
-                  ? "لنا"
-                  : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
-              }}
-            </p>
-          </transition>
+
+        <div class="row-bg   flex justify-around  items-center ">
+          <p class="themData"> {{statusThem?.wonMoshtaraCount}} </p>
+          <p class="titleData">مشتريات ناجحة</p>
+          <p class="usData"> {{statusUs?.wonMoshtaraCount}} </p>
         </div>
+
+        <div class="row-bg   flex justify-around  items-center ">
+          <p class="themData"> {{statusThem?.lostMoshtaraCount}}  </p>
+          <p class="titleData"> مشتريات خسرانة</p>
+          <p class="usData"> {{statusUs?.lostMoshtaraCount}}  </p>
+        </div>
+
+        <div class="row-bg  flex justify-around  items-center ">
+          <p class="themData">  {{statusThem?.sra}} </p>
+          <p class="titleData"> سرا</p>
+          <p class="usData">  {{statusUs?.sra}}  </p>
+        </div>
+        
+        <div class="row-bg   flex justify-around  items-center ">
+          <p class="themData">  {{statusThem?.baloot}} </p>
+          <p class="titleData"> بلوت</p>
+          <p class="usData">  {{statusUs?.baloot}} </p>
+        </div>
+          
+        <div class="row-bg   flex justify-around  items-center ">
+          <p class="themData">  {{statusThem?.khamsen}} </p>
+          <p class="titleData"> خمسين</p>
+          <p class="usData">  {{statusUs?.khamsen}} </p>
+        </div>
+
+        <div class="row-bg   flex justify-around  items-center ">
+          <p class="themData">  {{statusThem?.me2a}} </p>
+          <p class="titleData"> مية</p>
+          <p class="usData">  {{statusUs?.me2a}} </p>
+        </div>
+          
+        <div class="row-bg flex justify-around  items-center ">
+          <p class="themData"> {{statusThem?.rob3ome2a}} </p>
+          <p class="titleData"> أربعمية</p>
+          <p class="usData">  {{statusUs?.rob3ome2a}} </p>
+        </div>
+          
+        <div class="row-bg   flex justify-around  items-center ">
+          <p class="themData"> {{statusThem?.sunKaboot}} </p>
+          <p class="titleData"> عدد الكبابيت صن</p>
+          <p class="usData">  {{statusUs?.sunKaboot}} </p>
+        </div>
+          
+        </div>
+
+      
+
       </div>
-      <div class=" absolute flex gap-5 w-full justify-center top-[110px]" ref="score">
-        <div class="TeamDetailedScore   text-right grow  ">
-          <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
-        </div>
-        <div class="  bg-gradient-to-b from-orange-500 to-black w-[3px] h-[50vh] rounded-lg  "></div>
-        <div class="TeamDetailedScore grow">
-          <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
-        </div>
-      </div>
+
+
+    
     </div>
-  </div>
-</template>
+
+  </template>
 
 <script lang="ts" setup>
-const svgQydha =ref()
-
-
-const store = useMyGameStore();
 import gsap from "gsap";
-import type { SakkaI } from "~/models/game";
-const { sleep } = useSleep();
-const { snapshot, game } = storeToRefs(store);
-const { gameService } = store;
-const team1wrapper = ref(null);
-const team2wrapper = ref(null);
-const score = ref(null);
+const {sleep} = useSleep()
+const t1 = gsap.timeline();
 
-const last_sakka_index = computed(() => {
-  return game.value?.sakkas.length! - 1;
-});
-const last_sakka = computed<SakkaI | undefined>(() => {
-  return game.value?.sakkas[last_sakka_index.value];
-});
+const enterAnimation = ()=>{  
+  t1.fromTo( "#dataHolder",{opacity:0 },{opacity:1,duration:.5})
+  .fromTo( "#headerBg",{scaleX:0 , transformOrigin:'center' },{scaleX:1,duration:.5})
+  .fromTo("#themHead",{scaleY:0 ,transformOrigin:'top'},{scaleY:1,duration:.25},'>')
+  .fromTo("#usHead",{scaleY:0 ,transformOrigin:'top'},{scaleY:1,duration:.25},'<')
+  .fromTo("#vsHead",{scaleY:0 ,transformOrigin:'top'},{scaleY:1,duration:.25},'<')
+  .fromTo(".row-bg",{opacity:0 },{opacity:1,duration:.5},'>')
+  .fromTo(".titleData",{scaleY:0 ,transformOrigin:'top'},{scaleY:1,duration:.5},'<')
+  .fromTo(".themData",{scaleX:0 ,transformOrigin:'left'},{scaleX:1,duration:.5},'>')
+  .fromTo(".usData",{scaleX:0 ,transformOrigin:'right'},{scaleX:1,duration:.5},'<')
 
-const ended_moshtras = computed(() => {
-  return last_sakka.value?.moshtaras.filter((m) => {
-    return m.state == "Ended";
-  });
-});
-const scoreMount = () => {
-  console.log("start score mount ")
-  const t1 = gsap.timeline();
-  t1.delay(2);
-  t1.fromTo([team1wrapper.value, team2wrapper.value,score.value],{opacity:0}, {
-    duration: 2,
-    opacity: 1,
-    ease: "linear",
-  });
-
+}
+const outAnimation = () => {
+  t1.timeScale(2) 
+  t1.reverse()
 };
 
-const scoreUnMount = () => {
-  const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value, score.value], {
-    duration: .3,
-    opacity: 0,
-    ease: "linear",
-  });
-};
+// onMounted(async()=>{
+//   enterAnimation()
+// await sleep(5*1000)
+//   outAnimation()
+// })
 
-onMounted(() => {
-  watchEffect(async () => {
-    if (snapshot.value.matches("detail.intro")) {
-      if (svgQydha.value) {
-        svgQydha.value.enteranimation()
-        scoreMount();
-      await sleep(4000);
+const gameStore = useMyGameStore()
+const {statics, game } = storeToRefs(gameStore)
 
-        gameService.send({ type: "NEXT" });
-      }
-    }
-    if (snapshot.value.matches("detail.main")) {
-   
-      await sleep(2000);
-      gameService.send({ type: "TO_OUTRO" });
-    }
-
-    if (snapshot.value.matches("detail.outro")) {
-      if (svgQydha.value) {
-        svgQydha.value.outAnimation()
-        scoreUnMount();
-        await sleep(2000);
-        gameService.send({ type: "CHECK_END" });
-
-      }
-    }
-  });
+const statusUs = computed(() => {
+  if (statics.value)
+    return statics.value.usStatistics;
 });
+const statusThem = computed(() => {
+  if (statics.value)
+    return statics.value.themStatistics;
+});
+
+
+onMounted(async () => {
+
+  
+  enterAnimation()
+  await sleep(4000)
+  
+  gameStore.gameService.send({ type: "NEXT" });
+  
+  gameStore.gameService.send({ type: "TO_OUTRO" });
+  outAnimation()
+  await sleep(2000)
+  gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
+  gameStore.gameService.send({ type: "CHECK_END" });
+
+  
+
+})
+
 </script>
+
 <style scoped>
-/* .detailed-score-comp {
-} */
-/*
-  Based on TailwindCSS recommendations,
-  consider using classes instead of the `@apply` directive
-  @see https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction
-*/
-.video-elm {
-  @apply relative z-[-1] left-0 top-0;
-  /* background-color: aquamarine; */
-}
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap');
 
-.TeamWrap {
-  @apply text-[white] text-center w-[499px] h-[97px] absolute opacity-0 top-[425px];
-  font-family: "arefBold";
+*{
+  font-family: Cairo
 }
+.row-bg{
+  @apply bg-gradient-to-r  even:from-zinc-700/20  from-20%  even:via-zinc-600/20  via-45%  even:to-zinc-700/20   to-80%
+                           odd:from-zinc-600/20        odd:via-zinc-700/20              odd:to-zinc-600/20  ;
+  @apply  py-2
+   
 
-.TeamName {
-  @apply absolute text-[2rem] h-[81px] flex justify-center items-center top-2 w-[300px];
 }
-
-.TeamScore {
-  @apply absolute text-slate-700 text-[2.8rem] w-[100px] h-[97px] flex justify-center items-center top-0;
-  font-family: "CairoSemiBold";
+.themData {
+  @apply ml-[30 px] mr-auto
 }
-
-.TeamSponsor {
-  @apply absolute w-[66px] h-[62px] top-[13px];
-}
-
-.TeamDetailedScore {
-  @apply text-slate-700  w-[85px] text-[2rem];
-  font-family: "CairoSemiBold";
-}
-
-.score {
-  @apply text-slate-700  text-[1rem];
-  font-family: "CairoSemiBold";
-}
-
-* {
-  font-family: "arefBold";
+.usData {
+  @apply mr-[30px] ml-auto
 }
 </style>

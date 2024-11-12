@@ -1,8 +1,8 @@
 <template v-if="gameService">
       
-
-
-  <div v-show="snapshot.matches('score')">
+      <component :is="staticsComponent" v-if="snapshot.matches('statics') && game  " />
+  
+      <div v-show="snapshot.matches('score')">
     <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>
 
@@ -14,8 +14,8 @@
 
   <div v-show="snapshot.matches('statics')">
     <transition name="fade" mode="out-in">
-      <StaticsZat v-if="snapshot.matches('statics') && game "  />
-      <!-- <component :is="winnerComponent" /> -->
+      <component :is="staticsComponent" v-if="snapshot.matches('statics') && game  " />
+
     </transition>
   </div>
 
@@ -40,7 +40,9 @@ import ScoreQydhaPortraitsvg from "../../components/Score/Qydha/portraitsvg.vue"
 
 import DetailQydhaPortrait from "../../components/Detail/Qydha/portrait.vue";
 import WinnerQydhaPortrait from "../../components/winner/Qydha/portrait.vue";
+
 import StaticsZat from "../../components/Statics/Zat/landscape.vue";
+import StaticsQydha from "../../components/Statics/Qydha/portrait.vue";
 
 
 const route = useRoute();
@@ -114,6 +116,17 @@ const winnerComponent = computed(() => {
     return WinnerQydhaLandscape;
   } else if (theme.value === "qydha" && orienation.value === "portrait") {
     return WinnerQydhaPortrait;
+  }
+  return null;
+});
+
+const staticsComponent = computed(() => {
+  if (theme.value === "zat" && orienation.value === "landscape") {
+    return StaticsZat;
+  } else if (theme.value === "qydha" && orienation.value === "landscape") {
+    return StaticsZat;
+  } else if (theme.value === "qydha" && orienation.value === "portrait") {
+    return StaticsQydha;
   }
   return null;
 });
