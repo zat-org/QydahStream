@@ -3,7 +3,7 @@
   <div class="flex justify-center  aspect-[9/16] mt-10 w-[95%] relative  mx-auto ">
     <div class="relative w-[300px] h-[100px]   origin-center top-[0px] mx-auto">
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0  " />
-      <div class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
+      <div class="absolute text-center text-white flex h-[28px] top-[17px]   -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p class="grow mt-[-5px]" :key="game?.themName">
