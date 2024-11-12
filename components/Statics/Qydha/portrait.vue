@@ -162,7 +162,7 @@ onMounted(async () => {
 
 }
 .themData {
-  @apply ml-[30 px] mr-auto
+  @apply ml-[30px] mr-auto
 }
 .usData {
   @apply mr-[30px] ml-auto
