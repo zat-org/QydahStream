@@ -11,10 +11,10 @@
           <img    src="~/assets/svg/vsbg_g1.svg" class="   absolute w-[60px] " />
             <p class=" absolute z-[20] top-[10px] text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500  " >vs </p>
         </div>
-        <p id="usHead" class="  z-[10] text-white font-semibold"> {{game?.usName}}</p>
+        <p id="usHead" class="  z-[10] text-white font-bold"> {{game?.usName}}</p>
       </div>
       
-      <div class="flex flex-col gap-1 mt-5   text-white font-semibold  ">
+      <div class="flex flex-col gap-1 mt-5   text-white font-bold  ">
         <div class="row-bg  flex justify-around  items-center  ">
           <p class="themData"> {{statusThem?.moshtaraSunCount}} </p>
           <p class="titleData">مشترى صن </p>
@@ -156,13 +156,15 @@ onMounted(async () => {
 }
 .row-bg{
   @apply bg-gradient-to-r  even:from-zinc-700/20  from-20%  even:via-zinc-600/20  via-45%  even:to-zinc-700/20   to-80%
-                           odd:from-zinc-600/20        odd:via-zinc-700/20              odd:to-zinc-600/20  ;
+                           odd:from-zinc-600/20        odd:via-zinc-700/20              odd:to-zinc-600/20 
+                          h-[25px]
+                           ;
     
    
 
 }
 .themData {
-  @apply ml-[30px] mr-auto
+  @apply ml-[30px] mr-auto 
 }
 .usData {
   @apply mr-[30px] ml-auto
