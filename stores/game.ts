@@ -115,8 +115,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
               console.log("game changed in socre  score increase ")
               game.value = newGame.value;
             }
-            else
-              if (
+            else if (
                 events.includes("ScoreUpdated") ||
                 events.includes("ScoreDecreased")
               ) {

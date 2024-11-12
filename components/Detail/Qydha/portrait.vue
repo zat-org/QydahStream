@@ -113,7 +113,7 @@ onMounted(() => {
     }
     if (snapshot.value.matches("detail.main")) {
    
-      await sleep(2000);
+      await sleep(4000);
       gameService.send({ type: "TO_OUTRO" });
     }
 

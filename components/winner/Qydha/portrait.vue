@@ -1,5 +1,5 @@
 <template>
-  <div class="winner-comp  h-[300] w-[400px]" ref="winnerComp">
+  <div class="winner-comp  h-[300] w-[400px] mt-[200px] " ref="winnerComp">
     <div  class="absolute w-[400px] h-[300px] flex justify-center  items-center top-[105px]  z-[10] " id="winner-data" ref="winnerData">
       <p id="winner-name" v-if="winner">
         {{ winner.name }}
@@ -71,6 +71,7 @@ const scoreUnMount = () => {
 
 const { sleep } = useSleep();
 const winner = computed(() => {
+  
   if (game?.value?.winner) {
     if (game.value.winner == "Us") {
       console.log(game.value.usPlayers);
@@ -78,7 +79,7 @@ const winner = computed(() => {
         players: game.value.usPlayers.length > 0 ? game.value.usPlayers : null,
         name: game.value.usName,
       };
-    } else {
+    } else if (game.value.winner == "Them") {
       console.log(game.value.themPlayers);
       return {
         players:
@@ -106,6 +107,7 @@ onMounted(() => {
         Winnersvg.value.leaveAnimation()
         scoreUnMount();
         await sleep(1500);
+        gameService.send({ type: "UPDATE_CONTEXT", ended: false });
         gameService.send({ type: "NEW_GAME" });
       }
     }
