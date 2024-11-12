@@ -3,7 +3,7 @@
     <!--header   -->
     <div  id="dataHolder"class=" flex flex-col gap-2   rounded-[50px] pb-[30px] overflow-hidden  w-[90%]  bg-gradient-to-b   from-zinc-700/55  to-zinc-600/55   my-auto ">
       
-      <div class= " relative  h-[100px]  flex justify-evenly  items-center text-3xl ">
+      <div class= " relative  h-[100px]  flex justify-evenly  items-center text-3xl  ">
         <!-- <div class="w-[85%] absolute h-[20px] bg-white top-[-10px] rounded-xl"></div> -->
         <img id="headerBg" class="absolute w-full "  src="~/assets/svg/headerbg.svg" alt="">
         <p  id="themHead" class="z-[10]  text-white font-semibold"  > {{game?.themName}}</p>
@@ -134,13 +134,13 @@ onMounted(async () => {
   enterAnimation()
   await sleep(4000)
   
-  gameStore.gameService.send({ type: "NEXT" });
+  // gameStore.gameService.send({ type: "NEXT" });
   
-  gameStore.gameService.send({ type: "TO_OUTRO" });
-  outAnimation()
-  await sleep(2000)
-  gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
-  gameStore.gameService.send({ type: "CHECK_END" });
+  // gameStore.gameService.send({ type: "TO_OUTRO" });
+  // outAnimation()
+  // await sleep(2000)
+  // gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
+  // gameStore.gameService.send({ type: "CHECK_END" });
 
   
 
