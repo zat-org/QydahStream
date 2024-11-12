@@ -20,7 +20,7 @@ const svg=ref(`<svg
       id="svg2"
       width="300"
       height="100"
-      viewBox="0 176 1132.9386 311.85226"
+      viewBox="0 0 1132.9386 311.85226"
       sodipodi:docname="Qydha Coner Score Layers.svg"
       inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
       inkscape:export-filename="corener svg.svg"
@@ -313,7 +313,7 @@ const svg=ref(`<svg
 const t1 = gsap.timeline();
 const shapes = [".Shape4", ".Shape3", ".Shape2", ".Shape1"];
  const enteranimation = () => {
-  t1.fromTo(".Logo", {opacity:0, y: 30 }, { y: -200, opacity: 1, duration: .5 })
+  t1.fromTo(".Logo", {opacity:0, y: 30 }, { y: 0, opacity: 1, duration: .5 })
     .fromTo (".Bar",{opacity:0 ,scaleY:0,transformOrigin: "bottom center" },{opacity:1 ,scaleY:1 ,duration:.5},"-=.2")
     .fromTo(shapes, {opacity: 0},{ opacity: 1, stagger: 0.1 },"<" )
     .fromTo(".RightArm .Orange", { scaleX: 0,opacity: 1 }, {scaleX: 1, duration: 1 },">")

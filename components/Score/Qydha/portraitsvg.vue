@@ -1,9 +1,9 @@
 <template>
 
-  <div class="flex justify-center  aspect-[9/16] mt-[45px] w-[95%] relative  mx-auto ">
+  <div class="flex justify-center  aspect-[9/16] mt-[100px] w-[95%] relative  mx-auto ">
     <div class="relative w-[300px] h-[100px]   origin-center top-[0px] mx-auto">
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0  " />
-      <div class="absolute text-center text-white flex h-[28px] top-[17px]   -translate-x-1/2 left-1/2 w-[280px]">
+      <div class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p class="grow mt-[-5px]" :key="game?.themName">
@@ -62,7 +62,7 @@
       </div>
     </transition>
     <transition name="fade" mode="out-in">
-      <div class=" absolute bottom-[20px] w-[80px] h-[80px] origin-center " :key="bottom.url" style="left:calc(50% - 40px)"
+      <div class=" absolute bottom-[50px] w-[80px] h-[80px] origin-center " :key="bottom.url" style="left:calc(50% - 40px)"
         v-if="bottom && bottom.url && showPlayers">
         <div class="relative   rounded-xl  w-full  h-full">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
