@@ -41,8 +41,8 @@
       </div>
     </div>
     <transition name="fade" mode="out-in">
-      <div class="absolute  left-[10px]   w-[60px] h-[60px]" :key="left.url" :style="{ 'top': 'calc(50% - 30px)', }"
-        v-if="left && left.url && showPlayers">
+      <div class="absolute  left-[10px]   w-[60px] h-[60px] playerImage" :key="left.url"
+        :style="{ 'top': 'calc(50% - 30px)', }" v-if="left && left.url && showPlayers">
         <div class="relative    w-full h-full ">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
             :style="{ 'background-image': `url(${left.url}) ` }" />
@@ -52,8 +52,8 @@
       </div>
     </transition>
     <transition name="fade" mode="out-in">
-      <div class="absolute right-[10px]  w-[60px] h-[60px]  origin-center " :key="right.url" style="top:calc(50% - 30px) "
-        v-if="right && right.url && showPlayers">
+      <div class="absolute right-[10px]  w-[60px] h-[60px]  origin-center playerImage" :key="right.url"
+        style="top:calc(50% - 30px) " v-if="right && right.url && showPlayers">
         <div class="relative    w-full h-full">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
             :style="{ 'background-image': `url(${right.url}) ` }" />
@@ -62,8 +62,8 @@
       </div>
     </transition>
     <transition name="fade" mode="out-in">
-      <div class=" absolute bottom-[25px] w-[60px] h-[60px] origin-center " :key="bottom.url" style="left:calc(50% - 30px)"
-        v-if="bottom && bottom.url && showPlayers">
+      <div class=" absolute bottom-[25px] w-[60px] h-[60px] origin-center playerImage " :key="bottom.url"
+        style="left:calc(50% - 30px)" v-if="bottom && bottom.url && showPlayers">
         <div class="relative   rounded-xl  w-full  h-full">
           <img class=" absolute z-[10] bg-center bg-cover  rounded-2xl  w-[97%] h-[97%] top-[1px] left-[1px] "
             :style="{ 'background-image': `url(${bottom.url})` }" />
@@ -118,7 +118,11 @@ const scoreUnMount = () => {
     duration: 0.3,
     opacity: 0,
     ease: "linear",
-  });
+  }).to(".playerImage", {
+    duration: 0.3,
+    opacity: 0,
+    ease: "linear",
+  },'<')
 };
 const last_sakka = computed(() => {
   return game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;

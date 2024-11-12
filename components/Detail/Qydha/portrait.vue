@@ -42,11 +42,11 @@
       </div>
       <div class=" absolute flex gap-5 w-full justify-center top-[110px]" ref="score">
         <div class="TeamDetailedScore   text-right grow  ">
-          <p class="score" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
+          <p class="score text-white" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
         </div>
         <div class="  bg-gradient-to-b from-orange-500 to-black w-[3px] h-[50vh] rounded-lg  "></div>
         <div class="TeamDetailedScore grow">
-          <p class="score" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
+          <p class="score text-white" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
         </div>
       </div>
     </div>
