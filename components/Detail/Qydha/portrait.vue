@@ -1,6 +1,6 @@
 <template>
-  <div class="flex justify-center min-w-[325px] bg-transparent">
-    <div class="relative w-[300px] h-[100px] top-[-19px]">
+  <div class="flex justify-center  aspect-[9/16] mt-5 w-[95%] relative  mx-auto ">
+    <div class="relative w-[300px] h-[100px]   origin-center top-[0px] mx-auto">
       <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 " />
 
       <div
