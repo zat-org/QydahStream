@@ -2,15 +2,17 @@
   <div class=" aspect-[9/16] mt-[55px]  flex  justify-center ">
     <!--header   -->
     <div  id="dataHolder"class=" flex flex-col gap-2   rounded-[25px] pb-[30px] overflow-hidden  w-[90%]  bg-gradient-to-b   from-zinc-700/55  to-zinc-600/55   my-auto ">
-      <div class= " relative  h-[36px]  flex justify-center   items-center text-xl  ">
+      <div class= " relative  h-[36px]  flex justify-center   items-center   ">
         <!-- <div class="w-[85%] absolute h-[20px] bg-white top-[-10px] rounded-xl"></div> -->
         <img id="headerBg" class="absolute w-full "  src="~/assets/svg/headerbg.svg" alt="">
-        <p  id="themHead" class="z-[10]  text-white font-semibold mx-auto w-[30%]"  > {{game?.themName}}</p>
-        <div id="vsHead" class="relative  w-[100px] h-[100px] z-[10]   flex justify-center items-center ">
+        <p  id="themHead" class="z-[10]  text-white font-semibold text-center  grow max-h-[36px] text-[15px]"
+        style="user-select: none; white-space: nowrap; letter-spacing: -0.5px; word-spacing: -1px;"  > {{game?.themName}}</p>
+        <div id="vsHead" class="relative  w-[42px] h-[100px] z-[10]   flex justify-center items-center ">
           <img    src="~/assets/svg/vsbg_g1.svg" class="   absolute w-[40px]  top-[33px]" />
             <p class=" absolute z-[20] top-[28px]  text-[1.5rem] font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500  " >vs </p>
         </div>
-        <p id="usHead" class="z-[10] text-white font-bold  mx-auto w-[30%] "> {{game?.usName}}</p>
+        <p id="usHead" class="z-[10] text-white font-semibold   text-center grow max-h-[36px] text-[15px]   "
+        style="user-select: none; white-space: nowrap; letter-spacing: -0.5px; word-spacing: -1px;" > {{game?.usName}}</p>
       </div>
       <div class="flex flex-col gap-1 mt-5   text-white font-bold  ">
         <div class="row-bg  flex justify-around  items-center  ">
@@ -132,14 +134,14 @@ onMounted(async () => {
   enterAnimation()
   await sleep(4000)
   
-  // gameStore.gameService.send({ type: "NEXT" });
-  // await sleep(4000)
+  gameStore.gameService.send({ type: "NEXT" });
+  await sleep(4000)
   
-  // gameStore.gameService.send({ type: "TO_OUTRO" });
-  // outAnimation()
-  // await sleep(2000)
-  // gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
-  // gameStore.gameService.send({ type: "CHECK_END" });
+  gameStore.gameService.send({ type: "TO_OUTRO" });
+  outAnimation()
+  await sleep(2000)
+  gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
+  gameStore.gameService.send({ type: "CHECK_END" });
 
   
 
