@@ -6,7 +6,7 @@
       <div class="absolute text-center text-white flex h-[28px] top-[63px]   -translate-x-1/2 left-1/2 w-[280px]">
         <div class="w-1/2 flex items-center" ref="team2wrapper">
           <transition name="fade" mode="out-in">
-            <p class="grow mt-[-5px]" :key="game?.themName">
+            <p class="grow mt-[-5px] text-[20vw]" :key="game?.themName">
               {{
                 game?.themName
                   ? game?.themName
@@ -27,7 +27,7 @@
             {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }}
           </p>
           <transition name="fade" mode="out-in">
-            <p class="grow mt-[-5px]" :key="game?.usName">
+            <p class="grow mt-[-5px] text-[20vw]" :key="game?.usName">
               {{
                 game?.usName
                   ? game?.usName
@@ -165,7 +165,7 @@ onMounted(() => {
       if (svgQydha.value) {
         scoreUnMount();
         svgQydha.value!.outAnimation()
-        await sleep(1000)
+        await sleep(1500)
         gameService.send({ type: "NEXT" });
 
       }
