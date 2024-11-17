@@ -72,15 +72,15 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         const newGameEvent = events.includes("GameStarted");
         const sakaaEnded = events.includes("SakkaEnded")
         const SakaaStarted = events.includes("SakkaStarted")
-
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
         if (gameStatics) {
           staticString.value = gameStatics;
           statics.value = JSON.parse(staticString.value)
         }
-
+        
         newGame.value = JSON.parse(gameString.value);
+        newGame.value = sakkaIsMashdoda(newGame.value!)
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
           if (newGameEvent || sakaaEnded || SakaaStarted) {
@@ -131,6 +131,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
               game.value = newGame.value;
               game_updated.value = true;
             } else if (events.includes('IsCurrentSakkaMashdodaChanged')) {
+              game.value = newGame.value;
               game_updated.value = true;
             }else{}
         
@@ -175,7 +176,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
         }
 
-        game.value = sakkaIsMashdoda(game.value!)
+
 
       }
     );
@@ -208,6 +209,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     else {
       // handele delete can be doing nothinng
     }
+
     console.log("masdda", game)
     return game
   }
