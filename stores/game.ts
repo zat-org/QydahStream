@@ -174,10 +174,8 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
         }
 
-        if (events.includes("IsCurrentSakkaMashdodaChanged")){
-         console.log("sakkaMashdoda")
-          game.value = sakkaIsMashdoda(game.value!)  
-        }
+        game.value = sakkaIsMashdoda(game.value!)
+
       }
     );
   }
@@ -186,27 +184,30 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   // await initializeConnection();
   // export const useNashraMachine = () => {
 
-  const sakkaIsMashdoda = (game:GameI) :GameI|undefined=> {
-    if (game.sakkas.length <= 0) return ;
+  const sakkaIsMashdoda = (game: GameI): GameI | undefined => {
+    if (game.sakkas.length <= 0) return;
     const lastSakka = game.sakkas[game.sakkas.length - 1]
     if (lastSakka.isMashdoda) {
       // add mostra 50 - 50 
       // add 50 to us and them in this score
-      lastSakka.usSakkaScore+=52
-      lastSakka.themSakkaScore+=52
 
-      lastSakka.moshtaras.unshift({
-        id: 20,
-        usAbnat: 50,
-        themAbnat: 50,
-        state: "addinfront",
-        advancedDetails:null
-      })
+      lastSakka.usSakkaScore += 52
+      lastSakka.themSakkaScore += 52
+      const dummy_moshtra = lastSakka.moshtaras.find((m) => { m.state == "addinfront" })
+      if (!dummy_moshtra) {
+        lastSakka.moshtaras.unshift({
+          id: 20,
+          usAbnat: 50,
+          themAbnat: 50,
+          state: "addinfront",
+          advancedDetails: null
+        })
+      }
     }
-    else{
-// handele delete can be doing nothinng
+    else {
+      // handele delete can be doing nothinng
     }
-    console.log("masdda",game)
+    console.log("masdda", game)
     return game
   }
 
