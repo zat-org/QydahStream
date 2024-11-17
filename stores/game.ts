@@ -131,7 +131,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
               game.value = newGame.value;
               game_updated.value = true;
             } else if (events.includes('IsCurrentSakkaMashdodaChanged')) {
-              game.value = newGame.value;
+              game_updated.value = true;
             }else{}
         
           }
