@@ -174,7 +174,8 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         }
 
         if (events.includes("IsCurrentSakkaMashdodaChanged")){
-          sakkaIsMashdoda(game as Ref<GameI>)  
+         console.log("sakkaMashdoda")
+          game.value = sakkaIsMashdoda(game.value!)  
         }
       }
     );
@@ -184,14 +185,14 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   // await initializeConnection();
   // export const useNashraMachine = () => {
 
-  const sakkaIsMashdoda = (game: Ref<GameI>) => {
-    if (game.value.sakkas.length <= 0) return;
-    const lastSakka = game.value.sakkas[game.value.sakkas.length - 1]
+  const sakkaIsMashdoda = (game:GameI) :GameI|undefined=> {
+    if (game.sakkas.length <= 0) return ;
+    const lastSakka = game.sakkas[game.sakkas.length - 1]
     if (lastSakka.isMashdoda) {
       // add mostra 50 - 50 
       // add 50 to us and them in this score
-      lastSakka.usSakkaScore+=50
-      lastSakka.themSakkaScore+=50
+      lastSakka.usSakkaScore+=52
+      lastSakka.themSakkaScore+=52
 
       lastSakka.moshtaras.unshift({
         id: 20,
@@ -204,6 +205,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     else{
 // handele delete can be doing nothinng
     }
+    return game
   }
 
   return {
