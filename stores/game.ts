@@ -116,22 +116,22 @@ export const useMyGameStore = defineStore("myGameStore", () => {
               game.value = newGame.value;
             }
             else if (
-                events.includes("ScoreUpdated") ||
-                events.includes("ScoreDecreased")
+              events.includes("ScoreUpdated") ||
+              events.includes("ScoreDecreased")
+            ) {
+              if (
+                events.includes("ScoreUpdated") &&
+                newGame.value?.winner !== null
               ) {
-                if (
-                  events.includes("ScoreUpdated") &&
-                  newGame.value?.winner !== null
-                ) {
-                  gameService.send({ type: "TO_OUTRO" });
-                }
-                console.log("game changed in socre  score increase 2")
-
-                game.value = newGame.value;
-                game_updated.value = true;
-              } else {
-                // game.value = newGame.value;
+                gameService.send({ type: "TO_OUTRO" });
               }
+              console.log("game changed in socre  score increase 2")
+
+              game.value = newGame.value;
+              game_updated.value = true;
+            } else {
+              // game.value = newGame.value;
+            }
         }
 
 
@@ -172,6 +172,10 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
           gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
         }
+
+        if (events.includes("IsCurrentSakkaMashdodaChanged")){
+          sakkaIsMashdoda(game as Ref<GameI>)  
+        }
       }
     );
   }
@@ -179,6 +183,28 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
   // await initializeConnection();
   // export const useNashraMachine = () => {
+
+  const sakkaIsMashdoda = (game: Ref<GameI>) => {
+    if (game.value.sakkas.length <= 0) return;
+    const lastSakka = game.value.sakkas[game.value.sakkas.length - 1]
+    if (lastSakka.isMashdoda) {
+      // add mostra 50 - 50 
+      // add 50 to us and them in this score
+      lastSakka.usSakkaScore+=50
+      lastSakka.themSakkaScore+=50
+
+      lastSakka.moshtaras.unshift({
+        id: 20,
+        usAbnat: 50,
+        themAbnat: 50,
+        state: "addinfront",
+        advancedDetails:null
+      })
+    }
+    else{
+// handele delete can be doing nothinng
+    }
+  }
 
   return {
     game_updated,
