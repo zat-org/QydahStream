@@ -19,12 +19,16 @@
             </p>
           </transition>
           <p class="w-[38px] mr-[5px] score">
-            {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }}
+            <!-- {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }} -->
+            {{  tweenedScores.team2.toFixed(0) }}
+
           </p>
         </div>
         <div class="w-1/2 flex items-center" ref="team1wrapper">
           <p class="w-[38px] ml-[4px] score">
-            {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }}
+            <!-- {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }} -->
+            {{  tweenedScores.team1.toFixed(0) }}
+
           </p>
           <transition name="fade" mode="out-in">
             <p class="grow mt-[-5px]" :key="game?.usName"  style="user-select: none; white-space: nowrap; letter-spacing: -0.5px; word-spacing: -1px;">

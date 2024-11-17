@@ -130,10 +130,11 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
               game.value = newGame.value;
               game_updated.value = true;
-            } else {
-              // game.value = newGame.value;
-            }
-        }
+            } else if (events.includes('IsCurrentSakkaMashdodaChanged')) {
+              game.value = newGame.value;
+            }else{}
+        
+          }
 
 
         if (events.includes("SakkaEnded")) {
@@ -193,13 +194,13 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
       lastSakka.usSakkaScore += 52
       lastSakka.themSakkaScore += 52
-      const dummy_moshtra = lastSakka.moshtaras.find((m) => { m.state == "addinfront" })
+      const dummy_moshtra = lastSakka.moshtaras.find((m) => { m.id == 0 })
       if (!dummy_moshtra) {
         lastSakka.moshtaras.unshift({
-          id: 20,
+          id: 0,
           usAbnat: 50,
           themAbnat: 50,
-          state: "addinfront",
+          state: "Ended",
           advancedDetails: null
         })
       }
