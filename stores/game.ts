@@ -53,6 +53,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         gameString.value = await connection.invoke("AddToBoardGroup", player_table_id);
       }
       game.value = JSON.parse(gameString.value);
+      game.value = sakkaIsMashdoda(game.value!)
     } catch (error) {
       console.log(error);
     }
@@ -205,6 +206,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     else{
 // handele delete can be doing nothinng
     }
+    console.log("masdda",game)
     return game
   }
 
