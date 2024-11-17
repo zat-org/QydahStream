@@ -193,10 +193,10 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       // add mostra 50 - 50 
       // add 50 to us and them in this score
 
-      lastSakka.usSakkaScore += 52
-      lastSakka.themSakkaScore += 52
       const dummy_moshtra = lastSakka.moshtaras.find((m) => { m.id == 0 })
       if (!dummy_moshtra) {
+        lastSakka.usSakkaScore += 52
+        lastSakka.themSakkaScore += 52
         lastSakka.moshtaras.unshift({
           id: 0,
           usAbnat: 50,
