@@ -144,7 +144,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
             let moshtraCount = statics.value?.themStatistics.moshtaraHokmCount + statics.value?.themStatistics.moshtaraSunCount + statics.value?.usStatistics.moshtaraHokmCount + statics.value?.usStatistics.moshtaraSunCount
            console.log('mostracount ',moshtraCount)
             if (moshtraCount >0){
-              gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:true });
+              // gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:true });
             }
           }
         }
