@@ -12,12 +12,12 @@
   </div>
 
 
-  <div v-show="snapshot.matches('statics')">
+  <!-- <div v-show="snapshot.matches('statics')">
     <transition name="fade" mode="out-in">
       <component :is="staticsComponent" v-if="snapshot.matches('statics') && game  " />
 
     </transition>
-  </div>
+  </div> -->
 
   <div v-show="snapshot.matches('winner')">
     <transition name="fade" mode="out-in">
