@@ -142,8 +142,10 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           sakka_ended.value = true;
           if (statics.value) {
             let moshtraCount = statics.value?.themStatistics.moshtaraHokmCount + statics.value?.themStatistics.moshtaraSunCount + statics.value?.usStatistics.moshtaraHokmCount + statics.value?.usStatistics.moshtaraSunCount
-
-            gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended: moshtraCount > 0 ? true : false });
+           console.log('mostracount ',moshtraCount)
+            if (moshtraCount >0){
+              gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:true });
+            }
           }
         }
         if (events.includes("SakkaStarted")) {
