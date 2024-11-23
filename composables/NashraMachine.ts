@@ -70,7 +70,7 @@ export const useNashraMachine = () => {
           initial: "intro",
           states: {
             intro: {
-              entry: ["startStaticsIntroAnimation"],
+              entry: ["startStaticsIntroAnimation"],  
               on: {
                 NEXT: "main",
               },
@@ -140,8 +140,8 @@ export const useNashraMachine = () => {
         showWinner: () => console.log("Showing Winner"),
       },
       guards: {
-        isMatchEnded: (ctx) => ctx.context.ended, // Check if match has ended
-        isSakkaEnded: (ctx) => ctx.context.sakkaended, // Check if match has ended
+        isMatchEnded: (ctx) => ctx.context.ended==true, // Check if match has ended
+        isSakkaEnded: (ctx) => ctx.context.sakkaended==true, // Check if match has ended
 
       },
     }

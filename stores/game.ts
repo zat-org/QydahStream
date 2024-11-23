@@ -5,7 +5,7 @@ import { interpret } from "xstate";
 export const useMyGameStore = defineStore("myGameStore", () => {
   const gameString = ref("");
   const staticString = ref("");
-  const statics = ref<IStatics>()
+  const statics = ref<IStatics>();
 
   const config = useRuntimeConfig();
 
@@ -27,7 +27,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       game.value &&
       (newGame.value.id !== game.value.id || sakka_ended.value)
     ) {
-      console.log("game change in watch state ")
+      console.log("game change in watch state ");
       game.value = newGame.value;
     }
   });
@@ -41,19 +41,25 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   async function initializeConnection() {
     try {
       await connection.start();
-      const route = useRoute()
-      const player_table_id = route.params.id?.toString()
-      const table_id = route.params.table_id?.toString()
-      const tour_id = route.params.tour_id?.toString()
-
+      const route = useRoute();
+      const player_table_id = route.params.id?.toString();
+      const table_id = route.params.table_id?.toString();
+      const tour_id = route.params.tour_id?.toString();
 
       if (table_id && tour_id) {
-        gameString.value = await connection.invoke("AddToTournamentTableGroup", +tour_id, +table_id);
+        gameString.value = await connection.invoke(
+          "AddToTournamentTableGroup",
+          +tour_id,
+          +table_id
+        );
       } else {
-        gameString.value = await connection.invoke("AddToBoardGroup", player_table_id);
+        gameString.value = await connection.invoke(
+          "AddToBoardGroup",
+          player_table_id
+        );
       }
       game.value = JSON.parse(gameString.value);
-      game.value = sakkaIsMashdoda(game.value!)
+      game.value = sakkaIsMashdoda(game.value!);
     } catch (error) {
       console.log(error);
     }
@@ -70,81 +76,82 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         console.log(events);
 
         const newGameEvent = events.includes("GameStarted");
-        const sakaaEnded = events.includes("SakkaEnded")
-        const SakaaStarted = events.includes("SakkaStarted")
+        const sakaaEnded = events.includes("SakkaEnded");
+        const SakaaStarted = events.includes("SakkaStarted");
         newGameFlag.value = newGameEvent;
         gameString.value = gameData;
         if (gameStatics) {
           staticString.value = gameStatics;
-          statics.value = JSON.parse(staticString.value)
+          statics.value = JSON.parse(staticString.value);
         }
-        
+
         newGame.value = JSON.parse(gameString.value);
-        newGame.value = sakkaIsMashdoda(newGame.value!)
+        newGame.value = sakkaIsMashdoda(newGame.value!);
         console.log(newGame.value);
         if (snapshot.value.matches("detail")) {
           if (newGameEvent || sakaaEnded || SakaaStarted) {
           } else {
-            console.log("game changed  in detail in not new ggame stated")
+            console.log("game changed  in detail in not new ggame stated");
 
-            if (events.includes('ScoreDecreased') && newGame.value?.winner == null) {
+            if (
+              events.includes("ScoreDecreased") &&
+              newGame.value?.winner == null
+            ) {
               gameService.send({ type: "UPDATE_CONTEXT", ended: null });
             }
 
             if (snapshot.value.context.ended) {
-
             } else {
               game.value = newGame.value;
             }
           }
         } else if (snapshot.value.matches("winner")) {
         } else if (snapshot.value.matches("statics")) {
-        }
-        else if (snapshot.value.matches("score")) {
+        } else if (snapshot.value.matches("score")) {
           if (events.includes("NamesChanged") && events.length == 1) {
-            console.log("game changed in score  in name changed ")
-            game.value = newGame.value
+            console.log("game changed in score  in name changed ");
+            game.value = newGame.value;
           }
 
           if (newGameEvent) {
             // console.log("game changed in score  in start game  ")
             // game.value = newGame.value
-          }
-          else
-            if (events.includes("ScoreIncreased")) {
-              gameService.send({ type: "TO_OUTRO" });
-              console.log("game changed in socre  score increase ")
-              game.value = newGame.value;
-            }
-            else if (
-              events.includes("ScoreUpdated") ||
-              events.includes("ScoreDecreased")
+          } else if (events.includes("ScoreIncreased")) {
+            gameService.send({ type: "TO_OUTRO" });
+            console.log("game changed in socre  score increase ");
+            game.value = newGame.value;
+          } else if (
+            events.includes("ScoreUpdated") ||
+            events.includes("ScoreDecreased")
+          ) {
+            if (
+              events.includes("ScoreUpdated") &&
+              newGame.value?.winner !== null
             ) {
-              if (
-                events.includes("ScoreUpdated") &&
-                newGame.value?.winner !== null
-              ) {
-                gameService.send({ type: "TO_OUTRO" });
-              }
-              console.log("game changed in socre  score increase 2")
+              gameService.send({ type: "TO_OUTRO" });
+            }
+            console.log("game changed in socre  score increase 2");
 
-              game.value = newGame.value;
-              game_updated.value = true;
-            } else if (events.includes('IsCurrentSakkaMashdodaChanged')) {
-              game.value = newGame.value;
-              game_updated.value = true;
-            }else{}
-        
+            game.value = newGame.value;
+            game_updated.value = true;
+          } else if (events.includes("IsCurrentSakkaMashdodaChanged")) {
+            game.value = newGame.value;
+            game_updated.value = true;
+          } else {
           }
-
+        }
 
         if (events.includes("SakkaEnded")) {
           sakka_ended.value = true;
           if (statics.value) {
-            let moshtraCount = statics.value?.themStatistics.moshtaraHokmCount + statics.value?.themStatistics.moshtaraSunCount + statics.value?.usStatistics.moshtaraHokmCount + statics.value?.usStatistics.moshtaraSunCount
-           console.log('mostracount ',moshtraCount)
-            if (moshtraCount >0){
-              // gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:true });
+            let moshtraCount =
+              statics.value?.themStatistics.moshtaraHokmCount +
+              statics.value?.themStatistics.moshtaraSunCount +
+              statics.value?.usStatistics.moshtaraHokmCount +
+              statics.value?.usStatistics.moshtaraSunCount;
+            console.log("mostracount ", moshtraCount);
+            if (moshtraCount > 0) {
+              gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:true });
             }
           }
         }
@@ -153,7 +160,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         }
 
         if (events.includes("GameEnded")) {
-
           let winner = false;
 
           const us_photo =
@@ -177,44 +183,41 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
           gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
         }
-
-
-
       }
     );
   }
-
 
   // await initializeConnection();
   // export const useNashraMachine = () => {
 
   const sakkaIsMashdoda = (game: GameI): GameI | undefined => {
     if (game.sakkas.length <= 0) return;
-    const lastSakka = game.sakkas[game.sakkas.length - 1]
+    const lastSakka = game.sakkas[game.sakkas.length - 1];
     if (lastSakka.isMashdoda) {
-      // add mostra 50 - 50 
+      // add mostra 50 - 50
       // add 50 to us and them in this score
 
-      const dummy_moshtra = lastSakka.moshtaras.find((m) => { m.id == 0 })
+      const dummy_moshtra = lastSakka.moshtaras.find((m) => {
+        m.id == 0;
+      });
       if (!dummy_moshtra) {
-        lastSakka.usSakkaScore += 52
-        lastSakka.themSakkaScore += 52
+        lastSakka.usSakkaScore += 52;
+        lastSakka.themSakkaScore += 52;
         lastSakka.moshtaras.unshift({
           id: 0,
           usAbnat: 50,
           themAbnat: 50,
           state: "Ended",
-          advancedDetails: null
-        })
+          advancedDetails: null,
+        });
       }
-    }
-    else {
+    } else {
       // handele delete can be doing nothinng
     }
 
-    console.log("masdda", game)
-    return game
-  }
+    console.log("masdda", game);
+    return game;
+  };
 
   return {
     game_updated,
