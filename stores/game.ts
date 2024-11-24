@@ -225,14 +225,14 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       const advanced_write =
       game.value?.sakkas[game.value?.sakkas.length-1].moshtaras.every(m=>{return m.advancedDetails !=null })
 
-      console.log(advanced_write);
-      let moshtraCount =
-        statics.value?.themStatistics.moshtaraHokmCount +
-        statics.value?.themStatistics.moshtaraSunCount +
-        statics.value?.usStatistics.moshtaraHokmCount +
-        statics.value?.usStatistics.moshtaraSunCount;
-      console.log("mostracount ", moshtraCount);
-      if (moshtraCount > 0) {
+      console.log("show statistics",advanced_write);
+      // let moshtraCount =
+      //   statics.value?.themStatistics.moshtaraHokmCount +
+      //   statics.value?.themStatistics.moshtaraSunCount +
+      //   statics.value?.usStatistics.moshtaraHokmCount +
+      //   statics.value?.usStatistics.moshtaraSunCount;
+      // console.log("mostracount ", moshtraCount);
+      if (advanced_write) {
         gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended: true });
       }
     }
