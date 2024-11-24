@@ -6,33 +6,46 @@
       muted
       height="1080"
       width="1920"
-      src="/videos/qydha/landscape/Corner_Score.webm"></video>
+      src="/videos/qydha/landscape/Corner_Score.webm"
+    ></video>
     <div class="left-[970px] teamWrap" ref="team1wrapper">
- 
       <transition name="fade" mode="out-in">
         <p :key="game?.usName" class="left-14 teamName">
-          {{game?.usName}}
- 
+          {{ game?.usName }}
         </p>
       </transition>
       <p class="left-[2px] score">
-        {{ newGameFlag ? "0" : tweenedScores.team1.toFixed() }}
+        {{
+          newGameFlag
+            ? 0
+            : sakka_ended
+            ? game?.usGameScore
+            : // : newGameFlag
+              // ? "0"
+              tweenedScores.team1.toFixed(0)
+        }}
       </p>
     </div>
 
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="-right-[2px] score">
-        {{ newGameFlag ? "0" : tweenedScores.team2.toFixed() }}
+        {{
+          newGameFlag
+            ? 0
+            : sakka_ended
+            ? game?.themGameScore
+            : // : newGameFlag
+              // ? "0"
+              tweenedScores.team2.toFixed(0)
+        }}
       </p>
       <transition name="fade" mode="out-in">
         <p :key="game?.themName" class="teamName left-[82px]">
-          {{ game?.themName}}
+          {{ game?.themName }}
         </p>
       </transition>
-
     </div>
   </div>
-
 </template>
 
 <script lang="ts" setup>
@@ -101,7 +114,7 @@ watch(game_updated, (new_value, old_value) => {
     game_updated.value = false;
   }
 });
-console.log(game.value)
+console.log(game.value);
 onMounted(() => {
   watchEffect(async () => {
     if (snapshot.value.matches("score.intro")) {

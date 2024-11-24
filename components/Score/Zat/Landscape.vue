@@ -1,29 +1,53 @@
 <template>
   <div>
-    <video ref="mediaElm" class="video" muted height="1080" width="1920" :src="'/videos/zat/Corner_Score.webm'"></video>
+    <video
+      ref="mediaElm"
+      class="video"
+      muted
+      height="1080"
+      width="1920"
+      :src="'/videos/zat/Corner_Score.webm'"
+    ></video>
     <div class="left-[976px] teamWrap" ref="team1wrapper">
-      <img :src="'/images/zat/zat_white.svg'" class="SponsorImage left-[254px]" />
+      <img
+        :src="'/images/zat/zat_white.svg'"
+        class="SponsorImage left-[254px]"
+      />
       <transition name="fade" mode="out-in">
         <p :key="game?.usName" class="left-14 teamName">
           {{
             game?.usName
               ? game?.usName
               : game?.usPlayers.length == 0
-                ? "لنا"
-                : game?.usPlayers[0].name + " | " + game?.usPlayers[1].name
+              ? "لنا"
+              : game?.usPlayers[0].name + " | " + game?.usPlayers[1].name
           }}
         </p>
       </transition>
       <p class="left-[0px] score">
-
-        {{ sakka_ended ? game?.usGameScore : newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }}
+        {{
+          newGameFlag
+            ? 0
+            : sakka_ended
+            ? game?.usGameScore
+            // : newGameFlag
+            // ? "0"
+            : tweenedScores.team1.toFixed(0)
+        }}
       </p>
     </div>
 
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="left-[269px] score">
-        {{ sakka_ended ? game?.themGameScore: newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }}
-
+        {{
+          newGameFlag
+            ? 0
+            : sakka_ended
+            ? game?.themGameScore
+            // : newGameFlag
+            // ? "0"
+            : tweenedScores.team2.toFixed(0)
+        }}
       </p>
       <transition name="fade" mode="out-in">
         <p :key="game?.themName" class="teamName left-[82px]">
@@ -31,22 +55,18 @@
             game?.themName
               ? game?.themName
               : game?.themPlayers.length == 0
-                ? "لهم"
-                : game?.themPlayers[0].name + " | " + game?.themPlayers[1].name
+              ? "لهم"
+              : game?.themPlayers[0].name + " | " + game?.themPlayers[1].name
           }}
         </p>
       </transition>
       <img :src="'/images/zat/zat_black.svg'" class="SponsorImage left-[3px]" />
     </div>
   </div>
-
 </template>
 
 <script lang="ts" setup>
-
-
 import gsap from "gsap";
-
 
 const store = useMyGameStore();
 const { snapshot, game, sakka_ended, newGameFlag, game_updated } =
@@ -95,10 +115,9 @@ const scoreUnMount = () => {
   });
 };
 let last_sakka = computed(() => {
-  console.log(game.value)
+  console.log(game.value);
   return game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
-
-})
+});
 
 watch(newGameFlag, (new_value, old_value) => {
   if (new_value == true) {
@@ -108,16 +127,13 @@ watch(newGameFlag, (new_value, old_value) => {
 });
 
 watch(game_updated, (new_value, old_value) => {
-  console.log(game_updated.value)
+  console.log(game_updated.value);
   if (game_updated.value == true) {
-    tweenedScores.team1 =
-      last_sakka.value!.usSakkaScore!;
-    tweenedScores.team2 =
-      last_sakka.value!.themSakkaScore!;
+    tweenedScores.team1 = last_sakka.value!.usSakkaScore!;
+    tweenedScores.team2 = last_sakka.value!.themSakkaScore!;
     game_updated.value = false;
   }
-})
-
+});
 
 onMounted(async () => {
   watchEffect(async () => {
@@ -126,8 +142,14 @@ onMounted(async () => {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
 
-        scoreMount(last_sakka.value?.isMashdoda ? last_sakka.value!.usSakkaScore! + 60 : last_sakka.value!.usSakkaScore!,
-          last_sakka.value?.isMashdoda ? last_sakka.value!.themSakkaScore! + 60 : last_sakka.value!.themSakkaScore!);
+        scoreMount(
+          last_sakka.value?.isMashdoda
+            ? last_sakka.value!.usSakkaScore! + 60
+            : last_sakka.value!.usSakkaScore!,
+          last_sakka.value?.isMashdoda
+            ? last_sakka.value!.themSakkaScore! + 60
+            : last_sakka.value!.themSakkaScore!
+        );
         await sleep(intro_end_sec * 1000);
         mediaElm.value.pause();
         mediaElm.value.currentTime = score_sec;
@@ -164,8 +186,7 @@ onMounted(async () => {
 .fade-enter-from,
 .fade-leave-to
 
-/* .fade-leave-active in <2.1.8 */
-  {
+/* .fade-leave-active in <2.1.8 */ {
   @apply opacity-0;
 }
 

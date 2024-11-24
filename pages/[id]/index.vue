@@ -1,27 +1,32 @@
 <template v-if="gameService">
-      
-      <component :is="staticsComponent" v-if="snapshot.matches('statics') && game  " />
   
-      <div v-show="snapshot.matches('score')">
+  <div v-show="snapshot.matches('score')">
     <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>
 
   <!-- Detail Screen -->
   <div v-show="snapshot.matches('detail')">
-    <component :is="detailComponent" v-if="snapshot.matches('detail') && game" />
+    <component
+      :is="detailComponent"
+      v-if="snapshot.matches('detail') && game"
+    />
   </div>
-
 
   <div v-show="snapshot.matches('statics')">
     <transition name="fade" mode="out-in">
-      <component :is="staticsComponent" v-if="snapshot.matches('statics') && game  " />
-
+      <component
+        :is="staticsComponent"
+        v-if="snapshot.matches('statics') && game"
+      />
     </transition>
   </div>
 
   <div v-show="snapshot.matches('winner')">
     <transition name="fade" mode="out-in">
-      <component :is="winnerComponent" v-if="snapshot.matches('winner') && game " />
+      <component
+        :is="winnerComponent"
+        v-if="snapshot.matches('winner') && game"
+      />
     </transition>
   </div>
 </template>
@@ -44,7 +49,6 @@ import WinnerQydhaPortrait from "../../components/winner/Qydha/portrait.vue";
 import StaticsZat from "../../components/Statics/Zat/landscape.vue";
 import StaticsQydha from "../../components/Statics/Qydha/portrait.vue";
 
-
 const route = useRoute();
 const router = useRouter();
 
@@ -53,9 +57,7 @@ const table_id =
 console.log(table_id);
 const theme = ref("zat");
 const orienation = ref("landscape");
-const showPlayers= ref(false);
-
-
+const showPlayers = ref(false);
 
 if (
   route.query.theme &&
@@ -73,9 +75,8 @@ if (
     : "landscape";
 }
 
-
-if ( route.query.showPlayers ){
-  showPlayers.value = route.query.showPlayers == "true"?true :false 
+if (route.query.showPlayers) {
+  showPlayers.value = route.query.showPlayers == "true" ? true : false;
 }
 
 router.push({
@@ -83,7 +84,7 @@ router.push({
   query: {
     theme: theme.value,
     orienation: orienation.value,
-    showPlayers:`${showPlayers.value}`
+    showPlayers: `${showPlayers.value}`,
   },
 });
 
@@ -131,15 +132,14 @@ const staticsComponent = computed(() => {
   return null;
 });
 
-
 const gamestore = useMyGameStore();
-const { gameService, initializeConnection ,connection,} = gamestore;
+const { gameService, initializeConnection, connection } = gamestore;
 await initializeConnection();
-if( (connection.state as string) !="Connected"){
+if ((connection.state as string) != "Connected") {
   await initializeConnection();
 }
 
-const { snapshot ,game} = storeToRefs(gamestore);
+const { snapshot, game } = storeToRefs(gamestore);
 </script>
 
 <style>
