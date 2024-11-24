@@ -139,7 +139,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           usAbnat: 50,
           themAbnat: 50,
           state: "Ended",
-          advancedDetails: null,
+          advancedDetails: [],
         });
       }
     } else {
@@ -223,8 +223,8 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     sakka_ended.value = true;
     if (statics.value) {
       const advanced_write = game.value?.sakkas.every((s) => {
-        s.moshtaras.every((m) => {
-          m.advancedDetails;
+        return s.moshtaras.every((m) => {
+          return m.advancedDetails.length>0 ;
         });
       });
       console.log(advanced_write);

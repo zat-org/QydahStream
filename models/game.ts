@@ -1,5 +1,5 @@
 export interface MoshtraI {
-  advancedDetails: null;
+  advancedDetails: any[];
   id: number;
   usAbnat: number;
   themAbnat: number;
