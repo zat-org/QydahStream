@@ -1,5 +1,8 @@
 export interface MoshtraI {
-  advancedDetails: any[];
+  advancedDetails: {
+    moshtara: string;
+    selectedMoshtaraOwner: string;
+  } | null;
   id: number;
   usAbnat: number;
   themAbnat: number;
@@ -15,7 +18,6 @@ export interface SakkaI {
   themSakkaScore: number;
   usSakkaScore: number;
 }
-
 
 export interface GameI {
   sakkas: SakkaI[];
@@ -36,42 +38,41 @@ export interface GameI {
   winner: null | string;
 }
 
-
 export interface IStatics {
   usStatistics: {
-    playedSakkas: number,
-    winnedSakkas: number,
-    lostSakka: number,
-    moshtaraSunCount: number,
-    moshtaraHokmCount: number,
-    wonMoshtaraCount: number,
-    lostMoshtaraCount:number,
-    ekak: number,
-    aklat: number,
-    sra: number,
-    khamsen: number,
-    me2a: number,
-    rob3ome2a: number,
-    baloot: number,
-    sunKaboot: number,
-    hokmKaboo: number
-  },
+    playedSakkas: number;
+    winnedSakkas: number;
+    lostSakka: number;
+    moshtaraSunCount: number;
+    moshtaraHokmCount: number;
+    wonMoshtaraCount: number;
+    lostMoshtaraCount: number;
+    ekak: number;
+    aklat: number;
+    sra: number;
+    khamsen: number;
+    me2a: number;
+    rob3ome2a: number;
+    baloot: number;
+    sunKaboot: number;
+    hokmKaboo: number;
+  };
   themStatistics: {
-    winnedSakkas: number,
-    playedSakkas: number,
-    lostSakka: number,
-    moshtaraSunCount:number,
-    moshtaraHokmCount: number,
-    wonMoshtaraCount: number,
-    lostMoshtaraCount: number,
-    ekak: number,
-    aklat: number,
-    sra: number,
-    khamsen: number,
-    me2a: number,
-    rob3ome2a:number,
-    baloot: number,
-    sunKaboot: number,
-    hokmKaboot: number
-  }
+    winnedSakkas: number;
+    playedSakkas: number;
+    lostSakka: number;
+    moshtaraSunCount: number;
+    moshtaraHokmCount: number;
+    wonMoshtaraCount: number;
+    lostMoshtaraCount: number;
+    ekak: number;
+    aklat: number;
+    sra: number;
+    khamsen: number;
+    me2a: number;
+    rob3ome2a: number;
+    baloot: number;
+    sunKaboot: number;
+    hokmKaboot: number;
+  };
 }

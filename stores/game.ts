@@ -139,7 +139,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           usAbnat: 50,
           themAbnat: 50,
           state: "Ended",
-          advancedDetails: [],
+          advancedDetails: null,
         });
       }
     } else {
@@ -222,11 +222,9 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   const handelSakkaEnded = () => {
     sakka_ended.value = true;
     if (statics.value) {
-      const advanced_write = game.value?.sakkas.every((s) => {
-        return s.moshtaras.every((m) => {
-          return m.advancedDetails.length>0 ;
-        });
-      });
+      const advanced_write =
+      game.value?.sakkas[game.value?.sakkas.length-1].moshtaras.every(m=>{return m.advancedDetails !=null })
+
       console.log(advanced_write);
       let moshtraCount =
         statics.value?.themStatistics.moshtaraHokmCount +
