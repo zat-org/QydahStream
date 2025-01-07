@@ -103,7 +103,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           handelWinner();
         } else if (snapshot.value.matches("statics")) {
           handelStatics();
-        } else if (snapshot.value.matches("score")) {
+        } else if (snapshot.value.matches("score.main")) {
           handelScore();
         }
 
