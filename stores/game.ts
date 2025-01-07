@@ -149,6 +149,9 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     return game;
   };
   const handelDetail = () => {
+    console.log(newGameEvent)
+    console.log(sakaaEnded)
+    console.log(SakaaStarted)
     if (newGameEvent || sakaaEnded || SakaaStarted) {
       console.log(" new game start in detail")
       console.log(" or saka ended  in detail")
