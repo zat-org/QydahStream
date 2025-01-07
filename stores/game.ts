@@ -97,7 +97,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         console.log(newGame.value);
 
-        if (snapshot.value.matches("detail.main")  ) {
+        if (snapshot.value.matches("detail")  ) {
           handelDetail();
         } else if (snapshot.value.matches("winner")) {
           handelWinner();
@@ -111,7 +111,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           handelSakkaEnded();
         }
         if (events.includes("SakkaStarted")) {
-          sakka_ended.value = true;
+          // sakka_ended.value = true;
         }
 
         if (events.includes("GameEnded")) {
@@ -145,7 +145,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       // handele delete can be doing nothinng
     }
 
-    console.log("masdda", game);
+    // console.log("masdda", game);
     return game;
   };
   const handelDetail = () => {
@@ -154,14 +154,13 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       console.log(" or saka ended  in detail")
       console.log(" or saka  start in detail")
     } else {
-      console.log("game changed  in detail in not new ggame stated");
       if (events.includes("ScoreDecreased") && newGame.value?.winner == null) {
         gameService.send({ type: "UPDATE_CONTEXT", ended: null });
         if (!snapshot.value.context.ended){
           game.value = newGame.value;
+          console.log("game changed  in detail in not new ggame stated");
         }
       }
-      
     }
   };
   const handelWinner = () => {};
@@ -187,15 +186,16 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         gameService.send({ type: "TO_OUTRO" });
       }
       console.log("game changed in socre  score increase 2");
-
       game.value = newGame.value;
       game_updated.value = true;
     } else if (events.includes("IsCurrentSakkaMashdodaChanged")) {
+      console.log("game changed in score  IsCurrentSakkaMashdodaChanged");
       game.value = newGame.value;
       game_updated.value = true;
     } else {
     }
   };
+  // to show  winner 
   const handelGameEnded = () => {
     let winner = false;
 
@@ -220,6 +220,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
     gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
   };
+  // to show statics
   const handelSakkaEnded = () => {
     sakka_ended.value = true;
     if (statics.value) {
