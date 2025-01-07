@@ -34,7 +34,6 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   gameService.subscribe((state) => {
     snapshot.value = state;
     if (
-      snapshot.value.matches("score") &&
       snapshot.value.matches("score.intro") &&
       newGame.value &&
       game.value &&
@@ -98,7 +97,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         console.log(newGame.value);
 
-        if (snapshot.value.matches("detail")) {
+        if (snapshot.value.matches("detail.main")  ) {
           handelDetail();
         } else if (snapshot.value.matches("winner")) {
           handelWinner();
@@ -151,16 +150,18 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   };
   const handelDetail = () => {
     if (newGameEvent || sakaaEnded || SakaaStarted) {
+      console.log(" new game start in detail")
+      console.log(" or saka ended  in detail")
+      console.log(" or saka  start in detail")
     } else {
       console.log("game changed  in detail in not new ggame stated");
       if (events.includes("ScoreDecreased") && newGame.value?.winner == null) {
         gameService.send({ type: "UPDATE_CONTEXT", ended: null });
+        if (!snapshot.value.context.ended){
+          game.value = newGame.value;
+        }
       }
-
-      if (snapshot.value.context.ended) {
-      } else {
-        game.value = newGame.value;
-      }
+      
     }
   };
   const handelWinner = () => {};
