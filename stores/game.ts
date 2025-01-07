@@ -156,11 +156,12 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     } else {
       if (events.includes("ScoreDecreased") && newGame.value?.winner == null) {
         gameService.send({ type: "UPDATE_CONTEXT", ended: null });
-        if (!snapshot.value.context.ended){
-          game.value = newGame.value;
-          console.log("game changed  in detail in not new ggame stated");
-        }
       }
+      if (!snapshot.value.context.ended){
+        game.value = newGame.value;
+        console.log("game changed  in detail in not new ggame stated and not sakka ended or started ");
+      }
+
     }
   };
   const handelWinner = () => {};
