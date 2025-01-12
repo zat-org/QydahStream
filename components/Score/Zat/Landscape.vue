@@ -30,9 +30,9 @@
             ? 0
             : sakka_ended
             ? game?.usGameScore
-            // : newGameFlag
-            // ? "0"
-            : tweenedScores.team1.toFixed(0)
+            : // : newGameFlag
+              // ? "0"
+              tweenedScores.team1.toFixed(0)
         }}
       </p>
     </div>
@@ -44,9 +44,9 @@
             ? 0
             : sakka_ended
             ? game?.themGameScore
-            // : newGameFlag
-            // ? "0"
-            : tweenedScores.team2.toFixed(0)
+            : // : newGameFlag
+              // ? "0"
+              tweenedScores.team2.toFixed(0)
         }}
       </p>
       <transition name="fade" mode="out-in">
@@ -143,12 +143,8 @@ onMounted(async () => {
         mediaElm.value.play();
 
         scoreMount(
-          last_sakka.value?.isMashdoda
-            ? last_sakka.value!.usSakkaScore! + 60
-            : last_sakka.value!.usSakkaScore!,
-          last_sakka.value?.isMashdoda
-            ? last_sakka.value!.themSakkaScore! + 60
-            : last_sakka.value!.themSakkaScore!
+          last_sakka.value!.usSakkaScore!,
+          last_sakka.value!.themSakkaScore!
         );
         await sleep(intro_end_sec * 1000);
         mediaElm.value.pause();
