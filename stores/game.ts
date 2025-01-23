@@ -121,6 +121,9 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     );
   }
 
+
+
+  
   const sakkaIsMashdoda = (game: GameI): GameI | undefined => {
     if (game.sakkas.length <= 0) return;
     const lastSakka = game.sakkas[game.sakkas.length - 1];
