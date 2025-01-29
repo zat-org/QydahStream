@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center  aspect-[9/16] mt-[55px] w-[95%] relative  mx-auto ">
+  <div class="flex justify-center  aspect-[9/16]  w-[95%] relative  mx-auto ">
     <div class="relative w-[300px] h-[100px]   origin-center top-[0px] mx-auto">
       <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 " />
 

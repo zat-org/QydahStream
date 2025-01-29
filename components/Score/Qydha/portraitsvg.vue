@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-center aspect-[9/16] mt-[55px] w-[95%] relative mx-auto"
+    class="flex justify-center aspect-[9/16]  w-[95%] relative mx-auto"
   >
     <div class="relative w-[300px] h-[100px] origin-center top-[0px] mx-auto">
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
@@ -81,7 +81,7 @@
     </div>
     <transition name="fade" mode="out-in">
       <div
-        class="absolute left-[10px] w-[60px] h-[60px] playerImage"
+        class="absolute left-0 w-[60px] h-[60px] playerImage"
         :key="left.url"
         :style="{ top: 'calc(50% - 30px)' }"
         v-if="left && left.url && showPlayers"
@@ -100,7 +100,7 @@
     </transition>
     <transition name="fade" mode="out-in">
       <div
-        class="absolute right-[10px] w-[60px] h-[60px] origin-center playerImage"
+        class="absolute right-0 w-[60px] h-[60px] origin-center playerImage"
         :key="right.url"
         style="top: calc(50% - 30px)"
         v-if="right && right.url && showPlayers"
@@ -119,7 +119,7 @@
     </transition>
     <transition name="fade" mode="out-in">
       <div
-        class="absolute bottom-[25px] w-[60px] h-[60px] origin-center playerImage"
+        class="absolute bottom-[15px] w-[60px] h-[60px] origin-center playerImage"
         :key="bottom.url"
         style="left: calc(50% - 30px)"
         v-if="bottom && bottom.url && showPlayers"
