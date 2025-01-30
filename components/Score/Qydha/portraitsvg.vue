@@ -82,8 +82,9 @@
     <transition name="fade" mode="out-in">
       <div
         class="absolute left-0 w-[60px] h-[60px] playerImage"
+        :class=" 'left-['+ tableData.LeftPlayer.left+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
         :key="left.url"
-        :style="{ top: 'calc(50% - 30px)' }"
+        :style="{ top: tableData.RightPlayer.top }"
         v-if="left && left.url && showPlayers"
       >
         <div class="relative w-full h-full">
@@ -101,8 +102,10 @@
     <transition name="fade" mode="out-in">
       <div
         class="absolute right-0 w-[60px] h-[60px] origin-center playerImage"
+        :class=" 'left-['+ tableData.RightPlayer.right+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
+
         :key="right.url"
-        style="top: calc(50% - 30px)"
+        :style="{top: tableData.LeftPlayer.top}"
         v-if="right && right.url && showPlayers"
       >
         <div class="relative w-full h-full">
@@ -120,8 +123,9 @@
     <transition name="fade" mode="out-in">
       <div
         class="absolute bottom-[15px] w-[60px] h-[60px] origin-center playerImage"
+        :class=" 'bottom-['+ tableData.BottomPlayer.bottom+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
         :key="bottom.url"
-        style="left: calc(50% - 30px)"
+        :style="{left: tableData.BottomPlayer.left}"
         v-if="bottom && bottom.url && showPlayers"
       >
         <div class="relative rounded-xl w-full h-full">
@@ -143,12 +147,17 @@
 const route = useRoute();
 let showPlayers = route.query.showPlayers?.toString() ?? "false";
 showPlayers = JSON.parse(showPlayers);
-console.log(showPlayers);
+const tableConmbosable=useTable()
+const table_id =(route.params.id as string)
+const  tableData = await  tableConmbosable.getOrCreateTable(table_id)
+
+
 
 const store = useMyGameStore();
 const svgQydha = ref();
 const { sleep } = useSleep();
 import gsap from "gsap";
+import { useTable } from "~/composables/Table";
 const { snapshot, game, sakka_ended, newGameFlag, game_updated } =
   storeToRefs(store);
 
