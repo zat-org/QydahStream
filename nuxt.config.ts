@@ -23,10 +23,10 @@ export default defineNuxtConfig({
 
   vuefire: {
     config: {
-      apiKey: "AIzaSyCGO9_gAJK-pRT6mJ84mNazNBhsuym9Gm4",
-      authDomain: "streamconf-41f3c.firebaseapp.com",
-      projectId: "streamconf-41f3c",
-      appId: "1:369467920206:web:a98ce5ba5257ae50c3d81f",
+      apiKey: process.env.apiKey,
+      authDomain:process.env.authDomain,
+      projectId: process.env.projectId,
+      appId: process.env.appId,
     },
   },
 

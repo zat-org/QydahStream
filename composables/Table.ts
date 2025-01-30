@@ -11,6 +11,8 @@ interface TableData {
 
 export const useTable = async() => {
   const db = useFirestore();
+
+  
   const tableData = ref<TableData>({
     id: "",
     PlayerImageWidth: 60,
