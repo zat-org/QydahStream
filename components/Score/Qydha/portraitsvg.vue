@@ -138,7 +138,6 @@
           bottom: tableData.BottomPlayer.bottom,
           height:tableData.PlayerImageWidth+'px',
           width:tableData.PlayerImageWidth+'px',
-          
           }"
         v-if="bottom && bottom.url && showPlayers"
       >
@@ -165,7 +164,7 @@ showPlayers = JSON.parse(showPlayers);
 const table_id =(route.params.id as string)
 const  {tableData} =useTable()
 
-await  useTable().getOrCreateTable(table_id)
+await useTable().getOrCreateTable(table_id)
 console.log(tableData)
 
 

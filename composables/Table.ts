@@ -40,8 +40,11 @@ export const useTable = () => {
       tableData.value = defaultTableData;
       await setDoc(tableRef, defaultTableData);
     }
-    const unsubscribe = onSnapshot(tableRef, (doc) => {
+     onSnapshot(tableRef, (doc) => {
       tableData.value = doc.data() as TableData;
+      console.log(doc.data())
+
+      console.log("data chnaged")
     });
   };
 
