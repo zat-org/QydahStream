@@ -10,7 +10,13 @@ interface TableData {
 
 export const useTable = () => {
   const db = useFirestore();
-  const tableData = ref();
+  const tableData = ref<TableData>({
+    id: "",
+    PlayerImageWidth: 60,
+    LeftPlayer: { top: "calc(50% - 30px)", left: "0px" },
+    RightPlayer: { top: "calc(50% - 30px)", right: "0px" },
+    BottomPlayer: { bottom: "0px", left: "calc(50% - 30px)" },
+  });
   const getOrCreateTable = async (tableId: string) => {
     const tableRef = doc(db, "tables", tableId);
     const docSnap = await getDoc(tableRef);
@@ -31,17 +37,16 @@ export const useTable = () => {
       defaultTableData.BottomPlayer.left = `calc(50% - ${
         defaultTableData.PlayerImageWidth / 2
       }px)`;
-      tableData.value=defaultTableData
+      tableData.value = defaultTableData;
       await setDoc(tableRef, defaultTableData);
     }
     const unsubscribe = onSnapshot(tableRef, (doc) => {
-      tableData.value = doc.data();
+      tableData.value = doc.data() as TableData;
     });
-
-    return tableData;
   };
 
   return {
     getOrCreateTable,
+    tableData,
   };
 };

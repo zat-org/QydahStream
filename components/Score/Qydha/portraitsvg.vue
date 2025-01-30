@@ -82,7 +82,7 @@
     <transition name="fade" mode="out-in">
       <div
         class="absolute  playerImage"
-        :class=" 'left-['+ tableData.LeftPlayer.left+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
+        :class=" 'left-['+ tableData.LeftPlayer.left +'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
         :key="left.url"
         :style="{ top: tableData.RightPlayer.top }"
         v-if="left && left.url && showPlayers"
@@ -147,9 +147,11 @@
 const route = useRoute();
 let showPlayers = route.query.showPlayers?.toString() ?? "false";
 showPlayers = JSON.parse(showPlayers);
-const tableConmbosable=useTable()
+
 const table_id =(route.params.id as string)
-const  tableData = await  tableConmbosable.getOrCreateTable(table_id)
+const  {tableData} =useTable()
+
+await  useTable().getOrCreateTable(table_id)
 console.log(tableData)
 
 
