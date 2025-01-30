@@ -1,6 +1,6 @@
 import { useFirestore, useDocument } from "vuefire";
 import { doc, setDoc } from "firebase/firestore";
-
+import { until } from '@vueuse/core'
 interface TableData {
   id: string;
   LeftPlayer : {top:string ,left:string };
@@ -11,13 +11,13 @@ interface TableData {
 
 export const useTable = () => {
   const db = useFirestore();
-
   const getOrCreateTable = async (tableId: string)=> {
     const tableRef = doc(db, "tables", tableId);
     const { data: tableDoc } = useDocument(tableRef);
-
+    await until(tableDoc).not.toBeNull()
     const tableData = computed(() => {
       if (tableDoc.value) {
+        console.log(" it was added ")
         return tableDoc.value as TableData;
       }
 
@@ -33,9 +33,16 @@ export const useTable = () => {
       defaultTableData.BottomPlayer.left=`calc(50% - ${defaultTableData.PlayerImageWidth}px)`
 
       // Create new table if it doesn't exist
-      setDoc(tableRef, defaultTableData);
+      try{
+        setDoc(tableRef, defaultTableData);
+
+      }catch(e){
+        console.log(e)
+      }
+
       return defaultTableData;
-    });    return tableData
+    }).value;    
+    return tableData
   };
 
   return {

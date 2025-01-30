@@ -54,6 +54,8 @@ const router = useRouter();
 
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
+const  tableData = await  useTable().getOrCreateTable(table_id)
+console.log(tableData)
 console.log(table_id);
 const theme = ref("zat");
 const orienation = ref("landscape");
