@@ -31,9 +31,9 @@ export const useTable = () => {
       defaultTableData.BottomPlayer.left = `calc(50% - ${
         defaultTableData.PlayerImageWidth / 2
       }px)`;
+      tableData.value=defaultTableData
       await setDoc(tableRef, defaultTableData);
     }
-
     const unsubscribe = onSnapshot(tableRef, (doc) => {
       tableData.value = doc.data();
     });

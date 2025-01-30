@@ -81,7 +81,7 @@
     </div>
     <transition name="fade" mode="out-in">
       <div
-        class="absolute left-0 w-[60px] h-[60px] playerImage"
+        class="absolute  playerImage"
         :class=" 'left-['+ tableData.LeftPlayer.left+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
         :key="left.url"
         :style="{ top: tableData.RightPlayer.top }"
@@ -101,7 +101,7 @@
     </transition>
     <transition name="fade" mode="out-in">
       <div
-        class="absolute right-0 w-[60px] h-[60px] origin-center playerImage"
+        class="absolute  origin-center playerImage"
         :class=" 'right-['+ tableData.RightPlayer.right+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
 
         :key="right.url"
@@ -122,7 +122,7 @@
     </transition>
     <transition name="fade" mode="out-in">
       <div
-        class="absolute bottom-[15px] w-[60px] h-[60px] origin-center playerImage"
+        class="absolute origin-center playerImage"
         :class=" 'bottom-['+ tableData.BottomPlayer.bottom+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
         :key="bottom.url"
         :style="{left: tableData.BottomPlayer.left}"
