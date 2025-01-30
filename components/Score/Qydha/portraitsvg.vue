@@ -1,10 +1,11 @@
 <template>
   <div
     class="flex justify-center aspect-[9/16] w-[95%] relative mx-auto duration-300 transition-all"
-    :style="{ 'margin-top': tableData.scoreMarginTop }"
+    
   >
     <div
-      class="relative w-[300px] h-[100px] origin-center top-[0px] mx-auto transition-all duration-300"
+      class="relative w-[300px] h-[100px] origin-center top-[0px] mx-auto transition-all duration-300 "
+      :style="{ 'margin-top': tableData.scoreMarginTop }"
     >
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
       <div
