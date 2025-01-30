@@ -2,6 +2,7 @@ import { useFirestore, useDocument } from "vuefire";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 interface TableData {
   id: string;
+  scoreMarginTop:string,
   LeftPlayer: { top: string; left: string };
   RightPlayer: { top: string; right: string };
   BottomPlayer: { bottom: string; left: string };
@@ -13,6 +14,7 @@ export const useTable = async() => {
   const tableData = ref<TableData>({
     id: "",
     PlayerImageWidth: 60,
+    scoreMarginTop:"0px",
     LeftPlayer: { top: "calc(50% - 30px)", left: "0px" },
     RightPlayer: { top: "calc(50% - 30px)", right: "0px" },
     BottomPlayer: { bottom: "0px", left: "calc(50% - 30px)" },
@@ -30,6 +32,7 @@ export const useTable = async() => {
       const defaultTableData: TableData = {
         id: tableId,
         PlayerImageWidth: 60,
+        scoreMarginTop:"0px",
         LeftPlayer: { top: "", left: "0px" },
         RightPlayer: { top: "", right: "0px" },
         BottomPlayer: { bottom: "0px", left: "" },
