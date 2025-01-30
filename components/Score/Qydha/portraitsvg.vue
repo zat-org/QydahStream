@@ -150,7 +150,7 @@ showPlayers = JSON.parse(showPlayers);
 const tableConmbosable=useTable()
 const table_id =(route.params.id as string)
 const  tableData = await  tableConmbosable.getOrCreateTable(table_id)
-
+console.log(tableData)
 
 
 const store = useMyGameStore();
