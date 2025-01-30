@@ -102,7 +102,7 @@
     <transition name="fade" mode="out-in">
       <div
         class="absolute right-0 w-[60px] h-[60px] origin-center playerImage"
-        :class=" 'left-['+ tableData.RightPlayer.right+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
+        :class=" 'right-['+ tableData.RightPlayer.right+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
 
         :key="right.url"
         :style="{top: tableData.LeftPlayer.top}"
