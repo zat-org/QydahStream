@@ -8,7 +8,7 @@ interface TableData {
   PlayerImageWidth: number;
 }
 
-export const useTable = () => {
+export const useTable = async() => {
   const db = useFirestore();
   const tableData = ref<TableData>({
     id: "",
@@ -17,10 +17,16 @@ export const useTable = () => {
     RightPlayer: { top: "calc(50% - 30px)", right: "0px" },
     BottomPlayer: { bottom: "0px", left: "calc(50% - 30px)" },
   });
+
   const getOrCreateTable = async (tableId: string) => {
     const tableRef = doc(db, "tables", tableId);
     const docSnap = await getDoc(tableRef);
-    if (!docSnap.exists()) {
+    if (docSnap.exists()) {
+    console.log("exist ")
+      tableData.value = docSnap.data() as TableData;
+    } else {
+    console.log("dont exist ")
+
       const defaultTableData: TableData = {
         id: tableId,
         PlayerImageWidth: 60,
@@ -40,12 +46,12 @@ export const useTable = () => {
       tableData.value = defaultTableData;
       await setDoc(tableRef, defaultTableData);
     }
-     onSnapshot(tableRef, (doc) => {
-      tableData.value = doc.data() as TableData;
-      console.log(doc.data())
 
-      console.log("data chnaged")
+    onSnapshot(tableRef, (doc) => {
+      tableData.value = doc.data() as TableData;
+      console.log("Changed")
     });
+
   };
 
   return {

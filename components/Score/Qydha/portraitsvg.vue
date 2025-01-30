@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex justify-center aspect-[9/16]  w-[95%] relative mx-auto"
-  >
+  <div class="flex justify-center aspect-[9/16] w-[95%] relative mx-auto">
     <div class="relative w-[300px] h-[100px] origin-center top-[0px] mx-auto">
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
       <div
@@ -81,15 +79,14 @@
     </div>
     <transition name="fade" mode="out-in">
       <div
-        class="absolute  playerImage"
-       
+        class="absolute playerImage"
         :key="left.url"
         :style="{
-           top: tableData.RightPlayer.top,
-           left:tableData.LeftPlayer.left,
-           height:tableData.PlayerImageWidth+'px',
-           width:tableData.PlayerImageWidth+'px'
-           }"
+          top: tableData.RightPlayer.top,
+          left: tableData.LeftPlayer.left,
+          height: tableData.PlayerImageWidth + 'px',
+          width: tableData.PlayerImageWidth + 'px',
+        }"
         v-if="left && left.url && showPlayers"
       >
         <div class="relative w-full h-full">
@@ -106,15 +103,14 @@
     </transition>
     <transition name="fade" mode="out-in">
       <div
-        class="absolute  origin-center playerImage"
-
+        class="absolute origin-center playerImage"
         :key="right.url"
         :style="{
-           top: tableData.RightPlayer.top,
-           right:tableData.RightPlayer.right,
-           height:tableData.PlayerImageWidth+'px',
-           width:tableData.PlayerImageWidth+'px'
-           }"
+          top: tableData.RightPlayer.top,
+          right: tableData.RightPlayer.right,
+          height: tableData.PlayerImageWidth + 'px',
+          width: tableData.PlayerImageWidth + 'px',
+        }"
         v-if="right && right.url && showPlayers"
       >
         <div class="relative w-full h-full">
@@ -136,9 +132,9 @@
         :style="{
           left: tableData.BottomPlayer.left,
           bottom: tableData.BottomPlayer.bottom,
-          height:tableData.PlayerImageWidth+'px',
-          width:tableData.PlayerImageWidth+'px',
-          }"
+          height: tableData.PlayerImageWidth + 'px',
+          width: tableData.PlayerImageWidth + 'px',
+        }"
         v-if="bottom && bottom.url && showPlayers"
       >
         <div class="relative rounded-xl w-full h-full">
@@ -161,12 +157,14 @@ const route = useRoute();
 let showPlayers = route.query.showPlayers?.toString() ?? "false";
 showPlayers = JSON.parse(showPlayers);
 
-const table_id =(route.params.id as string)
-const  {tableData} =useTable()
+const table_id = route.params.id as string;
+const { tableData, getOrCreateTable } = await useTable();
+await getOrCreateTable(table_id);
 
-await useTable().getOrCreateTable(table_id)
-console.log(tableData)
-
+watch(tableData.value, () => {
+  console.log("Table data updated:", tableData.value);
+  console.log();
+});
 
 const store = useMyGameStore();
 const svgQydha = ref();
