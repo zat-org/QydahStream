@@ -27,9 +27,9 @@ export const useTable = () => {
           RightPlayer: { top: "", right: "0px" },
           BottomPlayer: { bottom: "0px", left: "" },
         };
-        defaultTableData.LeftPlayer.top = `calc(50% - ${defaultTableData.PlayerImageWidth}px)`;
-        defaultTableData.RightPlayer.top = `calc(50% - ${defaultTableData.PlayerImageWidth}px)`;
-        defaultTableData.BottomPlayer.left = `calc(50% - ${defaultTableData.PlayerImageWidth}px)`;
+        defaultTableData.LeftPlayer.top = `calc(50% - ${defaultTableData.PlayerImageWidth/2}px)`;
+        defaultTableData.RightPlayer.top = `calc(50% - ${defaultTableData.PlayerImageWidth/2}px)`;
+        defaultTableData.BottomPlayer.left = `calc(50% - ${defaultTableData.PlayerImageWidth/2}px)`;
 
         // Create new table if it doesn't exist
         try {
