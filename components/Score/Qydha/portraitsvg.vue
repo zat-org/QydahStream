@@ -82,9 +82,14 @@
     <transition name="fade" mode="out-in">
       <div
         class="absolute  playerImage"
-        :class=" 'left-['+ tableData.LeftPlayer.left +'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
+       
         :key="left.url"
-        :style="{ top: tableData.RightPlayer.top }"
+        :style="{
+           top: tableData.RightPlayer.top,
+           left:tableData.LeftPlayer.left,
+           height:tableData.PlayerImageWidth+'px',
+           width:tableData.PlayerImageWidth+'px'
+           }"
         v-if="left && left.url && showPlayers"
       >
         <div class="relative w-full h-full">
@@ -102,10 +107,14 @@
     <transition name="fade" mode="out-in">
       <div
         class="absolute  origin-center playerImage"
-        :class=" 'right-['+ tableData.RightPlayer.right+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
 
         :key="right.url"
-        :style="{top: tableData.LeftPlayer.top}"
+        :style="{
+           top: tableData.RightPlayer.top,
+           right:tableData.RightPlayer.right,
+           height:tableData.PlayerImageWidth+'px',
+           width:tableData.PlayerImageWidth+'px'
+           }"
         v-if="right && right.url && showPlayers"
       >
         <div class="relative w-full h-full">
@@ -123,9 +132,14 @@
     <transition name="fade" mode="out-in">
       <div
         class="absolute origin-center playerImage"
-        :class=" 'bottom-['+ tableData.BottomPlayer.bottom+'] '+ 'h-['+tableData.PlayerImageWidth +'px]' + ' w-['+tableData.PlayerImageWidth +'px]'  "
         :key="bottom.url"
-        :style="{left: tableData.BottomPlayer.left}"
+        :style="{
+          left: tableData.BottomPlayer.left,
+          bottom: tableData.BottomPlayer.bottom,
+          height:tableData.PlayerImageWidth+'px',
+          width:tableData.PlayerImageWidth+'px',
+          
+          }"
         v-if="bottom && bottom.url && showPlayers"
       >
         <div class="relative rounded-xl w-full h-full">
