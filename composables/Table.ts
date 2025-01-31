@@ -7,6 +7,7 @@ interface TableData {
   RightPlayer: { top: string; right: string };
   BottomPlayer: { bottom: string; left: string };
   PlayerImageWidth: number;
+  DetailScoreColor: string;
 }
 
 export const useTable = async() => {
@@ -20,6 +21,7 @@ export const useTable = async() => {
     LeftPlayer: { top: "calc(50% - 30px)", left: "0px" },
     RightPlayer: { top: "calc(50% - 30px)", right: "0px" },
     BottomPlayer: { bottom: "0px", left: "calc(50% - 30px)" },
+    DetailScoreColor: "#000000",
   });
 
   const getOrCreateTable = async (tableId: string) => {
@@ -35,6 +37,7 @@ export const useTable = async() => {
         id: tableId,
         PlayerImageWidth: 60,
         scoreMarginTop:"0px",
+        DetailScoreColor: "#000000",
         LeftPlayer: { top: "", left: "0px" },
         RightPlayer: { top: "", right: "0px" },
         BottomPlayer: { bottom: "0px", left: "" },

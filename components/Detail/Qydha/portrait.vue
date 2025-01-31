@@ -42,11 +42,11 @@
       </div>
       <div class=" absolute flex gap-5 w-full justify-center top-[110px]" ref="score">
         <div class="TeamDetailedScore   text-right grow  ">
-          <p class="score text-white" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
+          <p  :style="{color:tableData.DetailScoreColor}" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
         </div>
-        <div class="  bg-gradient-to-b from-orange-500 to-black w-[3px] h-[50vh] rounded-lg  "></div>
+        <div class="  bg-gradient-to-b from-transparent via-orange-500 to-transparent w-[3px] h-[50vh] rounded-lg  "></div>
         <div class="TeamDetailedScore grow">
-          <p class="score text-white" v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
+          <p :style="{color:tableData.DetailScoreColor}"  v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
         </div>
       </div>
     </div>
@@ -56,6 +56,10 @@
 <script lang="ts" setup>
 const svgQydha =ref()
 
+const route = useRoute();
+const table_id = route.params.id as string;
+const { tableData, getOrCreateTable } = await useTable();
+await getOrCreateTable(table_id);
 
 const store = useMyGameStore();
 import gsap from "gsap";
@@ -161,12 +165,12 @@ onMounted(() => {
 }
 
 .TeamDetailedScore {
-  @apply text-slate-700  w-[85px] text-[2rem];
+  @apply  w-[85px] text-[2rem];
   font-family: "CairoSemiBold";
 }
 
 .score {
-  @apply text-slate-700  text-[1rem];
+  @apply   text-[1rem];
   font-family: "CairoSemiBold";
 }
 
