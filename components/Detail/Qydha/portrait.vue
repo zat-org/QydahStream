@@ -19,12 +19,12 @@
               }}
             </p>
           </transition>
-          <p class="w-[38px] mr-[4px] score">
+          <p class="w-[38px] mr-[4px] score  text-gray-600  ">
             {{ last_sakka?.themSakkaScore }}
           </p>
         </div>
         <div class="w-1/2 flex items-center" ref="team1wrapper">
-          <p class="w-[38px] ml-[4px] score">
+          <p class="w-[38px] ml-[4px] score text-gray-600">
             {{ last_sakka?.usSakkaScore }}
           </p>
           <transition name="fade" mode="out-in">
@@ -42,11 +42,11 @@
       </div>
       <div class=" absolute flex gap-5 w-full justify-center top-[110px]" ref="score">
         <div class="TeamDetailedScore   text-right grow  ">
-          <p  :style="{color:tableData.DetailScoreColor}" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
+          <p  class="score" :style="{color:tableData.DetailScoreColor}" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
         </div>
         <div class="  bg-gradient-to-b from-transparent via-orange-500 to-transparent w-[3px] h-[50vh] rounded-lg  "></div>
         <div class="TeamDetailedScore grow">
-          <p :style="{color:tableData.DetailScoreColor}"  v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
+          <p class="score" :style="{color:tableData.DetailScoreColor}"  v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
         </div>
       </div>
     </div>
