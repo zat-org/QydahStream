@@ -98,8 +98,9 @@
         <div class="relative w-full h-full">
           <img
             class="absolute z-[10] bg-center bg-cover rounded-2xl w-[97%] h-[97%] top-[1px] left-[1px]"
-            :style="{ 'background-image': `url(${left.url}) ` }"
-          />
+            :src="left.url"
+            />
+            <!-- :style="{ 'background-image': `url(${left.url}) ` }" -->
           <img
             class="absolute z-[10] w-full h-full"
             src="/images/left-square.svg"
@@ -122,8 +123,9 @@
         <div class="relative w-full h-full">
           <img
             class="absolute z-[10] bg-center bg-cover rounded-2xl w-[97%] h-[97%] top-[1px] left-[1px]"
-            :style="{ 'background-image': `url(${right.url}) ` }"
-          />
+            :src="right.url"
+            />
+            <!-- :style="{ 'background-image': `url(${right.url}) ` }" -->
           <img
             class="absolute z-[10] rotate-180 w-full h-full"
             src="/images/right-square.svg"
@@ -146,8 +148,9 @@
         <div class="relative rounded-xl w-full h-full">
           <img
             class="absolute z-[10] bg-center bg-cover rounded-2xl w-[97%] h-[97%] top-[1px] left-[1px]"
-            :style="{ 'background-image': `url(${bottom.url})` }"
-          />
+            :src="bottom.url"
+            />
+            <!-- :style="{ 'background-image': `url(${bottom.url})` }" -->
           <img
             class="absolute z-[10] rotate-270 w-full h-full"
             src="/images/bottom-square.svg"
