@@ -1,35 +1,41 @@
 <template>
   <div
-    class="flex justify-center h-[1920px] w-[1080px] relative mx-auto duration-300 transition-all"
+    class="flex justify-center h-[1920px] w-[1080px] bg-red-500 relative mx-auto duration-300 transition-all"
     :style="{
-      height: tableData.dimension.height,
-      width: tableData.dimension.width,
+      height: board?.dimension.height ?? '1920px',
+      width: board?.dimension.width ?? '1080px',
     }"
   >
     <div
       class="relative w-full h-[300px] origin-center top-[0px] transition-all duration-300"
       :style="{
-        'margin-top': tableData.scorePanel.topMargin,
-        width: tableData.scorePanel.width,
-        height: tableData.scorePanel.height,
+        'margin-top': board?.scorePanel.topMargin ?? 'opx',
+        width: board?.scorePanel.width ?? '100%' ,
+        height: board?.scorePanel.height ?? '300px',
       }"
     >
-      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
+      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0"  />
       <div
-        class="absolute text-center text-white flex h-[85px] w-full top-[50%]"
+        class="absolute text-center text-white flex w-full top-[50%]"
       >
-        <div class="w-1/2 flex items-center text-[3rem]" ref="team2wrapper">
+        <div class="w-1/2 flex  items-center relative " ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p
-              class="w-[50%] ms-[25%] me-[5%]"
+              class="  absolute  "
               :key="game?.themName"
               style="
                 user-select: none;
                 white-space: nowrap;
                 letter-spacing: -0.5px;
                 word-spacing: -1px;
-                margin-bottom: 28px;
               "
+              :style="{
+                left : board?.scorePanel.leftTeam.name.left,
+                top : board?.scorePanel.leftTeam.name.top,
+                'font-size':board?.scorePanel.leftTeam.name.size,
+                height: board?.scorePanel.leftTeam.name.height,
+                width: board?.scorePanel.leftTeam.name.width,
+                }"
             >
               {{
                 game?.themName
@@ -42,7 +48,15 @@
               }}
             </p>
           </transition>
-          <p class="w-[15%] score">
+          <p class=" score absolute"
+          :style="{
+                left : board?.scorePanel.leftTeam.score.left,
+                top : board?.scorePanel.leftTeam.score.top,
+                'font-size':board?.scorePanel.leftTeam.score.size,
+                height: board?.scorePanel.leftTeam.score.height,
+                width: board?.scorePanel.leftTeam.score.width,
+                }"
+          >
             <!-- {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }} -->
 
             {{
@@ -56,8 +70,16 @@
             }}
           </p>
         </div>
-        <div class="w-1/2 flex items-center text-[3rem]" ref="team1wrapper">
-          <p class="w-[15%] ms-[5%] score">
+        <div class="w-1/2 flex items-center text-[3rem] rlative" ref="team1wrapper">
+          <p class=" score absolute"
+          :style="{
+                left : board?.scorePanel.rightTeam.score.left,
+                top : board?.scorePanel.rightTeam.score.top,
+                'font-size':board?.scorePanel.rightTeam.score.size,
+                height: board?.scorePanel.rightTeam.score.height,
+                width: board?.scorePanel.rightTeam.score.width,
+                }"
+          >
             <!-- {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }} -->
 
             {{
@@ -72,15 +94,21 @@
           </p>
           <transition name="fade" mode="out-in">
             <p
-              class="w-[50%] me-[25%] ms-[5%]"
+              class=" absolute"
               :key="game?.usName"
               style="
                 user-select: none;
                 white-space: nowrap;
                 letter-spacing: -0.5px;
                 word-spacing: -1px;
-                margin-bottom: 28px;
               "
+              :style="{
+                left : board?.scorePanel.rightTeam.name.left,
+                top : board?.scorePanel.rightTeam.name.top,
+                'font-size':board?.scorePanel.rightTeam.name.size,
+                height: board?.scorePanel.rightTeam.name.height,
+                width: board?.scorePanel.rightTeam.name.width,
+                }"
             >
               {{
                 game?.usName
@@ -99,10 +127,10 @@
         class="absolute playerImage transition-all duration-300"
         :key="left.url"
         :style="{
-          top: tableData.RightPlayer.top,
-          left: tableData.LeftPlayer.left,
-          height: tableData.PlayerImageWidth + 'px',
-          width: tableData.PlayerImageWidth + 'px',
+          top: board?.RightPlayer.top,
+          left: board?.LeftPlayer.left,
+          height: board?.PlayerImageWidth + 'px',
+          width: board?.PlayerImageWidth + 'px',
         }"
         v-if="left && left.url && showPlayers"
       >
@@ -125,10 +153,10 @@
         class="absolute origin-center playerImage transition-all duration-300"
         :key="right.url"
         :style="{
-          top: tableData.RightPlayer.top,
-          right: tableData.RightPlayer.right,
-          height: tableData.PlayerImageWidth + 'px',
-          width: tableData.PlayerImageWidth + 'px',
+          top: board?.RightPlayer.top,
+          right: board?.RightPlayer.right,
+          height: board?.PlayerImageWidth + 'px',
+          width: board?.PlayerImageWidth + 'px',
         }"
         v-if="right && right.url && showPlayers"
       >
@@ -151,10 +179,10 @@
         class="absolute origin-center playerImage transition-all duration-300"
         :key="bottom.url"
         :style="{
-          left: tableData.BottomPlayer.left,
-          bottom: tableData.BottomPlayer.bottom,
-          height: tableData.PlayerImageWidth + 'px',
-          width: tableData.PlayerImageWidth + 'px',
+          left: board?.BottomPlayer.left,
+          bottom: board?.BottomPlayer.bottom,
+          height: board?.PlayerImageWidth + 'px',
+          width: board?.PlayerImageWidth + 'px',
         }"
         v-if="bottom && bottom.url && showPlayers"
       >
@@ -180,14 +208,7 @@ const route = useRoute();
 let showPlayers = route.query.showPlayers?.toString() ?? "false";
 showPlayers = JSON.parse(showPlayers);
 
-const table_id = route.params.id as string;
-const { tableData, getOrCreateTable } = await useTable();
-await getOrCreateTable(table_id);
-
-watch(tableData.value, () => {
-  console.log("Table data updated:", tableData.value);
-  console.log();
-});
+const { board } = storeToRefs(useMyBoardConfStore());
 
 const store = useMyGameStore();
 const svgQydha = ref();

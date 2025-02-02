@@ -8,28 +8,16 @@
 <script lang="ts" setup>
 import gsap from "gsap";
 const {sleep} =useSleep()
-// document.addEventListener('mousemove', (event) => {
-//   const x = event.clientX;  // Get the horizontal coordinate
-//   const y = event.clientY;  // Get the vertical coordinate
 
-//   console.log(`X: ${x}, Y: ${y}`);
-// });
-// const route = useRoute();
-// const table_id = route.params.id as string;
-const { tableData, getOrCreateTable } = await useTable();
-console.log(tableData)
-watch(tableData,(newValue,oldValue)=>{
-  console.log("new",newValue,"old",oldValue)
-  console.log("changed changed")
-})
+const {board} = storeToRefs(useMyBoardConfStore())
 
-const svg=computed(()=>{
-  return `<svg 
+const svg=computed( ()=>{
+return `<svg 
       version="1.1"
       id="svg2"
-      width="${tableData.value.scorePanel.width}"
-      height="${tableData.value.scorePanel.height}"
-      viewBox="0 0 ${tableData.value.scorePanel.svgViewBox.width} ${tableData.value.scorePanel.svgViewBox.height}"
+      width="${board.value?.scorePanel.width ?? 1080 }"
+      height="${board.value?.scorePanel.height ?? 300 }"
+      viewBox="0 0 ${board.value?.scorePanel.svgViewBox.width ?? 1108 } ${board.value?.scorePanel.svgViewBox.height ?? 400 }"
       sodipodi:docname="Qydha Coner Score Layers.svg"
       inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
       inkscape:export-filename="corener svg.svg"
@@ -348,6 +336,7 @@ const enteranimation = () => {
 defineExpose({
   enteranimation ,outAnimation
 })
+
 
 </script>
 

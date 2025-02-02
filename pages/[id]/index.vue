@@ -1,4 +1,5 @@
 <template v-if="gameService">
+  <score-qydha-portraitsvg/>
 <div v-show="snapshot.matches('score')">
     <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>
@@ -53,8 +54,8 @@ const router = useRouter();
 
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
-// const { tableData, getOrCreateTable } = await useTable();
-// await getOrCreateTable(table_id);
+const { getOrCreateTable } = useTable();
+await getOrCreateTable(table_id);
 const theme = ref("zat");
 const orienation = ref("landscape");
 const showPlayers = ref(false);

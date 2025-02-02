@@ -1,17 +1,34 @@
 <template>
-  <div class="flex justify-center h-[1920px] w-[1080px] relative mx-auto">
-    <div class="relative h-[300px] w-full origin-center top-[0px]">
+  <div
+    class="flex justify-center h-[1920px] w-[1080px] relative mx-auto"
+    :style="{
+      height: board?.dimension.height ?? '1920px',
+      width: board?.dimension.width ?? '1080px',
+    }"
+  >
+    <div
+      class="relative h-[300px] w-full origin-center top-[0px]"
+      :style="{
+        'margin-top': board?.scorePanel.topMargin ?? 'opx',
+        width: board?.scorePanel.width ?? '100%',
+        height: board?.scorePanel.height ?? '300px',
+      }"
+    >
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
 
-      <div
-        class="absolute text-center text-white flex h-[85px] w-full top-[50%]"
-      >
-        <div class="w-1/2 flex items-center text-[3rem]" ref="team2wrapper">
+      <div class="absolute text-center text-white flex w-full top-[50%]">
+        <div class="w-1/2 flex items-center relative" ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p
-              class="w-[50%] ms-[25%] me-[5%]"
+              class="absolute"
               :key="game?.themName"
-              style="margin-bottom: 28px"
+              :style="{
+                left: board?.scorePanel.leftTeam.name.left,
+                top: board?.scorePanel.leftTeam.name.top,
+                'font-size': board?.scorePanel.leftTeam.name.size,
+                height: board?.scorePanel.leftTeam.name.height,
+                width: board?.scorePanel.leftTeam.name.width,
+              }"
             >
               {{
                 game?.themName
@@ -24,21 +41,43 @@
               }}
             </p>
           </transition>
-          <p class="w-[15%] score text-gray-600">
+          <p
+            class="score absolute"
+            :style="{
+              left: board?.scorePanel.leftTeam.score.left,
+              top: board?.scorePanel.leftTeam.score.top,
+              'font-size': board?.scorePanel.leftTeam.score.size,
+              height: board?.scorePanel.leftTeam.score.height,
+              width: board?.scorePanel.leftTeam.score.width,
+            }"
+          >
             {{ last_sakka?.themSakkaScore }}
           </p>
         </div>
-        <div class="w-1/2 flex items-center text-[3rem]" ref="team1wrapper">
-          <p class="w-[15%] ms-[5%] score text-gray-600">
+        <div class="w-1/2 flex items-center relative" ref="team1wrapper">
+          <p
+            class="score absolute"
+            :style="{
+              left: board?.scorePanel.rightTeam.score.left,
+              top: board?.scorePanel.rightTeam.score.top,
+              'font-size': board?.scorePanel.rightTeam.score.size,
+              height: board?.scorePanel.rightTeam.score.height,
+              width: board?.scorePanel.rightTeam.score.width,
+            }"
+          >
             {{ last_sakka?.usSakkaScore }}
           </p>
           <transition name="fade" mode="out-in">
             <p
-              class="w-[50%] me-[25%] ms-[5%]"
+              class="absolute"
               :key="game?.usName"
-              style="
-              margin-bottom: 28px;
-              "
+              :style="{
+                left: board?.scorePanel.rightTeam.name.left,
+                top: board?.scorePanel.rightTeam.name.top,
+                'font-size': board?.scorePanel.rightTeam.name.size,
+                height: board?.scorePanel.rightTeam.name.height,
+                width: board?.scorePanel.rightTeam.name.width,
+              }"
             >
               {{
                 game?.usName
@@ -58,7 +97,7 @@
         <div class="TeamDetailedScore text-right grow">
           <p
             class="score"
-            :style="{ color: tableData.DetailScoreColor }"
+            :style="{ color: board?.DetailScoreColor }"
             v-for="e_m in ended_moshtras"
           >
             {{ e_m.themAbnat }}
@@ -70,7 +109,7 @@
         <div class="TeamDetailedScore grow">
           <p
             class="score"
-            :style="{ color: tableData.DetailScoreColor }"
+            :style="{ color: board?.DetailScoreColor }"
             v-for="e_m in ended_moshtras"
           >
             {{ e_m.usAbnat }}
@@ -84,10 +123,7 @@
 <script lang="ts" setup>
 const svgQydha = ref();
 
-const route = useRoute();
-const table_id = route.params.id as string;
-const { tableData, getOrCreateTable } = await useTable();
-
+const { board } = storeToRefs(useMyBoardConfStore());
 const store = useMyGameStore();
 import gsap from "gsap";
 import type { SakkaI } from "~/models/game";
