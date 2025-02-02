@@ -1,13 +1,13 @@
 <template>
-  <div class="flex justify-center  aspect-[9/16]  w-[95%] relative  mx-auto ">
-    <div class="relative w-[300px] h-[100px]   origin-center top-[0px] mx-auto">
+  <div class="flex justify-center h-[1920px] w-[1080px] relative  mx-auto ">
+    <div class="relative h-[300px] w-full   origin-center top-[0px] ">
       <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 " />
 
       <div
-        class="absolute text-center text-white flex h-[28px] top-[64px]  -translate-x-1/2 left-1/2 w-[280px]">
-        <div class="w-1/2 flex items-center" ref="team2wrapper">
+        class="absolute text-center text-white flex h-[85px] w-full top-[50%]">
+        <div class="w-1/2 flex items-center text-[3rem] " ref="team2wrapper">
           <transition name="fade" mode="out-in">
-            <p class="grow  mt-[-5px]" :key="game?.themName">
+            <p class=" w-[50%] ms-[25%] me-[5%]" :key="game?.themName">
               {{
                 game?.themName
                   ? game?.themName
@@ -19,16 +19,16 @@
               }}
             </p>
           </transition>
-          <p class="w-[38px] mr-[4px] score  text-gray-600  ">
+          <p class="w-[15%] score  text-gray-600  ">
             {{ last_sakka?.themSakkaScore }}
           </p>
         </div>
-        <div class="w-1/2 flex items-center" ref="team1wrapper">
-          <p class="w-[38px] ml-[4px] score text-gray-600">
+        <div class="w-1/2 flex items-center text-[3rem]" ref="team1wrapper">
+          <p class="w-[15%] ms-[5%] score text-gray-600">
             {{ last_sakka?.usSakkaScore }}
           </p>
           <transition name="fade" mode="out-in">
-            <p class="grow  mt-[-5px]" key="game?.usName">
+            <p class=" w-[50%] me-[25%] ms-[5%]" key="game?.usName">
               {{
                 game?.usName
                   ? game?.usName
@@ -40,7 +40,7 @@
           </transition>
         </div>
       </div>
-      <div class=" absolute flex gap-5 w-full justify-center top-[110px]" ref="score">
+      <div class=" absolute flex gap-5 w-full justify-center top-[500px]" ref="score">
         <div class="TeamDetailedScore   text-right grow  ">
           <p  class="score" :style="{color:tableData.DetailScoreColor}" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
         </div>
@@ -170,7 +170,7 @@ onMounted(() => {
 }
 
 .score {
-  @apply   text-[1rem];
+  @apply   text-[2rem];
   font-family: "CairoSemiBold";
 }
 
