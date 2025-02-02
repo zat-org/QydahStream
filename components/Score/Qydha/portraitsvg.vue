@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-center h-[1920px] w-[1080px] bg-red-500 relative mx-auto duration-300 transition-all"
+    class="flex justify-center h-[1920px] w-[1080px]  relative mx-auto duration-300 transition-all"
     :style="{
       height: board?.dimension.height ?? '1920px',
       width: board?.dimension.width ?? '1080px',
