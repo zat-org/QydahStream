@@ -97,7 +97,7 @@ onMounted(() => {
         scoreMount();
         Winnersvg.value.enterAnimation()
 
-        await sleep(5000);
+        await sleep(5000000000);
         gameService.send({ type: "NEXT" });
       
       }
