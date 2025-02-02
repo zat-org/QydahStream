@@ -5,7 +5,7 @@
   >
     <div
       class="relative  w-full h-[300px] origin-center top-[0px]  transition-all duration-300 "
-      :style="{ 'margin-top': tableData.scoreMarginTop }"
+      :style="{ 'margin-top': tableData.scorePanel.topMargin }"
     >
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 " />
       <div

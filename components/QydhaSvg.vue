@@ -14,13 +14,17 @@ const {sleep} =useSleep()
 
 //   console.log(`X: ${x}, Y: ${y}`);
 // });
+// const route = useRoute();
+// const table_id = route.params.id as string;
+const { tableData, getOrCreateTable } = await useTable();
+
 
 const svg=ref(`<svg 
       version="1.1"
       id="svg2"
-      width="1080"
-      height="300"
-      viewBox="0 0 1131 400"
+      width="${tableData.value.scorePanel.width}"
+      height="${tableData.value.scorePanel.height}"
+      viewBox="0 0 ${tableData.value.scorePanel.svgViewBox.width} ${tableData.value.scorePanel.svgViewBox.height}"
       sodipodi:docname="Qydha Coner Score Layers.svg"
       inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
       inkscape:export-filename="corener svg.svg"

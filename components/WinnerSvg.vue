@@ -6,6 +6,7 @@
 
 <script lang="ts" setup>
 import gsap from "gsap";
+
 const svg=`<svg 
    version="1.1"
    id="svg2"

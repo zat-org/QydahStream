@@ -87,7 +87,6 @@ const svgQydha = ref();
 const route = useRoute();
 const table_id = route.params.id as string;
 const { tableData, getOrCreateTable } = await useTable();
-await getOrCreateTable(table_id);
 
 const store = useMyGameStore();
 import gsap from "gsap";
