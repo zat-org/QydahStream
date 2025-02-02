@@ -17,8 +17,10 @@ const {sleep} =useSleep()
 // const route = useRoute();
 // const table_id = route.params.id as string;
 const { tableData, getOrCreateTable } = await useTable();
-watch(tableData,()=>{
-  console.log("changed")
+console.log(tableData)
+watch(tableData,(newValue,oldValue)=>{
+  console.log("new",newValue,"old",oldValue)
+  console.log("changed changed")
 })
 
 const svg=computed(()=>{
@@ -317,7 +319,7 @@ const svg=computed(()=>{
 `})
 const t1 = gsap.timeline();
 const shapes = [".Shape4", ".Shape3", ".Shape2", ".Shape1"];
- const enteranimation = () => {
+const enteranimation = () => {
   t1.fromTo(".Logo", {opacity:0, y: 30 }, { y: 0, opacity: 1, duration: .5 })
     .fromTo (".Bar",{opacity:0 ,scaleY:0,transformOrigin: "bottom center" },{opacity:1 ,scaleY:1 ,duration:.5},"-=.2")
     .fromTo(shapes, {opacity: 0},{ opacity: 1, stagger: 0.1 },"<" )
