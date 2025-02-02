@@ -1,20 +1,27 @@
 <template>
   <div
-    class="flex justify-center  h-[1920px] w-[1080px] relative mx-auto duration-300 transition-all"
-    
+    class="flex justify-center h-[1920px] w-[1080px] relative mx-auto duration-300 transition-all"
+    :style="{
+      height: tableData.dimension.height,
+      width: tableData.dimension.width,
+    }"
   >
     <div
-      class="relative  w-full h-[300px] origin-center top-[0px]  transition-all duration-300 "
-      :style="{ 'margin-top': tableData.scorePanel.topMargin }"
+      class="relative w-full h-[300px] origin-center top-[0px] transition-all duration-300"
+      :style="{
+        'margin-top': tableData.scorePanel.topMargin,
+        width: tableData.scorePanel.width,
+        height: tableData.scorePanel.height,
+      }"
     >
-      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 " />
+      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
       <div
-        class="absolute text-center text-white flex h-[85px]   w-full top-[50%] "
+        class="absolute text-center text-white flex h-[85px] w-full top-[50%]"
       >
-        <div class="w-1/2 flex items-center text-[3rem] " ref="team2wrapper">
+        <div class="w-1/2 flex items-center text-[3rem]" ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p
-              class="   w-[50%] ms-[25%] me-[5%]"
+              class="w-[50%] ms-[25%] me-[5%]"
               :key="game?.themName"
               style="
                 user-select: none;
@@ -24,7 +31,7 @@
                 margin-bottom: 28px;
               "
             >
-            {{
+              {{
                 game?.themName
                   ? game?.themName
                   : game?.themPlayers.length == 0
@@ -35,9 +42,9 @@
               }}
             </p>
           </transition>
-          <p class="w-[15%]   score">
+          <p class="w-[15%] score">
             <!-- {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }} -->
-           
+
             {{
               newGameFlag
                 ? 0
@@ -49,12 +56,11 @@
             }}
           </p>
         </div>
-        <div class="w-1/2 flex items-center  text-[3rem]" ref="team1wrapper">
-          <p class="w-[15%] ms-[5%]  score">
+        <div class="w-1/2 flex items-center text-[3rem]" ref="team1wrapper">
+          <p class="w-[15%] ms-[5%] score">
             <!-- {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }} -->
-          
-          
-          {{
+
+            {{
               newGameFlag
                 ? 0
                 : sakka_ended
@@ -66,7 +72,7 @@
           </p>
           <transition name="fade" mode="out-in">
             <p
-              class="  w-[50%] me-[25%] ms-[5%]"
+              class="w-[50%] me-[25%] ms-[5%]"
               :key="game?.usName"
               style="
                 user-select: none;
@@ -98,19 +104,15 @@
           height: tableData.PlayerImageWidth + 'px',
           width: tableData.PlayerImageWidth + 'px',
         }"
-      v-if="left && left.url && showPlayers"
+        v-if="left && left.url && showPlayers"
       >
         <div class="relative w-full h-full">
           <img
-            class="absolute z-[10]  rounded-2xl "
+            class="absolute z-[10] rounded-2xl"
             :src="left.url"
-            style="
-            width: 90%;
-            height: 90%;
-            left: 5%;
-            top: 5%;"
-            />
-            <!-- :style="{ 'background-image': `url(${left.url}) ` }" -->
+            style="width: 90%; height: 90%; left: 5%; top: 5%"
+          />
+          <!-- :style="{ 'background-image': `url(${left.url}) ` }" -->
           <img
             class="absolute z-[10] w-full h-full"
             src="/images/left-square.svg"
@@ -132,15 +134,11 @@
       >
         <div class="relative w-full h-full">
           <img
-            class="absolute z-[10]  rounded-2xl "
+            class="absolute z-[10] rounded-2xl"
             :src="right.url"
-            style="
-            width: 90%;
-            height: 90%;
-            left: 5%;
-            top: 5%;"
-            />
-            <!-- :style="{ 'background-image': `url(${right.url}) ` }" -->
+            style="width: 90%; height: 90%; left: 5%; top: 5%"
+          />
+          <!-- :style="{ 'background-image': `url(${right.url}) ` }" -->
           <img
             class="absolute z-[10] rotate-180 w-full h-full"
             src="/images/right-square.svg"
@@ -162,15 +160,11 @@
       >
         <div class="relative rounded-xl w-full h-full">
           <img
-            class="absolute z-[10]  rounded-2xl"
+            class="absolute z-[10] rounded-2xl"
             :src="bottom.url"
-            style="
-            width: 90%;
-            height: 90%;
-            left: 5%;
-            top: 5%;"
-            />
-            <!-- :style="{ 'background-image': `url(${bottom.url})` }" -->
+            style="width: 90%; height: 90%; left: 5%; top: 5%"
+          />
+          <!-- :style="{ 'background-image': `url(${bottom.url})` }" -->
           <img
             class="absolute z-[10] rotate-270 w-full h-full"
             src="/images/bottom-square.svg"

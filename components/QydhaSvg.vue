@@ -19,7 +19,8 @@ const {sleep} =useSleep()
 const { tableData, getOrCreateTable } = await useTable();
 
 
-const svg=ref(`<svg 
+const svg=computed(()=>{
+  return `<svg 
       version="1.1"
       id="svg2"
       width="${tableData.value.scorePanel.width}"
@@ -310,10 +311,8 @@ const svg=ref(`<svg
           </g>
         </g>
       </g>
-    </svg>
-
-    
-`)
+    </svg>   
+`})
 const t1 = gsap.timeline();
 const shapes = [".Shape4", ".Shape3", ".Shape2", ".Shape1"];
  const enteranimation = () => {
