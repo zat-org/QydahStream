@@ -53,8 +53,8 @@ export const useTable = () => {
         score: { size: "47px" ,top:"7px" , left:"403px",width:"20%",height:"100px" }
        },
       rightTeam: {
-        name: { size: "25px", top:"18px" , left:"527px" ,width:"50%",height:"100px"}, 
-        score: { size: "47px" ,top:"7px" , left:"474px",width:"20%",height:"100px" }
+        name: { size: "25px", top:"18px" , left:"114px" ,width:"50%",height:"100px"}, 
+        score: { size: "47px" ,top:"7px" , left:"0px",width:"20%",height:"100px" }
       }
     },
     LeftPlayer: { top: "calc(50% - 30px)", left: "0px" },
@@ -88,8 +88,8 @@ export const useTable = () => {
             score: { size: "47px" ,top:"7px" , left:"403px",width:"20%",height:"100px" }
            },
           rightTeam: {
-            name: { size: "25px", top:"18px" , left:"527px" ,width:"50%",height:"100px"}, 
-            score: { size: "47px" ,top:"7px" , left:"474px",width:"20%",height:"100px" }
+            name: { size: "25px", top:"18px" , left:"114px" ,width:"50%",height:"100px"}, 
+            score: { size: "47px" ,top:"7px" , left:"0px",width:"20%",height:"100px" }
           }
         },
         LeftPlayer: { top: "calc(50% - 30px)", left: "0px" },

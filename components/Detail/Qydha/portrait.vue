@@ -9,7 +9,7 @@
     <div
       class="relative h-[300px] w-full origin-center top-[0px]"
       :style="{
-        'margin-top': board?.scorePanel.topMargin ?? 'opx',
+        'margin-top': board?.scorePanel.topMargin ?? '0px',
         width: board?.scorePanel.width ?? '100%',
         height: board?.scorePanel.height ?? '300px',
       }"
@@ -229,12 +229,12 @@ onMounted(() => {
 }
 
 .TeamDetailedScore {
-  @apply w-[25%] text-[2rem];
+  @apply w-[25%] text-[2rem] text-gray-600 ;
   font-family: "CairoSemiBold";
 }
 
 .score {
-  @apply text-[2.5rem];
+  @apply text-[2.5rem] text-gray-600;
   font-family: "CairoSemiBold";
 }
 

@@ -9,7 +9,7 @@
     <div
       class="relative w-full h-[300px] origin-center top-[0px] transition-all duration-300"
       :style="{
-        'margin-top': board?.scorePanel.topMargin ?? 'opx',
+        'margin-top': board?.scorePanel.topMargin ?? '0px',
         width: board?.scorePanel.width ?? '100%' ,
         height: board?.scorePanel.height ?? '300px',
       }"
@@ -70,7 +70,7 @@
             }}
           </p>
         </div>
-        <div class="w-1/2 flex items-center text-[3rem] rlative" ref="team1wrapper">
+        <div class="w-1/2 flex items-center text-[3rem] relative" ref="team1wrapper">
           <p class=" score absolute"
           :style="{
                 left : board?.scorePanel.rightTeam.score.left,
