@@ -52,7 +52,7 @@
         </div>
       </div>
       <div
-        class="absolute flex gap-5 w-full justify-center top-[500px]"
+        class="absolute flex gap-5 w-full justify-center top-[350px]"
         ref="score"
       >
         <div class="TeamDetailedScore text-right grow">
@@ -65,7 +65,7 @@
           </p>
         </div>
         <div
-          class="bg-gradient-to-b from-transparent via-orange-500 to-transparent w-[3px] h-[50vh] rounded-lg"
+          class="bg-gradient-to-b from-transparent via-orange-500 to-transparent w-[10px] h-[50vh] rounded-lg"
         ></div>
         <div class="TeamDetailedScore grow">
           <p
