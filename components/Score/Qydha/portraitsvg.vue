@@ -24,8 +24,7 @@
                 margin-bottom: 28px;
               "
             >
-حاوم |حاوم
-            <!-- {{
+            {{
                 game?.themName
                   ? game?.themName
                   : game?.themPlayers.length == 0
@@ -33,13 +32,13 @@
                   : game?.themPlayers[0].name +
                     " | " +
                     game?.themPlayers[1].name
-              }} -->
+              }}
             </p>
           </transition>
           <p class="w-[15%]   score">
             <!-- {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }} -->
-           0
-            <!-- {{
+           
+            {{
               newGameFlag
                 ? 0
                 : sakka_ended
@@ -47,15 +46,15 @@
                 : // : newGameFlag
                   // ? "0"
                   tweenedScores.team2.toFixed(0)
-            }} -->
+            }}
           </p>
         </div>
         <div class="w-1/2 flex items-center  text-[3rem]" ref="team1wrapper">
           <p class="w-[15%] ms-[5%]  score">
             <!-- {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }} -->
-          0
           
-          <!-- {{
+          
+          {{
               newGameFlag
                 ? 0
                 : sakka_ended
@@ -63,7 +62,7 @@
                 : // : newGameFlag
                   // ? "0"
                   tweenedScores.team1.toFixed(0)
-            }} -->
+            }}
           </p>
           <transition name="fade" mode="out-in">
             <p
@@ -77,14 +76,13 @@
                 margin-bottom: 28px;
               "
             >
-            حاوم |حاوم
-              <!-- {{
+              {{
                 game?.usName
                   ? game?.usName
                   : game?.usPlayers.length == 0
                   ? "لنا"
                   : game?.usPlayers[0].name + " | " + game?.usPlayers[1].name
-              }} -->
+              }}
             </p>
           </transition>
         </div>
@@ -100,12 +98,17 @@
           height: tableData.PlayerImageWidth + 'px',
           width: tableData.PlayerImageWidth + 'px',
         }"
-        v-if="left && left.url && showPlayers"
+      v-if="left && left.url && showPlayers"
       >
         <div class="relative w-full h-full">
           <img
-            class="absolute z-[10] bg-center bg-cover rounded-2xl w-[97%] h-[97%] top-[1px] left-[1px]"
+            class="absolute z-[10]  rounded-2xl "
             :src="left.url"
+            style="
+            width: 90%;
+            height: 90%;
+            left: 5%;
+            top: 5%;"
             />
             <!-- :style="{ 'background-image': `url(${left.url}) ` }" -->
           <img
@@ -129,8 +132,13 @@
       >
         <div class="relative w-full h-full">
           <img
-            class="absolute z-[10] bg-center bg-cover rounded-2xl w-[97%] h-[97%] top-[1px] left-[1px]"
+            class="absolute z-[10]  rounded-2xl "
             :src="right.url"
+            style="
+            width: 90%;
+            height: 90%;
+            left: 5%;
+            top: 5%;"
             />
             <!-- :style="{ 'background-image': `url(${right.url}) ` }" -->
           <img
@@ -154,8 +162,13 @@
       >
         <div class="relative rounded-xl w-full h-full">
           <img
-            class="absolute z-[10] bg-center bg-cover rounded-2xl w-[97%] h-[97%] top-[1px] left-[1px]"
+            class="absolute z-[10]  rounded-2xl"
             :src="bottom.url"
+            style="
+            width: 90%;
+            height: 90%;
+            left: 5%;
+            top: 5%;"
             />
             <!-- :style="{ 'background-image': `url(${bottom.url})` }" -->
           <img
