@@ -17,7 +17,9 @@ const {sleep} =useSleep()
 // const route = useRoute();
 // const table_id = route.params.id as string;
 const { tableData, getOrCreateTable } = await useTable();
-
+watch(tableData,()=>{
+  console.log("changed")
+})
 
 const svg=computed(()=>{
   return `<svg 
