@@ -1,13 +1,18 @@
 <template>
-  <div class="flex justify-center h-[1920px] w-[1080px] relative  mx-auto ">
-    <div class="relative h-[300px] w-full   origin-center top-[0px] ">
-      <QydhaSvg  ref="svgQydha" class="absolute top-0 left-0 " />
+  <div class="flex justify-center h-[1920px] w-[1080px] relative mx-auto">
+    <div class="relative h-[300px] w-full origin-center top-[0px]">
+      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
 
       <div
-        class="absolute text-center text-white flex h-[85px] w-full top-[50%]">
-        <div class="w-1/2 flex items-center text-[3rem] " ref="team2wrapper">
+        class="absolute text-center text-white flex h-[85px] w-full top-[50%]"
+      >
+        <div class="w-1/2 flex items-center text-[3rem]" ref="team2wrapper">
           <transition name="fade" mode="out-in">
-            <p class=" w-[50%] ms-[25%] me-[5%]" :key="game?.themName">
+            <p
+              class="w-[50%] ms-[25%] me-[5%]"
+              :key="game?.themName"
+              style="margin-bottom: 28px"
+            >
               {{
                 game?.themName
                   ? game?.themName
@@ -19,7 +24,7 @@
               }}
             </p>
           </transition>
-          <p class="w-[15%] score  text-gray-600  ">
+          <p class="w-[15%] score text-gray-600">
             {{ last_sakka?.themSakkaScore }}
           </p>
         </div>
@@ -28,7 +33,13 @@
             {{ last_sakka?.usSakkaScore }}
           </p>
           <transition name="fade" mode="out-in">
-            <p class=" w-[50%] me-[25%] ms-[5%]" key="game?.usName">
+            <p
+              class="w-[50%] me-[25%] ms-[5%]"
+              :key="game?.usName"
+              style:{
+              margin-bottom: 28px;
+              }
+            >
               {{
                 game?.usName
                   ? game?.usName
@@ -40,13 +51,30 @@
           </transition>
         </div>
       </div>
-      <div class=" absolute flex gap-5 w-full justify-center top-[500px]" ref="score">
-        <div class="TeamDetailedScore   text-right grow  ">
-          <p  class="score" :style="{color:tableData.DetailScoreColor}" v-for="e_m in ended_moshtras">{{ e_m.themAbnat }}</p>
+      <div
+        class="absolute flex gap-5 w-full justify-center top-[500px]"
+        ref="score"
+      >
+        <div class="TeamDetailedScore text-right grow">
+          <p
+            class="score"
+            :style="{ color: tableData.DetailScoreColor }"
+            v-for="e_m in ended_moshtras"
+          >
+            {{ e_m.themAbnat }}
+          </p>
         </div>
-        <div class="  bg-gradient-to-b from-transparent via-orange-500 to-transparent w-[3px] h-[50vh] rounded-lg  "></div>
+        <div
+          class="bg-gradient-to-b from-transparent via-orange-500 to-transparent w-[3px] h-[50vh] rounded-lg"
+        ></div>
         <div class="TeamDetailedScore grow">
-          <p class="score" :style="{color:tableData.DetailScoreColor}"  v-for="e_m in ended_moshtras">{{ e_m.usAbnat }}</p>
+          <p
+            class="score"
+            :style="{ color: tableData.DetailScoreColor }"
+            v-for="e_m in ended_moshtras"
+          >
+            {{ e_m.usAbnat }}
+          </p>
         </div>
       </div>
     </div>
@@ -54,7 +82,7 @@
 </template>
 
 <script lang="ts" setup>
-const svgQydha =ref()
+const svgQydha = ref();
 
 const route = useRoute();
 const table_id = route.params.id as string;
@@ -84,21 +112,24 @@ const ended_moshtras = computed(() => {
   });
 });
 const scoreMount = () => {
-  console.log("start score mount ")
+  console.log("start score mount ");
   const t1 = gsap.timeline();
   t1.delay(2);
-  t1.fromTo([team1wrapper.value, team2wrapper.value,score.value],{opacity:0}, {
-    duration: 2,
-    opacity: 1,
-    ease: "linear",
-  });
-
+  t1.fromTo(
+    [team1wrapper.value, team2wrapper.value, score.value],
+    { opacity: 0 },
+    {
+      duration: 2,
+      opacity: 1,
+      ease: "linear",
+    }
+  );
 };
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
   t2.to([team1wrapper.value, team2wrapper.value, score.value], {
-    duration: .3,
+    duration: 0.3,
     opacity: 0,
     ease: "linear",
   });
@@ -108,26 +139,24 @@ onMounted(() => {
   watchEffect(async () => {
     if (snapshot.value.matches("detail.intro")) {
       if (svgQydha.value) {
-        svgQydha.value.enteranimation()
+        svgQydha.value.enteranimation();
         scoreMount();
-      await sleep(4000);
+        await sleep(4000);
 
         gameService.send({ type: "NEXT" });
       }
     }
     if (snapshot.value.matches("detail.main")) {
-   
       await sleep(4000);
       gameService.send({ type: "TO_OUTRO" });
     }
 
     if (snapshot.value.matches("detail.outro")) {
       if (svgQydha.value) {
-        svgQydha.value.outAnimation()
+        svgQydha.value.outAnimation();
         scoreUnMount();
         await sleep(2000);
         gameService.send({ type: "CHECK_END" });
-
       }
     }
   });
@@ -165,12 +194,12 @@ onMounted(() => {
 }
 
 .TeamDetailedScore {
-  @apply  w-[85px] text-[2rem];
+  @apply w-[25%] text-[2rem];
   font-family: "CairoSemiBold";
 }
 
 .score {
-  @apply   text-[2rem];
+  @apply text-[2.5rem];
   font-family: "CairoSemiBold";
 }
 
