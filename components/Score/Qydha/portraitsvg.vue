@@ -1,20 +1,20 @@
 <template>
   <div
-    class="flex justify-center aspect-[9/16] w-[95%] relative mx-auto duration-300 transition-all"
+    class="flex justify-center  h-[1920px] w-[1080px] bg-red-500 relative mx-auto duration-300 transition-all"
     
   >
     <div
-      class="relative w-[300px] h-[100px] origin-center top-[0px] mx-auto transition-all duration-300 "
+      class="relative  w-full h-[300px] origin-center top-[0px]  transition-all duration-300 "
       :style="{ 'margin-top': tableData.scoreMarginTop }"
     >
-      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
+      <QydhaSvg ref="svgQydha" class="absolute top-0 left-0 " />
       <div
-        class="absolute text-center text-white flex h-[28px] top-[63px] -translate-x-1/2 left-1/2 w-[280px]"
+        class="absolute text-center text-white flex h-[85px]   w-full top-[50%] "
       >
-        <div class="w-1/2 flex items-center" ref="team2wrapper">
+        <div class="w-1/2 flex items-center text-[3rem] " ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p
-              class="grow mt-[-5px]"
+              class="   w-[50%] ms-[25%] me-[5%]"
               :key="game?.themName"
               style="
                 user-select: none;
@@ -34,7 +34,7 @@
               }}
             </p>
           </transition>
-          <p class="w-[38px] mr-[5px] score">
+          <p class="w-[15%]   score">
             <!-- {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }} -->
             {{
               newGameFlag
@@ -47,10 +47,12 @@
             }}
           </p>
         </div>
-        <div class="w-1/2 flex items-center" ref="team1wrapper">
-          <p class="w-[38px] ml-[4px] score">
+        <div class="w-1/2 flex items-center  text-[3rem]" ref="team1wrapper">
+          <p class="w-[15%] ms-[5%]  score">
             <!-- {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }} -->
-            {{
+          
+          
+          {{
               newGameFlag
                 ? 0
                 : sakka_ended
@@ -62,7 +64,7 @@
           </p>
           <transition name="fade" mode="out-in">
             <p
-              class="grow mt-[-5px]"
+              class="  w-[50%] me-[25%] ms-[5%]"
               :key="game?.usName"
               style="
                 user-select: none;
@@ -71,6 +73,7 @@
                 word-spacing: -1px;
               "
             >
+            
               {{
                 game?.usName
                   ? game?.usName
@@ -321,7 +324,7 @@ const right = computed(() => {
 }
 
 .score {
-  @apply text-slate-700 text-[1rem];
+  @apply text-slate-700 text-[2.5rem];
   font-family: "CairoSemiBold";
 }
 
