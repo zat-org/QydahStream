@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-center  h-[1920px] w-[1080px] bg-red-500 relative mx-auto duration-300 transition-all"
+    class="flex justify-center  h-[1920px] w-[1080px] relative mx-auto duration-300 transition-all"
     
   >
     <div
@@ -21,9 +21,11 @@
                 white-space: nowrap;
                 letter-spacing: -0.5px;
                 word-spacing: -1px;
+                margin-bottom: 28px;
               "
             >
-              {{
+حاوم |حاوم
+            <!-- {{
                 game?.themName
                   ? game?.themName
                   : game?.themPlayers.length == 0
@@ -31,12 +33,13 @@
                   : game?.themPlayers[0].name +
                     " | " +
                     game?.themPlayers[1].name
-              }}
+              }} -->
             </p>
           </transition>
           <p class="w-[15%]   score">
             <!-- {{ newGameFlag ? "0" : tweenedScores.team2.toFixed(0) }} -->
-            {{
+           0
+            <!-- {{
               newGameFlag
                 ? 0
                 : sakka_ended
@@ -44,15 +47,15 @@
                 : // : newGameFlag
                   // ? "0"
                   tweenedScores.team2.toFixed(0)
-            }}
+            }} -->
           </p>
         </div>
         <div class="w-1/2 flex items-center  text-[3rem]" ref="team1wrapper">
           <p class="w-[15%] ms-[5%]  score">
             <!-- {{ newGameFlag ? "0" : tweenedScores.team1.toFixed(0) }} -->
+          0
           
-          
-          {{
+          <!-- {{
               newGameFlag
                 ? 0
                 : sakka_ended
@@ -60,7 +63,7 @@
                 : // : newGameFlag
                   // ? "0"
                   tweenedScores.team1.toFixed(0)
-            }}
+            }} -->
           </p>
           <transition name="fade" mode="out-in">
             <p
@@ -71,16 +74,17 @@
                 white-space: nowrap;
                 letter-spacing: -0.5px;
                 word-spacing: -1px;
+                margin-bottom: 28px;
               "
             >
-            
-              {{
+            حاوم |حاوم
+              <!-- {{
                 game?.usName
                   ? game?.usName
                   : game?.usPlayers.length == 0
                   ? "لنا"
                   : game?.usPlayers[0].name + " | " + game?.usPlayers[1].name
-              }}
+              }} -->
             </p>
           </transition>
         </div>

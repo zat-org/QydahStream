@@ -1,5 +1,5 @@
 <template v-if="gameService">
-  <div v-show="snapshot.matches('score')">
+<div v-show="snapshot.matches('score')">
     <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>
 

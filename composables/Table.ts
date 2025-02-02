@@ -16,7 +16,7 @@ export const useTable = async() => {
   
   const tableData = ref<TableData>({
     id: "",
-    PlayerImageWidth: 60,
+    PlayerImageWidth: 200,
     scoreMarginTop:"0px",
     LeftPlayer: { top: "calc(50% - 30px)", left: "0px" },
     RightPlayer: { top: "calc(50% - 30px)", right: "0px" },
@@ -35,7 +35,7 @@ export const useTable = async() => {
 
       const defaultTableData: TableData = {
         id: tableId,
-        PlayerImageWidth: 60,
+        PlayerImageWidth: 200,
         scoreMarginTop:"0px",
         DetailScoreColor: "#000000",
         LeftPlayer: { top: "", left: "0px" },
