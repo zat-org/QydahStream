@@ -36,9 +36,9 @@
             <p
               class="w-[50%] me-[25%] ms-[5%]"
               :key="game?.usName"
-              style:{
+              style="
               margin-bottom: 28px;
-              }
+              "
             >
               {{
                 game?.usName
