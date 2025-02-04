@@ -1,5 +1,6 @@
 <template v-if="gameService">
-
+<!-- <score-qydha-portraitsvg/> -->
+ <!-- <detail-qydha-portrait /> -->
 <div v-show="snapshot.matches('score')">
     <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>

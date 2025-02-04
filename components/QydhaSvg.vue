@@ -15,9 +15,12 @@ const svg=computed( ()=>{
 return `<svg 
       version="1.1"
       id="svg2"
-      width="${board.value?.scorePanel.width ?? 1080 }"
-      height="${board.value?.scorePanel.height ?? 300 }"
-      viewBox="0 0 ${board.value?.scorePanel.svgViewBox.width ?? 1108 } ${board.value?.scorePanel.svgViewBox.height ?? 400 }"
+      width="1149px"
+      style="scale:${board.value?.scorePanel.position.scale  } ; 
+      position:absolute ;
+      left:${board.value?.scorePanel.position.left } ;
+      top:${board.value?.scorePanel.position.top } "
+      height="312px"
       sodipodi:docname="Qydha Coner Score Layers.svg"
       inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
       inkscape:export-filename="corener svg.svg"
