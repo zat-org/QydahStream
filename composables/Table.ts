@@ -25,6 +25,7 @@ export interface TableData {
       top:string,
     }
   };
+  
   LeftPlayer: { top: string; left: string };
   RightPlayer: { top: string; right: string };
   BottomPlayer: { bottom: string; left: string };
