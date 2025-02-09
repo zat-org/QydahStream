@@ -153,7 +153,7 @@
         class="absolute origin-center playerImage transition-all duration-300"
         :key="right.url"
         :style="{
-          top: `calc(50%-${board?.RightPlayer.top})`,
+          top: `calc(50% - ${board?.RightPlayer.top})`,
           right: board?.RightPlayer.right,
           height: board?.PlayerImageWidth + 'px',
           width: board?.PlayerImageWidth + 'px',
