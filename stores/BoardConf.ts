@@ -55,15 +55,15 @@ export const useMyBoardConfStore = defineStore("myBoardConfStore", () => {
     BottomPlayer: { bottom: "0px", left: "calc(50% - 30px)" },
     DetailScoreColor: "#000000",
   };
-  defaultTableData.LeftPlayer.top = `calc(50% - ${
+  defaultTableData.LeftPlayer.top = ` ${
     defaultTableData.PlayerImageWidth / 2
-  }px)`;
-  defaultTableData.RightPlayer.top = `calc(50% - ${
+  }px`;
+  defaultTableData.RightPlayer.top = `  ${
     defaultTableData.PlayerImageWidth / 2
-  }px)`;
-  defaultTableData.BottomPlayer.left = `calc(50% - ${
+  }px`;
+  defaultTableData.BottomPlayer.left = `  ${
     defaultTableData.PlayerImageWidth / 2
-  }px)`;
+  }px`;
 
   board.value = defaultTableData;
   return { board ,defaultTableData };

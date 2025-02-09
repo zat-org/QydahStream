@@ -127,7 +127,7 @@
         class="absolute playerImage transition-all duration-300"
         :key="left.url"
         :style="{
-          top: `calc(50 % -${board?.LeftPlayer.top})`,
+          top: `calc(50% -${board?.LeftPlayer.top})`,
           left: board?.LeftPlayer.left,
           height: board?.PlayerImageWidth + 'px',
           width: board?.PlayerImageWidth + 'px',
