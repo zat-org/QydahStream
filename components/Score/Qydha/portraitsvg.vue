@@ -127,7 +127,7 @@
         class="absolute playerImage transition-all duration-300"
         :key="left.url"
         :style="{
-          top: board?.RightPlayer.top,
+          top: `calc(50 % -${board?.LeftPlayer.top})`,
           left: board?.LeftPlayer.left,
           height: board?.PlayerImageWidth + 'px',
           width: board?.PlayerImageWidth + 'px',
@@ -153,7 +153,7 @@
         class="absolute origin-center playerImage transition-all duration-300"
         :key="right.url"
         :style="{
-          top: board?.RightPlayer.top,
+          top: `calc(50%-${board?.RightPlayer.top})`,
           right: board?.RightPlayer.right,
           height: board?.PlayerImageWidth + 'px',
           width: board?.PlayerImageWidth + 'px',
@@ -179,7 +179,7 @@
         class="absolute origin-center playerImage transition-all duration-300"
         :key="bottom.url"
         :style="{
-          left: board?.BottomPlayer.left,
+          left: `clac(50% - ${board?.BottomPlayer.left})`,
           bottom: board?.BottomPlayer.bottom,
           height: board?.PlayerImageWidth + 'px',
           width: board?.PlayerImageWidth + 'px',
