@@ -127,7 +127,7 @@
         class="absolute playerImage transition-all duration-300"
         :key="left.url"
         :style="{
-          top: `calc(50% -${board?.LeftPlayer.top})`,
+          top: LeftPlayerTop,
           left: board?.LeftPlayer.left,
           height: board?.PlayerImageWidth + 'px',
           width: board?.PlayerImageWidth + 'px',
@@ -153,7 +153,7 @@
         class="absolute origin-center playerImage transition-all duration-300"
         :key="right.url"
         :style="{
-          top: `calc(50% - ${board?.RightPlayer.top})`,
+          top: RightPlayerTop,
           right: board?.RightPlayer.right,
           height: board?.PlayerImageWidth + 'px',
           width: board?.PlayerImageWidth + 'px',
@@ -179,7 +179,7 @@
         class="absolute origin-center playerImage transition-all duration-300"
         :key="bottom.url"
         :style="{
-          left: `clac(50% - ${board?.BottomPlayer.left})`,
+          left: BottomPlayerLeft,
           bottom: board?.BottomPlayer.bottom,
           height: board?.PlayerImageWidth + 'px',
           width: board?.PlayerImageWidth + 'px',
@@ -341,6 +341,15 @@ const right = computed(() => {
     return null;
   }
 });
+const RightPlayerTop =computed(()=>{
+  return `calc(50% - ${board.value?.RightPlayer.top})`
+})
+const LeftPlayerTop =computed(()=>{
+  return `calc(50% - ${board.value?.LeftPlayer.top})`
+})
+const BottomPlayerLeft =computed(()=>{
+  return `calc(50% - ${board.value?.BottomPlayer.left})`
+})
 </script>
 <style scoped>
 .fade-enter-active,
