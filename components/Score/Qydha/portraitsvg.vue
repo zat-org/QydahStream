@@ -160,6 +160,8 @@
         }"
         v-if="right && right.url && showPlayers"
       >
+
+      
         <div class="relative w-full h-full">
           <img
             class="absolute z-[10] rounded-2xl"
