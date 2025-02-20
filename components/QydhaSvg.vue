@@ -16,7 +16,7 @@ return `<svg
       version="1.1"
       id="svg2"
       width="1149px"
-      style="scale:${board.value?.scorePanel.position.scale  } ; 
+      
       position:absolute ;
       left:${board.value?.scorePanel.position.left } ;
       top:${board.value?.scorePanel.position.top } "

@@ -12,6 +12,7 @@
         'margin-top': board?.scorePanel.topMargin ?? '0px',
         width: board?.scorePanel.width ?? '100%',
         height: board?.scorePanel.height ?? '300px',
+        scale : board?.scorePanel.position.scale,
       }"
     >
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
