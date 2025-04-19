@@ -31,6 +31,8 @@ export interface TableData {
   BottomPlayer: { bottom: string; left: string };
   PlayerImageWidth: number;
   DetailScoreColor: string;
+  DetailScoreFontSize: string;
+
 }
 export const useTable = () => {
   const db = useFirestore();

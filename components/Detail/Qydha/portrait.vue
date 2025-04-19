@@ -98,7 +98,9 @@
         <div class="TeamDetailedScore text-right grow">
           <p
             class="score"
-            :style="{ color: board?.DetailScoreColor }"
+            :style="{ color: board?.DetailScoreColor,
+            'font-size': board?.DetailScoreFontSize
+             }"
             v-for="e_m in ended_moshtras"
           >
             {{ e_m.themAbnat }}
@@ -110,7 +112,10 @@
         <div class="TeamDetailedScore grow">
           <p
             class="score"
-            :style="{ color: board?.DetailScoreColor }"
+
+            :style="{ color: board?.DetailScoreColor
+              ,'font-size': board?.DetailScoreFontSize
+             }"
             v-for="e_m in ended_moshtras"
           >
             {{ e_m.usAbnat }}

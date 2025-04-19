@@ -54,6 +54,7 @@ export const useMyBoardConfStore = defineStore("myBoardConfStore", () => {
     RightPlayer: { top: "calc(50% - 30px)", right: "0px" },
     BottomPlayer: { bottom: "0px", left: "calc(50% - 30px)" },
     DetailScoreColor: "#000000",
+    DetailScoreFontSize: "20px",
   };
   defaultTableData.LeftPlayer.top = ` ${
     defaultTableData.PlayerImageWidth / 2
