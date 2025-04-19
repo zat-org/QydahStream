@@ -66,6 +66,6 @@ export const useMyBoardConfStore = defineStore("myBoardConfStore", () => {
     defaultTableData.PlayerImageWidth / 2
   }px`;
 
-  board.value = defaultTableData;
+  // board.value = defaultTableData;
   return { board ,defaultTableData };
 });
