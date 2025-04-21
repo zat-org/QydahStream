@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { TableData } from "~/composables/Table";
+import type { TableData } from "~/models/Table";
 
 export const useMyBoardConfStore = defineStore("myBoardConfStore", () => {
   const board = ref<TableData>();
@@ -19,42 +19,37 @@ export const useMyBoardConfStore = defineStore("myBoardConfStore", () => {
       },
       leftTeam: {
         name: {
-          size: "25px",
-          top: "73px",
-          left: "111px",
-          width: "50%",
-          height: "100px",
+          size: "30px",
+          top: "0px",
+          left: "0px",
+
         },
         score: {
-          size: "47px",
-          top: "66px",
-          left: "414px",
-          width: "20%",
-          height: "100px",
+          size: "50px",
+          top: "0px",
+          left: "0px",
+
         },
       },
       rightTeam: {
         name: {
-          size: "25px",
-          top: "73px",
-          left: "188px",
-          width: "50%",
-          height: "100px",
+          size: "30px",
+          top: "0px",
+          left: "0px",
+
         },
         score: {
-          size: "47px",
-          top: "66px",
-          left: "43px",
-          width: "20%",
-          height: "100px",
+          size: "50px",
+          top: "0px",
+          left: "0px",
+
         },
       },
     },
     LeftPlayer: { top: "calc(50% - 30px)", left: "0px" },
     RightPlayer: { top: "calc(50% - 30px)", right: "0px" },
     BottomPlayer: { bottom: "0px", left: "calc(50% - 30px)" },
-    DetailScoreColor: "#000000",
-    DetailScoreFontSize: "20px",
+    DetailScore:{Color:"#000000" , FontSize:"50px"},
   };
   defaultTableData.LeftPlayer.top = ` ${
     defaultTableData.PlayerImageWidth / 2

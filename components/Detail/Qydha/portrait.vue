@@ -17,18 +17,15 @@
     >
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
 
-      <div class="absolute text-center text-white flex w-full top-[50%]">
-        <div class="w-1/2 flex items-center relative" ref="team2wrapper">
+      <div class="absolute text-center text-white flex w-full h-[118px]  top-[66.3%]">
+        <div class="w-[52.5%] flex  justify-between items-center relative" ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p
-              class="absolute"
+              class="w-[70%] text-center "
               :key="game?.themName"
               :style="{
-                left: board?.scorePanel.leftTeam.name.left,
-                top: board?.scorePanel.leftTeam.name.top,
+                 transform: `translate(${board?.scorePanel.leftTeam.name.left}, ${board?.scorePanel.leftTeam.name.top})`,
                 'font-size': board?.scorePanel.leftTeam.name.size,
-                height: board?.scorePanel.leftTeam.name.height,
-                width: board?.scorePanel.leftTeam.name.width,
               }"
             >
               {{
@@ -43,41 +40,34 @@
             </p>
           </transition>
           <p
-            class="score absolute"
+            class="score w-[30%] mx-auto text-center"
             :style="{
-              left: board?.scorePanel.leftTeam.score.left,
-              top: board?.scorePanel.leftTeam.score.top,
+        transform: `translate(${board?.scorePanel.leftTeam.score.left}, ${board?.scorePanel.leftTeam.score.top})`,
+  
               'font-size': board?.scorePanel.leftTeam.score.size,
-              height: board?.scorePanel.leftTeam.score.height,
-              width: board?.scorePanel.leftTeam.score.width,
             }"
           >
             {{ last_sakka?.themSakkaScore }}
           </p>
         </div>
-        <div class="w-1/2 flex items-center relative" ref="team1wrapper">
+        <div class=" w-[2.5%] "></div>
+        <div class="w-[50.5%] flex justify-between items-center relative" ref="team1wrapper">
           <p
-            class="score absolute"
+            class="score w-[30%] text-center mx-auto"
             :style="{
-              left: board?.scorePanel.rightTeam.score.left,
-              top: board?.scorePanel.rightTeam.score.top,
+              transform: `translate(${board?.scorePanel.rightTeam.score.left}, ${board?.scorePanel.rightTeam.score.top})`,
               'font-size': board?.scorePanel.rightTeam.score.size,
-              height: board?.scorePanel.rightTeam.score.height,
-              width: board?.scorePanel.rightTeam.score.width,
             }"
           >
             {{ last_sakka?.usSakkaScore }}
           </p>
           <transition name="fade" mode="out-in">
             <p
-              class="absolute"
+              class=" w-[70%] mx-auto text-center"
               :key="game?.usName"
               :style="{
-                left: board?.scorePanel.rightTeam.name.left,
-                top: board?.scorePanel.rightTeam.name.top,
+                transform: `translate(${board?.scorePanel.rightTeam.name.left}, ${board?.scorePanel.rightTeam.name.top})`,
                 'font-size': board?.scorePanel.rightTeam.name.size,
-                height: board?.scorePanel.rightTeam.name.height,
-                width: board?.scorePanel.rightTeam.name.width,
               }"
             >
               {{
@@ -98,8 +88,8 @@
         <div class="TeamDetailedScore text-right grow">
           <p
             class="score"
-            :style="{ color: board?.DetailScoreColor,
-            'font-size': board?.DetailScoreFontSize
+            :style="{ color: board?.DetailScore.Color,
+            'font-size': board?.DetailScore.FontSize
              }"
             v-for="e_m in ended_moshtras"
           >
@@ -113,8 +103,8 @@
           <p
             class="score"
 
-            :style="{ color: board?.DetailScoreColor
-              ,'font-size': board?.DetailScoreFontSize
+            :style="{ color: board?.DetailScore.Color
+              ,'font-size': board?.DetailScore.FontSize
              }"
             v-for="e_m in ended_moshtras"
           >

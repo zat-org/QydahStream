@@ -1,6 +1,6 @@
 <template v-if="gameService">
 <!-- <score-qydha-portraitsvg/> -->
- <!-- <detail-qydha-portrait /> -->
+ <detail-qydha-portrait />
 <div v-show="snapshot.matches('score')">
     <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>
@@ -41,7 +41,7 @@ import ScoreQydhaLandscape from "../../components/Score/Qydha/landscape.vue";
 import DetailQydhaLandscape from "../../components/Detail/Qydha/landscape.vue";
 import WinnerQydhaLandscape from "../../components/winner/Qydha/landscape.vue";
 
-import ScoreQydhaPortrait from "../../components/Score/Qydha/portrait.vue";
+// import ScoreQydhaPortrait from "../../components/Score/Qydha/portrait.vue";
 import ScoreQydhaPortraitsvg from "../../components/Score/Qydha/portraitsvg.vue";
 
 import DetailQydhaPortrait from "../../components/Detail/Qydha/portrait.vue";

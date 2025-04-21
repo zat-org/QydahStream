@@ -1,39 +1,8 @@
 import { useFirestore, useDocument } from "vuefire";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import type { TableData } from "~/models/Table";
 
-export interface TableData {
-  id: string;
-  dimension: {
-    width: string;
-    height: string;
-  };
-  scorePanel: {
-    topMargin: string;
-    width: string;
-    height: string;
-    leftTeam: { 
-      name: { size: string, top:string , left:string ,width:string,height:string}; 
-      score: { size: string ,top:string , left:string,width:string,height:string }
-     };
-    rightTeam: {
-      name: { size: string, top:string , left:string ,width:string,height:string}; 
-      score: { size: string ,top:string , left:string,width:string,height:string }
-    };
-    position:{
-      scale:number , 
-      left:string ,
-      top:string,
-    }
-  };
-  
-  LeftPlayer: { top: string; left: string };
-  RightPlayer: { top: string; right: string };
-  BottomPlayer: { bottom: string; left: string };
-  PlayerImageWidth: number;
-  DetailScoreColor: string;
-  DetailScoreFontSize: string;
 
-}
 export const useTable = () => {
   const db = useFirestore();
   const BoardStore = useMyBoardConfStore();
