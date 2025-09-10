@@ -91,6 +91,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         if (gameStatics) {
           statics.value = JSON.parse(gameStatics);
+          console.log("statics", statics.value);
         }
         newGame.value = JSON.parse(gameData);
         newGame.value = sakkaIsMashdoda(newGame.value!);
@@ -138,10 +139,13 @@ export const useMyGameStore = defineStore("myGameStore", () => {
         lastSakka.themSakkaScore += 52;
         lastSakka.moshtaras.unshift({
           id: 0,
-          usAbnat: 50,
-          themAbnat: 50,
+          usAbnat: 52,
+          themAbnat: 52,
           state: "Ended",
-          advancedDetails: null,
+          advancedDetails: {
+            moshtara: "50-50",
+            selectedMoshtaraOwner: "Us",
+          },
         });
       }
     } else {
