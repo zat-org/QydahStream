@@ -142,6 +142,7 @@ if ((connection.state as string) != "Connected") {
 }
 
 const { snapshot, game } = storeToRefs(gamestore);
+console.log("game", game.value)
 </script>
 
 <style>
