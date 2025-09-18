@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts" setup>
-import CamTop from "../../../components/Cam/Top.vue"
-import CamRight from "../../../components/Cam/Right.vue"
-import CamLeft from "../../../components/Cam/Left.vue"
-import CamBottom from "../../../components/Cam/Bottom.vue"
+import CamTop from "../../../../components/Cam/Top.vue"
+import CamRight from "../../../../components/Cam/Right.vue"
+import CamLeft from "../../../../components/Cam/Left.vue"
+import CamBottom from "../../../../components/Cam/Bottom.vue"
 
 
 const route = useRoute()

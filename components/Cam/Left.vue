@@ -70,6 +70,7 @@
 <script lang="ts" setup>
 const gamestore = useMyGameStore();
 const { game } = storeToRefs(gamestore);
+
 // game.value?.themPlayers
 // game.value?.usPlayers
 console.log("Hello")
