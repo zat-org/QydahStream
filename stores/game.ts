@@ -3,8 +3,6 @@ import * as signalR from "@microsoft/signalr";
 import type { GameI, IStatics } from "~/models/game";
 import { interpret } from "xstate";
 export const useMyGameStore = defineStore("myGameStore", () => {
-  // const gameString = ref("");
-  // const staticString = ref("");
 
   const config = useRuntimeConfig();
 
@@ -37,7 +35,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       snapshot.value.matches("score.intro") &&
       newGame.value &&
       game.value &&
-      (newGame.value.id !== game.value.id || sakka_ended.value)
+      (newGame.value.gameData.id !== game.value.gameData.id || sakka_ended.value)
     ) {
       console.log("game change in watch state ");
       game.value = newGame.value;
@@ -71,6 +69,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
           await connection.invoke("AddToBoardGroup", player_table_id)
         );
       }
+
       game.value = sakkaIsMashdoda(game.value!);
     } catch (error) {
       console.log(error);
@@ -98,7 +97,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
 
         console.log(newGame.value);
 
-        if (snapshot.value.matches("detail")  ) {
+        if (snapshot.value.matches("detail")) {
           handelDetail();
         } else if (snapshot.value.matches("winner")) {
           handelWinner();
@@ -122,12 +121,9 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     );
   }
 
-
-
-  
   const sakkaIsMashdoda = (game: GameI): GameI | undefined => {
-    if (game.sakkas.length <= 0) return;
-    const lastSakka = game.sakkas[game.sakkas.length - 1];
+    if (game.gameData.sakkas.length <= 0) return;
+    const lastSakka = game.gameData.sakkas[game.gameData.sakkas.length - 1];
     if (lastSakka.isMashdoda) {
       // add mostra 50 - 50
       // add 50 to us and them in this score
@@ -146,6 +142,11 @@ export const useMyGameStore = defineStore("myGameStore", () => {
             moshtara: "50-50",
             selectedMoshtaraOwner: "Us",
           },
+          startedAt: "",
+          endedAt: "",
+          pausingIntervals: [],
+          isMoshtaraSucceeded: null,
+          moshtaraOwner: null,
         });
       }
     } else {
@@ -155,20 +156,25 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     // console.log("masdda", game);
     return game;
   };
-  const handelDetail = () => {    
-    if (events.includes("GameStarted") || events.includes("SakkaEnded") ||events.includes("SakkaStarted")) {
-      console.log(" new game start in detail")
-      console.log(" or saka ended  in detail")
-      console.log(" or saka  start in detail")
+  const handelDetail = () => {
+    if (
+      events.includes("GameStarted") ||
+      events.includes("SakkaEnded") ||
+      events.includes("SakkaStarted")
+    ) {
+      console.log(" new game start in detail");
+      console.log(" or saka ended  in detail");
+      console.log(" or saka  start in detail");
     } else {
-      if (events.includes("ScoreDecreased") && newGame.value?.winner == null) {
+      if (events.includes("ScoreDecreased") && newGame.value?.gameData.winner == null) {
         gameService.send({ type: "UPDATE_CONTEXT", ended: null });
       }
-      if (!snapshot.value.context.ended){
+      if (!snapshot.value.context.ended) {
         game.value = newGame.value;
-        console.log("game changed  in detail in not new ggame stated and not sakka ended or started ");
+        console.log(
+          "game changed  in detail in not new ggame stated and not sakka ended or started "
+        );
       }
-
     }
   };
   const handelWinner = () => {};
@@ -190,7 +196,7 @@ export const useMyGameStore = defineStore("myGameStore", () => {
       events.includes("ScoreUpdated") ||
       events.includes("ScoreDecreased")
     ) {
-      if (events.includes("ScoreUpdated") && newGame.value?.winner !== null) {
+      if (events.includes("ScoreUpdated") && newGame.value?.gameData.winner !== null) {
         gameService.send({ type: "TO_OUTRO" });
       }
       console.log("game changed in socre  score increase 2");
@@ -203,25 +209,25 @@ export const useMyGameStore = defineStore("myGameStore", () => {
     } else {
     }
   };
-  // to show  winner 
+  // to show  winner
   const handelGameEnded = () => {
     let winner = false;
 
     const us_photo =
       game?.value &&
-      game?.value?.usPlayers.length > 0 &&
-      game?.value?.usPlayers[0].url &&
-      game?.value?.usPlayers[1].url;
+      game?.value?.gameData.usPlayers.length > 0 &&
+      game?.value?.gameData.usPlayers[0].url &&
+      game?.value?.gameData.usPlayers[1].url;
     const them_photo =
       game?.value &&
-      game?.value?.themPlayers.length > 0 &&
-      game?.value?.themPlayers[0].url &&
-      game?.value?.themPlayers[1].url;
+      game?.value?.gameData.themPlayers.length > 0 &&
+      game?.value?.gameData.themPlayers[0].url &&
+      game?.value?.gameData.themPlayers[1].url;
 
-    if (game?.value?.winner) {
-      if (game?.value?.winner == "Us" && us_photo) {
+    if (game?.value?.gameData.winner) {
+      if (game?.value?.gameData.winner == "Us" && us_photo) {
         winner = true;
-      } else if (game?.value?.winner == "Them" && them_photo) {
+      } else if (game?.value?.gameData.winner == "Them" && them_photo) {
         winner = true;
       }
     }
@@ -232,10 +238,13 @@ export const useMyGameStore = defineStore("myGameStore", () => {
   const handelSakkaEnded = () => {
     sakka_ended.value = true;
     if (statics.value) {
-      const advanced_write =
-      game.value?.sakkas[game.value?.sakkas.length-1].moshtaras.every(m=>{return m.advancedDetails !=null })
+      const advanced_write = game.value?.gameData.sakkas[
+        game.value?.gameData.sakkas.length - 1
+      ].moshtaras.every((m) => {
+        return m.advancedDetails != null;
+      });
 
-      console.log("show statistics",advanced_write);
+      console.log("show statistics", advanced_write);
       // let moshtraCount =
       //   statics.value?.themStatistics.moshtaraHokmCount +
       //   statics.value?.themStatistics.moshtaraSunCount +
