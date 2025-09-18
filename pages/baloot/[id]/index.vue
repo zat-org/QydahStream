@@ -82,7 +82,7 @@ if (route.query.showPlayers) {
 }
 
 router.push({
-  path: `/${table_id}/`,
+  path: `baloot/${table_id}/`,
   query: {
     theme: theme.value,
     orienation: orienation.value,
