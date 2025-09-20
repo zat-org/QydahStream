@@ -48,8 +48,13 @@
 </template>
 
 <script lang="ts" setup>
-const gamestore = useMyGameStore();
-const { game } = storeToRefs(gamestore);
+import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+const { store } = DetectBoard();
+
+const { game } = storeToRefs(store.value as BalootStore | HandStore);  
+
+
+
 // game.value?.themPlayers
 // game.value?.usPlayers
 console.log("Hello")

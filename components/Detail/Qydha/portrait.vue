@@ -1,51 +1,28 @@
 <template>
   <div
-    class="flex justify-center h-[1920px] w-[1080px] relative mx-auto"
-    :style="{
-      height: board?.dimension.height ?? '1920px',
-      width: board?.dimension.width ?? '1080px',
-    }"
+    class="flex justify-center relative mx-auto"
+    :style="BoardStyles.dimension"
   >
     <div
-      class="relative h-[300px] w-full origin-center top-[0px]"
-      :style="{
-        'margin-top': board?.scorePanel.topMargin ?? '0px',
-        width: board?.scorePanel.width ?? '100%',
-        height: board?.scorePanel.height ?? '300px',
-        scale : board?.scorePanel.position.scale,
-      }"
+      class="relative  w-full origin-center top-[0px]"
+      :style="BoardStyles.scorePanel"
     >
       <QydhaSvg ref="svgQydha" class="absolute top-0 left-0" />
 
-      <div class="absolute text-center text-white flex w-full h-[118px]  top-[66.3%]">
+      <div class="absolute text-center text-white flex w-full bottom-[0px]">
         <div class="w-[52.5%] flex  justify-between items-center relative" ref="team2wrapper">
           <transition name="fade" mode="out-in">
             <p
               class="w-[70%] text-center "
               :key="game?.themName"
-              :style="{
-                 transform: `translate(${board?.scorePanel.leftTeam.name.left}, ${board?.scorePanel.leftTeam.name.top})`,
-                'font-size': board?.scorePanel.leftTeam.name.size,
-              }"
+              :style="BoardStyles.scorePanel.leftTeam.name"
             >
-              {{
-                game?.themName
-                  ? game?.themName
-                  : game?.themPlayers.length == 0
-                  ? "لهم"
-                  : game?.themPlayers[0].name +
-                    "  |   " +
-                    game?.themPlayers[1].name
-              }}
+              {{themName}}
             </p>
           </transition>
           <p
             class="score w-[30%] mx-auto text-center"
-            :style="{
-        transform: `translate(${board?.scorePanel.leftTeam.score.left}, ${board?.scorePanel.leftTeam.score.top})`,
-  
-              'font-size': board?.scorePanel.leftTeam.score.size,
-            }"
+            :style="BoardStyles.scorePanel.leftTeam.score"
           >
             {{ last_sakka?.themSakkaScore }}
           </p>
@@ -54,10 +31,7 @@
         <div class="w-[50.5%] flex justify-between items-center relative" ref="team1wrapper">
           <p
             class="score w-[30%] text-center mx-auto"
-            :style="{
-              transform: `translate(${board?.scorePanel.rightTeam.score.left}, ${board?.scorePanel.rightTeam.score.top})`,
-              'font-size': board?.scorePanel.rightTeam.score.size,
-            }"
+            :style="BoardStyles.scorePanel.rightTeam.score"
           >
             {{ last_sakka?.usSakkaScore }}
           </p>
@@ -65,18 +39,9 @@
             <p
               class=" w-[70%] mx-auto text-center"
               :key="game?.usName"
-              :style="{
-                transform: `translate(${board?.scorePanel.rightTeam.name.left}, ${board?.scorePanel.rightTeam.name.top})`,
-                'font-size': board?.scorePanel.rightTeam.name.size,
-              }"
+              :style="BoardStyles.scorePanel.rightTeam.name"
             >
-              {{
-                game?.usName
-                  ? game?.usName
-                  : game?.usPlayers.length == 0
-                  ? "لنا"
-                  : game?.usPlayers[0].name + "  |   " + game?.usPlayers[1].name
-              }}
+              {{usName}}
             </p>
           </transition>
         </div>
@@ -88,10 +53,10 @@
         <div class="TeamDetailedScore text-right grow">
           <p
             class="score"
-            :style="{ color: board?.DetailScore.Color,
-            'font-size': board?.DetailScore.FontSize
-             }"
-            v-for="e_m in ended_moshtras"
+            :style="BoardStyles.detailScore"
+            v-for="e_m,index in ended_moshtras"
+            :key="['themscore',index].toString()"
+
           >
             {{ e_m.themAbnat }}
           </p>
@@ -102,11 +67,10 @@
         <div class="TeamDetailedScore grow">
           <p
             class="score"
+            :style="BoardStyles.detailScore"
+            v-for="e_m,index in ended_moshtras"
+            :key="['usscore',index].toString()"
 
-            :style="{ color: board?.DetailScore.Color
-              ,'font-size': board?.DetailScore.FontSize
-             }"
-            v-for="e_m in ended_moshtras"
           >
             {{ e_m.usAbnat }}
           </p>
@@ -120,15 +84,162 @@
 const svgQydha = ref();
 
 const { board } = storeToRefs(useMyBoardConfStore());
-const store = useMyGameStore();
+import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+const { store } = DetectBoard();
 import gsap from "gsap";
 import type { SakkaI } from "~/models/game";
 const { sleep } = useSleep();
-const { snapshot, game } = storeToRefs(store);
-const { gameService } = store;
+const { snapshot, game ,boardSettings} = storeToRefs(store.value as BalootStore | HandStore);
+const { gameService } = store.value as BalootStore | HandStore;
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 const score = ref(null);
+
+
+const portraitBoardSettings = computed(() => {
+  return boardSettings.value?.portrait;
+});
+
+const themName = computed(() => {
+  return game.value?.themName
+    ? game.value?.themName
+    : game.value?.themPlayers.length == 0
+      ? "لهم"
+      : game.value?.themPlayers[0].name +
+      " | " +
+      game.value?.themPlayers[1].name
+})
+
+const usName = computed(() => {
+  return game.value?.usName
+    ? game.value?.usName
+    : game.value?.usPlayers.length == 0
+      ? "لنا"
+      : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
+
+})
+
+const playerImageStyle = computed(() => {
+  return {
+    width: "90%",
+    height: "90%",
+    left: "5%",
+    top: "5%",
+  }
+})
+
+const BoardStyles = computed(() => {
+  return {
+    dimension: {
+      height: '1920px',
+      width: '1080px',
+    },
+    scorePanel: {
+      "margin-top": "0px",
+      height: "295px",
+      scale: .9,
+      leftTeam: {
+        name: {
+          transform: `translate(0px,0px)`,
+          'font-size': "30px",
+        },
+        score: {
+          transform: `translate(0px,0px)`,
+          'font-size': "50px",
+        },
+      },
+      rightTeam: {
+        name: {
+          transform: `translate(0px,0px)`,
+          'font-size': "30px",
+        },
+        score: {
+          transform: `translate(0px,0px)`,
+          'font-size': "50px",
+        },
+      }
+    },
+    leftPlayer: {
+      top: "calc(50% - 100px)",
+      left: "0px",
+      height: "200px",
+      width: "200px",
+    },
+    rightPlayer: {
+      top: "calc(50% - 100px)",
+      right: "0px",
+      height: "200px",
+      width: "200px",
+    },
+    bottomPlayer: {
+      left: "calc(50% - 100px)",
+      bottom: "0px",
+      height: "200px",
+      width: "200px",
+    },
+    detailScore: {
+      color: "#000000",
+      "font-size": "70px",
+    }
+  }
+
+  return {
+    dimension: {
+      height: portraitBoardSettings.value?.dimension.height + 'px',
+      width: portraitBoardSettings.value?.dimension.width + 'px',
+    },
+    scorePanel: {
+      'margin-top': portraitBoardSettings.value?.scorePanel.topMargin + "px",
+      height: portraitBoardSettings.value?.scorePanel.height + "px",
+      scale: portraitBoardSettings.value?.scorePanel.position.scale,
+      leftTeam: {
+        name: {
+          transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.leftTeam.name.top}px)`,
+          'font-size': portraitBoardSettings.value?.scorePanel.leftTeam.name.size + "px",
+        },
+        score: {
+          transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.leftTeam.score.top}px)`,
+          'font-size': portraitBoardSettings.value?.scorePanel.leftTeam.score.size + "px",
+        }
+      },
+      rightTeam: {
+        name: {
+          transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.rightTeam.name.top}px)`,
+          'font-size': portraitBoardSettings.value?.scorePanel.rightTeam.name.size + "px",
+        },
+        score: {
+          transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.rightTeam.score.top}px)`,
+          'font-size': portraitBoardSettings.value?.scorePanel.rightTeam.score.size + "px",
+        }
+      }
+    },
+    leftPlayer: {
+      top: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.leftPlayer.top}px`,
+      left: `${portraitBoardSettings.value?.leftPlayer.left}px`,
+      height: `${portraitBoardSettings.value?.playerImageWidth}px`,
+      width: `${portraitBoardSettings.value?.playerImageWidth}px`,
+    },
+    rightPlayer: {
+      top: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.rightPlayer.top}px`,
+      right: `${portraitBoardSettings.value?.rightPlayer.right}px`,
+      height: `${portraitBoardSettings.value?.playerImageWidth}px`,
+      width: `${portraitBoardSettings.value?.playerImageWidth}px`,
+    },
+    bottomPlayer: {
+      left: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.bottomPlayer.left}px`,
+      bottom: `${portraitBoardSettings.value?.bottomPlayer.bottom}px`,
+      height: `${portraitBoardSettings.value?.playerImageWidth}px`,
+      width: `${portraitBoardSettings.value?.playerImageWidth}px`,
+
+    },
+    detailScore: {
+      color: portraitBoardSettings.value?.detailScore.color,
+      "font-size": portraitBoardSettings.value?.detailScore.fontSize + "px",
+    }
+  }
+
+})
+
 
 const last_sakka_index = computed(() => {
   return game.value?.sakkas.length! - 1;

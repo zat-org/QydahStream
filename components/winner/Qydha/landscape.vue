@@ -41,10 +41,11 @@
 
 
 
-const store = useMyGameStore();
+import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+const { store } = DetectBoard();
 import gsap from "gsap";
-const { snapshot, game } = storeToRefs(store);
-const { gameService } = store;
+const { snapshot, game } = storeToRefs(store.value as BalootStore | HandStore);
+const { gameService } = store.value as BalootStore | HandStore;
 const mediaElm = ref<HTMLVideoElement>();
 
 const intro_start_sec = 0;
@@ -67,11 +68,13 @@ const scoreMount = () => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
+  if (winnerComp.value) {
   t2.to([winnerComp.value], {
     duration: 3,
-    opacity: 0,
-    ease: "linear",
-  });
+      opacity: 0,
+      ease: "linear",
+    });
+  }
 };
 
 const { sleep } = useSleep();

@@ -73,10 +73,11 @@
 </template>
 
 <script lang="ts" setup>
-const store = useMyGameStore();
+import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+const { store } = DetectBoard();  
 import gsap from "gsap";
-const { snapshot, game } = storeToRefs(store);
-const { gameService } = store;
+const { snapshot, game } = storeToRefs(store.value as BalootStore | HandStore);
+const { gameService } = store.value as BalootStore | HandStore;
 
 const Winnersvg = ref();
 const winnerData = ref(null);

@@ -21,7 +21,7 @@ export interface SakkaI {
     isMashdoda: boolean;
     winner: string | null;
     usSakkaScore: number;
-    themSakkaScore: number;
+    themSakkaScore: number  ;
     drawHandler: string;
     startedAt: string;
     endedAt: string;
@@ -62,8 +62,9 @@ export interface PlayerI {
 // advanced detrtails types
 //pausingIntervals  type
 // in real matxh  isMoshtaraSucceeded boolean   or null
-export interface GameI {
-  gameData: {
+
+export interface GameDataI 
+  {
     id: string;
     createdAt: string;
     startedAt: string;
@@ -83,15 +84,19 @@ export interface GameI {
     usPlayers: PlayerI[];
     themPlayers: PlayerI[];
     sakkas: SakkaI[];
-  };
-  boardSettings: {
-    portrait: BoardSettingsI;
-    landscape: BoardSettingsI;    
-    };
+  } 
+
+export interface GameI {
+  gameData: GameDataI;
+  boardSettings: BoardSettingsI;
 }
 
-
 export interface BoardSettingsI {
+  portrait: OrientationBoardSettingsI;
+  landscape: OrientationBoardSettingsI;
+}
+
+export interface OrientationBoardSettingsI {
   dimension: {
     width: number;
     height: number;

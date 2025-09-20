@@ -14,50 +14,28 @@
         class="SponsorImage left-[254px]"
       />
       <transition name="fade" mode="out-in">
-        <p :key="game?.usName" class="left-14 teamName">
-          {{
-            game?.usName
-              ? game?.usName
-              : game?.usPlayers.length == 0
-              ? "لنا"
-              : game?.usPlayers[0].name + " | " + game?.usPlayers[1].name
-          }}
+        <p :key="usName" class="left-14 teamName">
+          {{ usName  }}
         </p>
       </transition>
       <p class="left-[0px] score">
         {{
-          newGameFlag
-            ? 0
-            : sakka_ended
-            ? game?.usGameScore
-            : // : newGameFlag
-              // ? "0"
-              tweenedScores.team1.toFixed(0)
+          
+           gameState == "Ended" ? game?.usGameScore : tweenedScores.team1.toFixed(0)
         }}
       </p>
     </div>
 
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="left-[269px] score">
-        {{
-          newGameFlag
-            ? 0
-            : sakka_ended
-            ? game?.themGameScore
-            : // : newGameFlag
-              // ? "0"
-              tweenedScores.team2.toFixed(0)
+        {{         
+              gameState == "Ended" ? game?.themGameScore : tweenedScores.team2.toFixed(0)
         }}
       </p>
       <transition name="fade" mode="out-in">
-        <p :key="game?.themName" class="teamName left-[82px]">
-          {{
-            game?.themName
-              ? game?.themName
-              : game?.themPlayers.length == 0
-              ? "لهم"
-              : game?.themPlayers[0].name + " | " + game?.themPlayers[1].name
-          }}
+        <p :key="themName" class="teamName left-[82px]">
+          {{ themName }}
+          
         </p>
       </transition>
       <img :src="'/images/zat/zat_black.svg'" class="SponsorImage left-[3px]" />
@@ -68,10 +46,12 @@
 <script lang="ts" setup>
 import gsap from "gsap";
 
-const store = useMyGameStore();
-const { snapshot, game, sakka_ended, newGameFlag, game_updated } =
-  storeToRefs(store);
-const { gameService } = store;
+import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+import type { SakkaI } from "~/models/game";
+const { store } = DetectBoard();
+const { snapshot, game, } =
+  storeToRefs(store.value as BalootStore | HandStore);
+const { gameService } = store.value as BalootStore | HandStore;
 
 const mediaElm = ref<HTMLVideoElement>();
 const { sleep } = useSleep();
@@ -87,6 +67,25 @@ const tweenedScores = reactive({
   team1: 0,
   team2: 0,
 });
+const themName = computed(() => {
+  return game.value?.themName
+    ? game.value?.themName
+    : game.value?.themPlayers.length == 0
+      ? "لهم"
+      : game.value?.themPlayers[0].name +
+      " | " +
+      game.value?.themPlayers[1].name
+})
+
+
+const usName = computed(() => {
+  return game.value?.usName
+    ? game.value?.usName
+    : game.value?.usPlayers.length == 0
+      ? "لنا"
+      : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
+
+})
 
 const scoreMount = (score1: number, score2: number) => {
   const t1 = gsap.timeline();
@@ -114,29 +113,31 @@ const scoreUnMount = () => {
     ease: "linear",
   });
 };
-let last_sakka = computed(() => {
-  console.log(game.value);
-  return game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
-});
 
-watch(newGameFlag, (new_value, old_value) => {
-  if (new_value == true) {
-    tweenedScores.team1 = 0;
-    tweenedScores.team2 = 0;
-  }
-});
+const mainScoreMount = (score1: number, score2: number) => {
 
-watch(game_updated, (new_value, old_value) => {
-  console.log(game_updated.value);
-  if (game_updated.value == true) {
-    tweenedScores.team1 = last_sakka.value!.usSakkaScore!;
-    tweenedScores.team2 = last_sakka.value!.themSakkaScore!;
-    game_updated.value = false;
-  }
-});
+const t1 = gsap.timeline();
+
+t1.to(
+  tweenedScores,
+  {
+    team1: score1,
+    team2: score2,
+    duration: 0.75,
+  },
+);
+};
+
+
+const last_sakka = ref<SakkaI>()
+const gameState = ref()
+
+
 
 onMounted(async () => {
   watchEffect(async () => {
+    last_sakka.value = game.value?.sakkas?.[game.value.sakkas.length - 1];
+    gameState.value = game.value?.state;
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;
@@ -156,6 +157,10 @@ onMounted(async () => {
       if (mediaElm.value) {
         mediaElm.value.currentTime = score_sec;
       }
+      mainScoreMount(
+        last_sakka.value?.usSakkaScore! ,
+        last_sakka.value?.themSakkaScore! 
+      );
     }
 
     if (snapshot.value.matches("score.outro")) {

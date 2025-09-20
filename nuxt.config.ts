@@ -17,7 +17,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      qydhaapi: process.env.WebSocketLink,
+      BalootSocket: process.env.WebSocketLinkBaloot,
+      HandSocket: process.env.WebSocketLinkHand,
+
     },
   },
 

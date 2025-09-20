@@ -1,33 +1,24 @@
 <template v-if="gameService">
-<!-- <score-qydha-portraitsvg/> -->
- <!-- <detail-qydha-portrait /> -->
-<div v-show="snapshot.matches('score')">
+  <!-- <score-qydha-portraitsvg/> -->
+  <!-- <detail-qydha-portrait /> -->
+  <div v-show="snapshot.matches('score')">
     <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
   </div>
 
   <!-- Detail Screen -->
   <div v-show="snapshot.matches('detail')">
-    <component
-      :is="detailComponent"
-      v-if="snapshot.matches('detail') && game"
-    />
+    <component :is="detailComponent" v-if="snapshot.matches('detail') && game" />
   </div>
 
   <div v-show="snapshot.matches('statics')">
     <transition name="fade" mode="out-in">
-      <component
-        :is="staticsComponent"
-        v-if="snapshot.matches('statics') && game"
-      />
+      <component :is="staticsComponent" v-if="snapshot.matches('statics') && game" />
     </transition>
   </div>
 
   <div v-show="snapshot.matches('winner')">
     <transition name="fade" mode="out-in">
-      <component
-        :is="winnerComponent"
-        v-if="snapshot.matches('winner') && game"
-      />
+      <component :is="winnerComponent" v-if="snapshot.matches('winner') && game" />
     </transition>
   </div>
 </template>
@@ -61,6 +52,8 @@ const theme = ref("zat");
 const orienation = ref("landscape");
 const showPlayers = ref(false);
 
+
+
 if (
   route.query.theme &&
   (route.query.theme == "zat" || route.query.theme == "qydha")
@@ -81,14 +74,7 @@ if (route.query.showPlayers) {
   showPlayers.value = route.query.showPlayers == "true" ? true : false;
 }
 
-router.push({
-  path: `/baloot/${table_id}/`,
-  query: {
-    theme: theme.value,
-    orienation: orienation.value,
-    showPlayers: `${showPlayers.value}`,
-  },
-});
+
 
 const scoreComponent = computed(() => {
   if (theme.value === "zat" && orienation.value === "landscape") {
@@ -134,13 +120,19 @@ const staticsComponent = computed(() => {
   return null;
 });
 
-const gamestore = useMyGameStore();
-const { gameService, initializeConnection, connection } = gamestore;
-await initializeConnection();
-if ((connection.state as string) != "Connected") {
+const gamestore = useMyBalootGameStore();
+const { gameService, initializeConnection } = gamestore;
+onMounted(async () => {
+  router.push({
+    path: `/baloot/${table_id}/`,
+    query: {
+      theme: theme.value,
+      orienation: orienation.value,
+      showPlayers: `${showPlayers.value}`,
+    },
+  });
   await initializeConnection();
-}
-
+});
 const { snapshot, game } = storeToRefs(gamestore);
 console.log("game", game.value)
 </script>
@@ -150,7 +142,12 @@ console.log("game", game.value)
 .fade-leave-active {
   @apply transition-opacity duration-[2s] ease-[ease];
 }
-.fade-enter-from, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+
+.fade-enter-from,
+.fade-leave-to
+
+/* .fade-leave-active in <2.1.8 */
+  {
   @apply opacity-0;
 }
 </style>

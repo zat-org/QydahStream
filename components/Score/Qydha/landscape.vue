@@ -10,19 +10,14 @@
     ></video>
     <div class="left-[970px] teamWrap" ref="team1wrapper">
       <transition name="fade" mode="out-in">
-        <p :key="game?.usName" class="left-14 teamName">
-          {{ game?.usName }}
+        <p :key="usName" class="left-14 teamName">
+          {{ usName }}
         </p>
       </transition>
       <p class="left-[2px] score">
         {{
-          newGameFlag
-            ? 0
-            : sakka_ended
-            ? game?.usGameScore
-            : // : newGameFlag
-              // ? "0"
-              tweenedScores.team1.toFixed(0)
+
+             gameState == "Ended" ? game?.usGameScore : tweenedScores.team1.toFixed(0)
         }}
       </p>
     </div>
@@ -30,18 +25,13 @@
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="-right-[2px] score">
         {{
-          newGameFlag
-            ? 0
-            : sakka_ended
-            ? game?.themGameScore
-            : // : newGameFlag
-              // ? "0"
-              tweenedScores.team2.toFixed(0)
+        
+              gameState == "Ended" ? game?.themGameScore : tweenedScores.team2.toFixed(0)
         }}
       </p>
       <transition name="fade" mode="out-in">
-        <p :key="game?.themName" class="teamName left-[82px]">
-          {{ game?.themName }}
+        <p :key="themName" class="teamName left-[82px]">
+          {{ themName }}
         </p>
       </transition>
     </div>
@@ -49,11 +39,13 @@
 </template>
 
 <script lang="ts" setup>
-const store = useMyGameStore();
+import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+const { store } = DetectBoard();
 import gsap from "gsap";
-const { snapshot, game, sakka_ended, newGameFlag, game_updated } =
-  storeToRefs(store);
-const { gameService } = store;
+import type { SakkaI } from "~/models/game";
+const { snapshot, game} =
+  storeToRefs(store.value as BalootStore | HandStore);
+const { gameService } = store.value as BalootStore | HandStore;
 const { sleep } = useSleep();
 const mediaElm = ref<HTMLVideoElement>();
 const intro_start_sec = 0;
@@ -68,6 +60,29 @@ const tweenedScores = reactive({
   team1: 0,
   team2: 0,
 });
+const themName = computed(() => {
+  return game.value?.themName
+    ? game.value?.themName
+    : game.value?.themPlayers.length == 0
+      ? "لهم"
+      : game.value?.themPlayers[0].name +
+      " | " +
+      game.value?.themPlayers[1].name
+})
+
+
+const usName = computed(() => {
+  return game.value?.usName
+    ? game.value?.usName
+    : game.value?.usPlayers.length == 0
+      ? "لنا"
+      : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
+
+})
+
+
+const last_sakka = ref<SakkaI>()
+const gameState = ref()
 
 const scoreMount = (score1: number, score2: number) => {
   const t1 = gsap.timeline();
@@ -95,28 +110,25 @@ const scoreUnMount = () => {
     ease: "linear",
   });
 };
-const last_sakka = computed(() => {
-  return game.value?.sakkas?.[game.value.sakkas.length - 1] ?? undefined;
-});
 
-watch(newGameFlag, (new_value, old_value) => {
-  if (new_value == true) {
-    tweenedScores.team1 = 0;
-    tweenedScores.team2 = 0;
-  }
-});
+const mainScoreMount = (score1: number, score2: number) => {
 
-watch(game_updated, (new_value, old_value) => {
-  console.log(game_updated.value);
-  if (game_updated.value == true) {
-    tweenedScores.team1 = last_sakka.value!.usSakkaScore!;
-    tweenedScores.team2 = last_sakka.value!.themSakkaScore!;
-    game_updated.value = false;
-  }
-});
-console.log(game.value);
+const t1 = gsap.timeline();
+
+t1.to(
+  tweenedScores,
+  {
+    team1: score1,
+    team2: score2,
+    duration: 0.75,
+  },
+);
+};
+
 onMounted(() => {
   watchEffect(async () => {
+    gameState.value = game.value?.state;
+    last_sakka.value = game.value?.sakkas?.[game.value.sakkas.length - 1];
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;
@@ -135,6 +147,10 @@ onMounted(() => {
       if (mediaElm.value) {
         mediaElm.value.currentTime = score_sec;
       }
+      mainScoreMount(
+        last_sakka.value!.usSakkaScore!,
+        last_sakka.value!.themSakkaScore!
+      );
     }
     if (snapshot.value.matches("score.outro")) {
       if (mediaElm.value) {

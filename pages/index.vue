@@ -14,15 +14,17 @@ import ScoreQydhaPortraitsvg from "../components/Score/Qydha/portraitsvg.vue";
 
 
 
-const gamestore = useMyGameStore();
-const { gameService, initializeConnection, connection, } = gamestore;
-await initializeConnection();
-if ((connection.state as string) != "Connected") {
+const gamestore = useMyBalootGameStore();
+const { gameService, initializeConnection, setGameData } = gamestore;
+onMounted(async () => {
   await initializeConnection();
-}
+});
+// if ((connection.state as string) != "Connected") {
+//   await initializeConnection();
+// }
 
 const { snapshot, game } = storeToRefs(gamestore);
-game.value = {
+setGameData({
   createdAt: "2024-10-25T17:53:58.744865+00:00",
   endedAt: null,
   gameMode: "SinglePlayer",
@@ -54,7 +56,7 @@ game.value = {
   usName: "لنا",
   usPlayers: [],
   winner: null
-}
+});
 </script>
 
 <style>

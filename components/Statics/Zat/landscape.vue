@@ -115,8 +115,10 @@ const outAnimation = () => {
 //   outAnimation()
 // })
 
-const gameStore = useMyGameStore()
-const {statics, game } = storeToRefs(gameStore)
+import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+const { store } = DetectBoard();
+const {statics, game } = storeToRefs(store.value as BalootStore | HandStore)
+const { gameService } = store.value as BalootStore | HandStore;
 
 const statusUs = computed(() => {
   if (statics.value)
@@ -134,13 +136,13 @@ onMounted(async () => {
   enterAnimation()
   await sleep(4000)
   
-  gameStore.gameService.send({ type: "NEXT" });
+  gameService.send({ type: "NEXT" });
   
-  gameStore.gameService.send({ type: "TO_OUTRO" });
+  gameService.send({ type: "TO_OUTRO" });
   outAnimation()
   await sleep(2000)
-  gameStore.gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
-  gameStore.gameService.send({ type: "CHECK_END" });
+  gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended:false  });
+  gameService.send({ type: "CHECK_END" });
 
   
 

@@ -41,12 +41,13 @@
 
 <script lang="ts" setup>
 
-const store = useMyGameStore();
+import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+const { store } = DetectBoard();  
 import gsap from "gsap";
 import type { SakkaI } from "~/models/game";
 const { sleep } = useSleep();
-const { snapshot, game } = storeToRefs(store);
-const { gameService } = store;
+const { snapshot, game } = storeToRefs(store.value as BalootStore | HandStore);
+const { gameService } = store.value as BalootStore | HandStore;
 const mediaElm = ref<HTMLVideoElement>();
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);

@@ -33,22 +33,22 @@
 </template>
 
 <script lang="ts" setup>
-import ScoreZatLandscape from "../../components/Score/Zat/Landscape.vue";
-import DetailZatLandscape from "../../components/Detail/Zat/landscape.vue";
-import WinnerZatLandscape from "../../components/winner/Zat/landscape.vue";
+import ScoreZatLandscape from "../../../components/Score/Zat/Landscape.vue";
+import DetailZatLandscape from "../../../components/Detail/Zat/landscape.vue";
+import WinnerZatLandscape from "../../../components/winner/Zat/landscape.vue";
 
-import ScoreQydhaLandscape from "../../components/Score/Qydha/landscape.vue";
-import DetailQydhaLandscape from "../../components/Detail/Qydha/landscape.vue";
-import WinnerQydhaLandscape from "../../components/winner/Qydha/landscape.vue";
+import ScoreQydhaLandscape from "../../../components/Score/Qydha/landscape.vue";
+import DetailQydhaLandscape from "../../../components/Detail/Qydha/landscape.vue";
+import WinnerQydhaLandscape from "../../../components/winner/Qydha/landscape.vue";
 
 // import ScoreQydhaPortrait from "../../components/Score/Qydha/portrait.vue";
-import ScoreQydhaPortraitsvg from "../../components/Score/Qydha/portraitsvg.vue";
+import ScoreQydhaPortraitsvg from "../../../components/Score/Qydha/portraitsvg.vue";
 
-import DetailQydhaPortrait from "../../components/Detail/Qydha/portrait.vue";
-import WinnerQydhaPortrait from "../../components/winner/Qydha/portrait.vue";
+import DetailQydhaPortrait from "../../../components/Detail/Qydha/portrait.vue";
+import WinnerQydhaPortrait from "../../../components/winner/Qydha/portrait.vue";
 
-import StaticsZat from "../../components/Statics/Zat/landscape.vue";
-import StaticsQydha from "../../components/Statics/Qydha/portrait.vue";
+import StaticsZat from "../../../components/Statics/Zat/landscape.vue";
+import StaticsQydha from "../../../components/Statics/Qydha/portrait.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -81,14 +81,7 @@ if (route.query.showPlayers) {
   showPlayers.value = route.query.showPlayers == "true" ? true : false;
 }
 
-router.push({
-  path: `/${table_id}/`,
-  query: {
-    theme: theme.value,
-    orienation: orienation.value,
-    showPlayers: `${showPlayers.value}`,
-  },
-});
+
 
 const scoreComponent = computed(() => {
   if (theme.value === "zat" && orienation.value === "landscape") {
@@ -134,12 +127,19 @@ const staticsComponent = computed(() => {
   return null;
 });
 
-const gamestore = useMyGameStore();
-const { gameService, initializeConnection, connection } = gamestore;
-await initializeConnection();
-if ((connection.state as string) != "Connected") {
+const gamestore = useMyHandGameStore();
+const {  initializeConnection } = gamestore;
+onMounted(async () => {
+  router.push({
+  path: `/hand/${table_id}/`,
+  query: {
+    theme: theme.value,
+    orienation: orienation.value,
+    showPlayers: `${showPlayers.value}`,
+  },
+});
   await initializeConnection();
-}
+});
 
 const { snapshot, game } = storeToRefs(gamestore);
 </script>
