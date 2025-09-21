@@ -23,7 +23,7 @@
           </transition>
           <!-- LEFT TEAM SCORE -->
           <p class="  score  w-[30%] mx-auto text-center  " :style="BoardStyles.scorePanel.leftTeam.score">
-            {{ gameState == "Ended" ? game!.themGameScore : tweenedScores.team1.toFixed(0) }}
+            {{ gameState == "Ended" ? themGameScore : tweenedScores.team1.toFixed(0) }}
           </p>
         </div>
         <!-- EMPTY SPACE -->
@@ -33,7 +33,7 @@
 
           <!-- RIGHT TEAM SCORE -->
           <p class=" score  w-[30%] mx-auto text-center  " :style="BoardStyles.scorePanel.rightTeam.score">
-            {{ gameState == "Ended" ? game!.usGameScore : tweenedScores.team2.toFixed(0)}}
+            {{ gameState == "Ended" ? usGameScore : tweenedScores.team2.toFixed(0) }}
           </p>
           <transition name="fade" mode="out-in">
             <!-- RIGHT TEAM NAME -->
@@ -86,42 +86,21 @@
 </template>
 
 <script lang="ts" setup>
-const route = useRoute();
-let showPlayers = route.query.showPlayers?.toString() ?? "false";
-showPlayers = JSON.parse(showPlayers);
+import gsap from "gsap";
 
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();
+const store = useMyBalootGameStore();
+const { snapshot, last_sakka, usGameScore, themGameScore, BoardStyles, usName, themName, gameState,left,right,bottom } = storeToRefs(store);
+const { gameService } = store;
 
 const svgQydha = ref();
 const { sleep } = useSleep();
-import gsap from "gsap";
-import type { SakkaI } from "~/models/game";
-const { snapshot, game, boardSettings, } =
-  storeToRefs(store.value as BalootStore | HandStore);
-const portraitBoardSettings = computed(() => {
-  return boardSettings.value?.portrait;
-});
+const route = useRoute();
 
-const themName = computed(() => {
-  return game.value?.themName
-    ? game.value?.themName
-    : game.value?.themPlayers.length == 0
-      ? "لهم"
-      : game.value?.themPlayers[0].name +
-      " | " +
-      game.value?.themPlayers[1].name
-})
+let showPlayers = route.query.showPlayers?.toString() ?? "false";
+showPlayers = JSON.parse(showPlayers);
 
 
-const usName = computed(() => {
-  return game.value?.usName
-    ? game.value?.usName
-    : game.value?.usPlayers.length == 0
-      ? "لنا"
-      : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
 
-})
 
 const playerImageStyle = computed(() => {
   return {
@@ -132,111 +111,8 @@ const playerImageStyle = computed(() => {
   }
 })
 
-const BoardStyles = computed(() => {
-  return {
-    dimension: {
-      height: '1920px',
-      width: '1080px',
-    },
-    scorePanel: {
-      "margin-top": "0px",
-      height: "295px",
-      scale: .9,
-      leftTeam: {
-        name: {
-          transform: `translate(0px,0px)`,
-          'font-size': "30px",
-        },
-        score: {
-          transform: `translate(0px,0px)`,
-          'font-size': "50px",
-        },
-      },
-      rightTeam: {
-        name: {
-          transform: `translate(0px,0px)`,
-          'font-size': "30px",
-        },
-        score: {
-          transform: `translate(0px,0px)`,
-          'font-size': "50px",
-        },
-      }
-    },
-    leftPlayer: {
-      top: "calc(50% - 100px)",
-      left: "0px",
-      height: "200px",
-      width: "200px",
-    },
-    rightPlayer: {
-      top: "calc(50% - 100px)",
-      right: "0px",
-      height: "200px",
-      width: "200px",
-    },
-    bottomPlayer: {
-      left: "calc(50% - 100px)",
-      bottom: "0px",
-      height: "200px",
-      width: "200px",
-    }
-  }
 
-  return {
-    dimension: {
-      height: portraitBoardSettings.value?.dimension.height + 'px',
-      width: portraitBoardSettings.value?.dimension.width + 'px',
-    },
-    scorePanel: {
-      'margin-top': portraitBoardSettings.value?.scorePanel.topMargin + "px",
-      height: portraitBoardSettings.value?.scorePanel.height + "px",
-      scale: portraitBoardSettings.value?.scorePanel.position.scale,
-      leftTeam: {
-        name: {
-          transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.leftTeam.name.top}px)`,
-          'font-size': portraitBoardSettings.value?.scorePanel.leftTeam.name.size + "px",
-        },
-        score: {
-          transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.leftTeam.score.top}px)`,
-          'font-size': portraitBoardSettings.value?.scorePanel.leftTeam.score.size + "px",
-        }
-      },
-      rightTeam: {
-        name: {
-          transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.rightTeam.name.top}px)`,
-          'font-size': portraitBoardSettings.value?.scorePanel.rightTeam.name.size + "px",
-        },
-        score: {
-          transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.rightTeam.score.top}px)`,
-          'font-size': portraitBoardSettings.value?.scorePanel.rightTeam.score.size + "px",
-        }
-      }
-    },
-    leftPlayer: {
-      top: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.leftPlayer.top}px`,
-      left: `${portraitBoardSettings.value?.leftPlayer.left}px`,
-      height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-      width: `${portraitBoardSettings.value?.playerImageWidth}px`,
-    },
-    rightPlayer: {
-      top: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.rightPlayer.top}px`,
-      right: `${portraitBoardSettings.value?.rightPlayer.right}px`,
-      height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-      width: `${portraitBoardSettings.value?.playerImageWidth}px`,
-    },
-    bottomPlayer: {
-      left: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.bottomPlayer.left}px`,
-      bottom: `${portraitBoardSettings.value?.bottomPlayer.bottom}px`,
-      height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-      width: `${portraitBoardSettings.value?.playerImageWidth}px`,
 
-    }
-  }
-
-})
-
-const { gameService } = store.value as BalootStore | HandStore;
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 
@@ -247,21 +123,21 @@ const tweenedScores = reactive({
 
 const mainScoreMount = (score1: number, score2: number) => {
 
-const t1 = gsap.timeline();
+  const t1 = gsap.timeline();
 
-t1.to(
-  tweenedScores,
-  {
-    team1: score1,
-    team2: score2,
-    duration: 0.75,
-  },
-);
+  t1.to(
+    tweenedScores,
+    {
+      team1: score1,
+      team2: score2,
+      duration: 0.75,
+    },
+  );
 };
 
 
 
-const scoreMount = (score1: number, score2: number, ) => {
+const scoreMount = (score1: number, score2: number,) => {
 
   const t1 = gsap.timeline();
   t1.delay(2);
@@ -284,8 +160,7 @@ const scoreMount = (score1: number, score2: number, ) => {
   );
 };
 
-const last_sakka = ref<SakkaI>()
-const gameState = ref()
+
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
@@ -307,26 +182,24 @@ const scoreUnMount = () => {
 
 onMounted(() => {
   watchEffect(async () => {
-    gameState.value = game.value?.state;
-    last_sakka.value = game.value?.sakkas?.[game.value.sakkas.length - 1];
 
     if (snapshot.value.matches("score.intro")) {
-      
+
       if (svgQydha.value) {
-        svgQydha.value.enteranimation();        
+        svgQydha.value.enteranimation();
       }
-      
+
       scoreMount(
         last_sakka.value?.themSakkaScore ?? 0,
         last_sakka.value?.usSakkaScore ?? 0,
 
       );
-      gameService.send({type: "NEXT"});
+      gameService.send({ type: "NEXT" });
     }
     if (snapshot.value.matches("score.main")) {
       mainScoreMount(
-        last_sakka.value?.themSakkaScore! ,
-        last_sakka.value?.usSakkaScore! 
+        last_sakka.value?.themSakkaScore!,
+        last_sakka.value?.usSakkaScore!
       );
 
     }
@@ -342,29 +215,6 @@ onMounted(() => {
   });
 });
 
-const bottom = computed(() => {
-  if (game.value?.themPlayers.length! > 0) {
-    return game.value?.usPlayers[1];
-  } else {
-    return null;
-  }
-});
-
-const left = computed(() => {
-  if (game.value?.themPlayers.length! > 0) {
-    return game.value?.themPlayers[1];
-  } else {
-    return null;
-  }
-});
-
-const right = computed(() => {
-  if (game.value?.themPlayers.length! > 0) {
-    return game.value?.themPlayers[0];
-  } else {
-    return null;
-  }
-});
 
 </script>
 <style scoped>

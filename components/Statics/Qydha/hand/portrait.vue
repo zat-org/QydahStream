@@ -90,6 +90,11 @@
 <script lang="ts" setup>
 import gsap from "gsap";
 const {sleep} = useSleep()
+
+const store = useMyHandGameStore();
+const {statics, game } = storeToRefs(store)
+const { gameService } = store;
+
 const t1 = gsap.timeline();
 
 const enterAnimation = ()=>{  
@@ -115,10 +120,7 @@ const outAnimation = () => {
 //   outAnimation()
 // })
 
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();
-const {statics, game } = storeToRefs(store.value as BalootStore | HandStore)
-const { gameService } = store.value as BalootStore | HandStore;
+
 const statusUs = computed(() => {
   if (statics.value)
     return statics.value.usStatistics;

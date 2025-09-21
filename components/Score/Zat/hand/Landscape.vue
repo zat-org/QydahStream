@@ -1,55 +1,50 @@
 <template>
   <div>
-    <video
-      ref="mediaElm"
-      class="video"
-      muted
-      height="1080"
-      width="1920"
-      src="/videos/qydha/landscape/Corner_Score.webm"
-    ></video>
-    <div class="left-[970px] teamWrap" ref="team1wrapper">
+    <video ref="mediaElm" class="video" muted height="1080" width="1920" :src="'/videos/zat/Corner_Score.webm'"></video>
+    <div class="left-[976px] teamWrap" ref="team1wrapper">
+      <img :src="'/images/zat/zat_white.svg'" class="SponsorImage left-[254px]" />
       <transition name="fade" mode="out-in">
         <p :key="usName" class="left-14 teamName">
           {{ usName }}
         </p>
       </transition>
-      <p class="left-[2px] score">
+      <p class="left-[0px] score">
         {{
 
-             gameState == "Ended" ? game?.usGameScore : tweenedScores.team1.toFixed(0)
+          tweenedScores.team1.toFixed(0)
         }}
       </p>
     </div>
 
     <div class="left-[621px] teamWrap" ref="team2wrapper">
-      <p class="-right-[2px] score">
+      <p class="left-[269px] score">
         {{
-        
-              gameState == "Ended" ? game?.themGameScore : tweenedScores.team2.toFixed(0)
+          tweenedScores.team2.toFixed(0)
         }}
       </p>
       <transition name="fade" mode="out-in">
         <p :key="themName" class="teamName left-[82px]">
           {{ themName }}
+
         </p>
       </transition>
+      <img :src="'/images/zat/zat_black.svg'" class="SponsorImage left-[3px]" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();
 import gsap from "gsap";
 import type { SakkaI } from "~/models/game";
-const { snapshot, game} =
-  storeToRefs(store.value as BalootStore | HandStore);
-const { gameService } = store.value as BalootStore | HandStore;
 const { sleep } = useSleep();
+
+const store = useMyHandGameStore();
+const { snapshot, game, usName, themName, usScore, themScore } = storeToRefs(store);
+const { gameService } = store;
+
 const mediaElm = ref<HTMLVideoElement>();
 const intro_start_sec = 0;
-const intro_end_sec = 4.5;
+const intro_end_sec = 3.5;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
@@ -60,38 +55,15 @@ const tweenedScores = reactive({
   team1: 0,
   team2: 0,
 });
-const themName = computed(() => {
-  return game.value?.themName
-    ? game.value?.themName
-    : game.value?.themPlayers.length == 0
-      ? "لهم"
-      : game.value?.themPlayers[0].name +
-      " | " +
-      game.value?.themPlayers[1].name
-})
-
-
-const usName = computed(() => {
-  return game.value?.usName
-    ? game.value?.usName
-    : game.value?.usPlayers.length == 0
-      ? "لنا"
-      : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
-
-})
-
-
-const last_sakka = ref<SakkaI>()
-const gameState = ref()
 
 const scoreMount = (score1: number, score2: number) => {
   const t1 = gsap.timeline();
-  t1.delay(2);
+  t1.delay(2.15);
   t1.fromTo(
     [team1wrapper.value, team2wrapper.value],
     { opacity: 0 },
     {
-      duration: 1.2,
+      duration: 0.5,
       opacity: 1,
       ease: "linear",
     }
@@ -105,7 +77,7 @@ const scoreMount = (score1: number, score2: number) => {
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
   t2.to([team1wrapper.value, team2wrapper.value], {
-    duration: 0.5,
+    duration: 0.3,
     opacity: 0,
     ease: "linear",
   });
@@ -113,29 +85,32 @@ const scoreUnMount = () => {
 
 const mainScoreMount = (score1: number, score2: number) => {
 
-const t1 = gsap.timeline();
+  const t1 = gsap.timeline();
 
-t1.to(
-  tweenedScores,
-  {
-    team1: score1,
-    team2: score2,
-    duration: 0.75,
-  },
-);
+  t1.to(
+    tweenedScores,
+    {
+      team1: score1,
+      team2: score2,
+      duration: 0.75,
+    },
+  );
 };
 
-onMounted(() => {
+
+
+
+
+onMounted(async () => {
   watchEffect(async () => {
-    gameState.value = game.value?.state;
-    last_sakka.value = game.value?.sakkas?.[game.value.sakkas.length - 1];
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;
         mediaElm.value.play();
+
         scoreMount(
-          last_sakka.value!.usSakkaScore!,
-          last_sakka.value!.themSakkaScore!
+          usScore.value!,
+          themScore.value!
         );
         await sleep(intro_end_sec * 1000);
         mediaElm.value.pause();
@@ -148,10 +123,11 @@ onMounted(() => {
         mediaElm.value.currentTime = score_sec;
       }
       mainScoreMount(
-        last_sakka.value!.usSakkaScore!,
-        last_sakka.value!.themSakkaScore!
+        usScore.value!,
+        themScore.value!
       );
     }
+
     if (snapshot.value.matches("score.outro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = outro_start;
@@ -172,21 +148,26 @@ onMounted(() => {
 .fade-leave-active {
   @apply transition-opacity duration-[1s] ease-[ease];
 }
-.fade-enter-from, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+
+.fade-enter-from,
+.fade-leave-to
+
+/* .fade-leave-active in <2.1.8 */
+  {
   @apply opacity-0;
 }
 
 .score {
-  @apply text-slate-700 absolute text-[1.9rem] w-[55px] h-[55px] flex justify-center items-center top-0;
+  @apply absolute text-[1.6rem] w-[55px] h-[55px] flex justify-center items-center top-0;
   font-family: "CairoSemiBold";
 }
 
 .teamName {
-  @apply absolute w-[185px]   text-[1.5rem] h-[40px] flex justify-center items-center top-1.5;
+  @apply absolute w-[185px] text-[1.75rem] h-[40px] flex justify-center items-center top-1.5;
 }
 
 .teamWrap {
-  @apply text-[white] text-center w-[324px] h-[62px] absolute opacity-100 top-[118px];
+  @apply text-[white] text-center w-[324px] h-[62px] absolute opacity-100 top-[20px];
 }
 
 .video {
@@ -196,8 +177,9 @@ onMounted(() => {
 .wrapcomp {
   @apply relative h-screen w-screen;
 }
+
 .SponsorImage {
-  @apply absolute w-[66px] h-[62px] -top-0.5;
+  @apply absolute w-[71px] h-[65px] -top-[5px] box-border overflow-hidden;
 }
 
 * {

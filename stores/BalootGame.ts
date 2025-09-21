@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import type { BoardSettingsI, GameDataI, GameI, IStatics } from "~/models/game";
+import type {  GameDataI, GameI, IStatics, SakkaI } from "~/models/game";
+import type { BoardSettingsI } from "~/models/boardSettings";
 import { interpret } from "xstate";
 import {
   createGameConnection,
@@ -18,11 +19,10 @@ type BalootGameEvent =
   | "ScoreUpdated"
   | "NamesChanged"
   | "IsCurrentSakkaMashdodaChanged"
-  | "MaxSakkaCountChanged";
+  | "MaxSakkaCountChanged"
+  | "GameContinuedFromBack";
 export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   const balootSocket = useRuntimeConfig().public.BalootSocket;
-
-  // Create connection instance
   const gameConnection = createGameConnection(balootSocket, {
     withCredentials: true,
     autoReconnect: true,
@@ -31,7 +31,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
 
   const sakka_ended = ref(false);
   const newGameFlag = ref(false);
-  // const game_updated = ref(false);
+
   const statics = ref<IStatics>();
   const game = ref<GameDataI>()!;
   const boardSettings = ref<BoardSettingsI>()!;
@@ -42,8 +42,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   const { gameMachine } = useNashraMachine();
   const gameService = interpret(gameMachine).start();
   const snapshot = ref(gameService.getSnapshot());
-
-  // State machine subscription with debugging
+  
   gameService.subscribe((state) => {
     snapshot.value = state;
 
@@ -51,9 +50,94 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       game.value = newGame.value;
     }
   });
+
+  const joinGameGroup = async (): Promise<GameI | null> => {
+    const route = useRoute();
+    const player_table_id = route.params.id?.toString();
+    const table_id = route.params.table_id?.toString();
+    const tour_id = route.params.tour_id?.toString();
+
+    try {
+      let gameData: string;
+      if (table_id && tour_id) {
+        // tournament table
+        gameData = await gameConnection.joinTournamentTableGroup(
+          +tour_id,
+          +table_id
+        );
+      } else {
+        // board table
+        gameData = await gameConnection.joinBoardGroup(player_table_id!);
+      }
+
+      if (gameData) {
+        const parsedGame = JSON.parse(gameData) as GameI;
+        parsedGame.gameData = sakkaIsMashdoda(parsedGame.gameData) as GameDataI;
+        return parsedGame;
+      }
+    } catch (error) {
+      console.error("Failed to join game group:", error);
+      throw error;
+    }
+
+    return null;
+  };
+  const setupBalootEventListeners = () => {
+    const connection = gameConnection.rawConnection;
+    connection.on("BalootGameStateChanged", handleGameStateChanged);
+  };
+  async function initializeConnection() {
+    try {
+      await gameConnection.initializeConnection();
+      const initialGame = await joinGameGroup();
+      if (initialGame) {
+        game.value = initialGame.gameData;
+        boardSettings.value = initialGame.boardSettings;
+      }
+      setupBalootEventListeners();
+    } catch (error) {
+      console.error("Failed to initialize connection:", error);
+      throw error;
+    }
+  }
+
+
+
+
   const resetState = () => {
     newGameFlag.value = false;
     sakka_ended.value = false;
+  };
+
+  const handleStateSpecificEvents = () => {
+    const currentState = snapshot.value;
+
+    if (currentState.matches("detail")) {
+      handelDetail();
+    } else if (currentState.matches("winner")) {
+      handelWinner();
+    } else if (currentState.matches("statics")) {
+      handelStatics();
+    } else if (currentState.matches("score")) {
+      if (currentState.matches("score.main")) {
+        handelScore();
+      }
+    }
+  };
+  const handleSpecialEvents = () => {
+    if (events.includes("SakkaEnded")) {
+      game.value = newGame.value;
+      handelSakkaEnded();
+    }
+
+    if (events.includes("SakkaStarted")) {
+      console.log("Sakka started");
+    }
+
+    if (events.includes("GameEnded")) {
+      game.value = newGame.value;
+      handelGameEnded();
+    }
   };
 
   const handleGameStateChanged = (
@@ -94,93 +178,10 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     }
   };
 
-  const setupBalootEventListeners = () => {
-    const connection = gameConnection.rawConnection;
-    connection.on("BalootGameStateChanged", handleGameStateChanged);
-  };
+  
 
-  const handleStateSpecificEvents = () => {
-    const currentState = snapshot.value;
+  
 
-    if (currentState.matches("detail")) {
-      handelDetail();
-    } else if (currentState.matches("winner")) {
-      handelWinner();
-    } else if (currentState.matches("statics")) {
-      handelStatics();
-    } else if (currentState.matches("score")) {
-      if (currentState.matches("score.main")) {
-        handelScore();
-      }
-    }
-  };
-
-  // Handle special events that can occur in any state
-  const handleSpecialEvents = () => {
-    if (events.includes("SakkaEnded")) {
-      handelSakkaEnded();
-    }
-
-    if (events.includes("SakkaStarted")) {
-      console.log("Sakka started");
-    }
-
-    if (events.includes("GameEnded")) {
-      handelGameEnded();
-    }
-  };
-
-  // Event listeners are now handled by the GameConnection class
-
-  // join the match that wanted
-  const joinGameGroup = async (): Promise<GameI | null> => {
-    const route = useRoute();
-    const player_table_id = route.params.id?.toString();
-    const table_id = route.params.table_id?.toString();
-    const tour_id = route.params.tour_id?.toString();
-
-    try {
-      let gameData: string;
-      if (table_id && tour_id) {
-        // tournament table
-        gameData = await gameConnection.joinTournamentTableGroup(
-          +tour_id,
-          +table_id
-        );
-      } else {
-        // board table
-        gameData = await gameConnection.joinBoardGroup(player_table_id!);
-      }
-
-      if (gameData) {
-        const parsedGame = JSON.parse(gameData) as GameI;
-        parsedGame.gameData = sakkaIsMashdoda(parsedGame.gameData) as GameDataI;
-        return parsedGame;
-      }
-    } catch (error) {
-      console.error("Failed to join game group:", error);
-      throw error;
-    }
-
-    return null;
-  };
-
-  // Main connection initialization function
-  // statr connection get aintial datat liste to chnges o it
-  async function initializeConnection() {
-    try {
-      await gameConnection.initializeConnection();
-      const initialGame = await joinGameGroup();
-      if (initialGame) {
-        game.value = initialGame.gameData;
-        boardSettings.value = initialGame.boardSettings;
-      }
-      setupBalootEventListeners();
-    } catch (error) {
-      console.error("Failed to initialize connection:", error);
-      throw error;
-    }
-  }
 
   const sakkaIsMashdoda = (game: GameDataI): GameDataI => {
     if (game.sakkas && game.sakkas.length <= 0) return game;
@@ -251,13 +252,12 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
 
     if (events.includes("ScoreIncreased")) {
       gameService.send({ type: "TO_OUTRO" });
-        const gameedndedevents:BalootGameEvent[]=["SakkaEnded", "GameEnded"]
+      const gameedndedevents: BalootGameEvent[] = ["SakkaEnded", "GameEnded"];
       if (gameedndedevents.every((event) => events.includes(event))) {
         game.value = newGame.value;
-      }else{        
+      } else {
         game.value!.sakkas = newGame.value?.sakkas!;
       }
-
     }
     if (events.includes("ScoreUpdated") && newGame.value?.winner !== null) {
       gameService.send({ type: "TO_OUTRO" });
@@ -267,12 +267,16 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     if (events.includes("ScoreUpdated") || events.includes("ScoreDecreased")) {
       game.value!.sakkas = newGame.value?.sakkas!;
     }
+    const contimuefrombackEvents:BalootGameEvent[] =["ScoreDecreased", "GameContinuedFromBack"]
+    if (contimuefrombackEvents.every((event) => events.includes(event))) {
+      game.value = newGame.value;
+    }
+    
   };
   // to show  winner
   const handelGameEnded = () => {
     let winner = false;
-    console.log(newGame.value)
-    console.log(game.value)
+ 
 
     const us_photo =
       game?.value &&
@@ -292,7 +296,6 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         winner = true;
       }
     }
-    console.log("winenr", winner);
     gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
   };
   // to show statics
@@ -305,7 +308,6 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         return m.advancedDetails != null;
       });
 
-      console.log("show statistics", advanced_write);
       if (advanced_write) {
         gameService.send({ type: "UPDATE_ENDSAKKA", sakkaended: true });
       }
@@ -320,9 +322,210 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     }
   };
 
+  // players images
+  const top = computed(() => {
+    if (game.value?.themPlayers.length! > 0) return game.value?.usPlayers[0];
+  });
+
+  const bottom = computed(() => {
+    if (game.value?.themPlayers.length! > 0) return game.value?.usPlayers[1];
+  });
+
+  const left = computed(() => {
+    if (game.value?.themPlayers.length! > 0) return game.value?.themPlayers[1];
+  });
+  const right = computed(() => {
+    if (game.value?.themPlayers.length! > 0) return game.value?.themPlayers[0];
+  });
+
+  const themName = computed(() => {
+    return game.value?.themName
+      ? game.value?.themName
+      : game.value?.themPlayers.length == 0
+        ? "لهم"
+        : game.value?.themPlayers[0].name +
+        " | " +
+        game.value?.themPlayers[1].name
+  })
+  
+  const usName = computed(() => {
+    return game.value?.usName
+      ? game.value?.usName
+      : game.value?.usPlayers.length == 0
+        ? "لنا"
+        : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
+  
+  })
+  const portraitBoardSettings = computed(() => {
+    return boardSettings.value?.portrait;
+  });
+  
+  const BoardStyles = computed(() => {
+    return {
+      dimension: {
+        height: '1920px',
+        width: '1080px',
+      },
+      scorePanel: {
+        "margin-top": "0px",
+        height: "295px",
+        scale: .9,
+        leftTeam: {
+          name: {
+            transform: `translate(0px,0px)`,
+            'font-size': "30px",
+          },
+          score: {
+            transform: `translate(0px,0px)`,
+            'font-size': "50px",
+          },
+        },
+        rightTeam: {
+          name: {
+            transform: `translate(0px,0px)`,
+            'font-size': "30px",
+          },
+          score: {
+            transform: `translate(0px,0px)`,
+            'font-size': "50px",
+          },
+        }
+      },
+      leftPlayer: {
+        top: "calc(50% - 100px)",
+        left: "0px",
+        height: "200px",
+        width: "200px",
+      },
+      rightPlayer: {
+        top: "calc(50% - 100px)",
+        right: "0px",
+        height: "200px",
+        width: "200px",
+      },
+      bottomPlayer: {
+        left: "calc(50% - 100px)",
+        bottom: "0px",
+        height: "200px",
+        width: "200px",
+      },
+      detailScore: {
+        color: "#000000",
+        "font-size": "70px",
+      }
+    }
+  
+    return {
+      dimension: {
+        height: portraitBoardSettings.value?.dimension.height + 'px',
+        width: portraitBoardSettings.value?.dimension.width + 'px',
+      },
+      scorePanel: {
+        'margin-top': portraitBoardSettings.value?.scorePanel.topMargin + "px",
+        height: portraitBoardSettings.value?.scorePanel.height + "px",
+        scale: portraitBoardSettings.value?.scorePanel.position.scale,
+        leftTeam: {
+          name: {
+            transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.leftTeam.name.top}px)`,
+            'font-size': portraitBoardSettings.value?.scorePanel.leftTeam.name.size + "px",
+          },
+          score: {
+            transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.leftTeam.score.top}px)`,
+            'font-size': portraitBoardSettings.value?.scorePanel.leftTeam.score.size + "px",
+          }
+        },
+        rightTeam: {
+          name: {
+            transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.rightTeam.name.top}px)`,
+            'font-size': portraitBoardSettings.value?.scorePanel.rightTeam.name.size + "px",
+          },
+          score: {
+            transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.rightTeam.score.top}px)`,
+            'font-size': portraitBoardSettings.value?.scorePanel.rightTeam.score.size + "px",
+          }
+        }
+      },
+      leftPlayer: {
+        top: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.leftPlayer.top}px`,
+        left: `${portraitBoardSettings.value?.leftPlayer.left}px`,
+        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
+        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
+      },
+      rightPlayer: {
+        top: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.rightPlayer.top}px`,
+        right: `${portraitBoardSettings.value?.rightPlayer.right}px`,
+        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
+        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
+      },
+      bottomPlayer: {
+        left: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.bottomPlayer.left}px`,
+        bottom: `${portraitBoardSettings.value?.bottomPlayer.bottom}px`,
+        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
+        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
+  
+      },
+      detailScore: {
+        color: portraitBoardSettings.value?.detailScore.color,
+        "font-size": portraitBoardSettings.value?.detailScore.fontSize + "px",
+      }
+    }
+  
+  })
+
+  const last_sakka = computed<SakkaI | undefined>(() => {
+    return game.value?.sakkas[game.value?.sakkas.length! - 1];
+  });
+  
+  const ended_moshtras = computed(() => {
+    return last_sakka.value?.moshtaras.filter((m) => {
+      return m.state == "Ended";
+    });
+  });
+
+  const gameState = computed(() => {
+    return game.value?.state;
+  });
+
+  const usGameScore = computed(() => {
+    return game.value?.usGameScore;
+  });
+
+  const themGameScore = computed(() => {
+    return game.value?.themGameScore;
+  });
+  
+  const statusUs = computed(() => {
+    if (statics.value)
+      return statics.value.usStatistics;
+  });
+  const statusThem = computed(() => {
+    if (statics.value)
+      return statics.value.themStatistics;
+  });
+
+  const winner = computed(() => {
+    if (game?.value?.winner) {
+      if (game.value.winner == "Us") {
+  
+        return {
+          players: game.value.usPlayers.length > 0 ? game.value.usPlayers : null,
+          name: game.value.usName,
+          type: "Us",
+        };
+      } else {
+   
+        return {
+          players:
+            game.value.themPlayers.length > 0 ? game.value.themPlayers : null,
+          name: game.value.themName,
+          type: "Them",
+        };
+      }
+    }
+  });
+
   return {
-    // Existing reactive data
-    // game_updated,
+  
 
     game: game,
     boardSettings: boardSettings,
@@ -330,10 +533,20 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     snapshot,
     gameService,
 
-    // Connection management
+    //data to repersent 
+    top,bottom,left,right,
+    themName,usName,
+    BoardStyles,
+    last_sakka,
+    ended_moshtras,
+    gameState,
+    usGameScore,themGameScore,
+    statusUs,statusThem,
+    winner,
+// connection
 
-    // Methods
     initializeConnection,
+// set data for index page 
     setGameData,
   };
 });

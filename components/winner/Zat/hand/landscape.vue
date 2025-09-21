@@ -4,8 +4,8 @@
       <div
         class=" bg-black/10 p-3 rounded-xl w-[365px]  relative flex flex-col justify-center items-center gap-4 left-[-260px]">
         <p class="text-3xl self-end">الفريق الفائز</p>
-        <p class="h-[100px] bg-gray-400" v-if="winner">
-          {{ winner.name }}
+        <p class="h-[100px] bg-gray-400" v-if="winnerTeam">
+          {{ winnerTeamName }}
         </p>
       </div>
     </div>
@@ -15,17 +15,17 @@
         <div class="relative w-[140px] h-[195px] left-[293px]">
           <img
             class="w-[140px] h-[195px]  absolute z-[10]"
-            :src="game!.winner=='Us'?'/images/zat/RedFrame.svg' :'/images/zat/BlackFrame.svg'" />
+            :src="winnerComment=='Us'?'/images/zat/RedFrame.svg' :'/images/zat/BlackFrame.svg'" />
           <img
-            :src=" winner!.players && winner!.players[0].url ? winner!.players[0].url  : '/images/u1.jpg'"
+            :src=" winnerTeam!.players && winnerTeam!.players[0].imageUrl ? winnerTeam!.players[0].imageUrl  : '/images/u1.jpg'"
             class="w-[140px] h-[195px] absolute " />
         </div>
         <div class="relative w-[140px] h-[195px] left-[305px]">
           <img
             class="w-[140px] h-[195px]  absolute z-[10]"
-            :src="game!.winner=='Us'?'/images/zat/RedFrame.svg' :'/images/zat/BlackFrame.svg'" />
+            :src="winnerComment=='Us'?'/images/zat/RedFrame.svg' :'/images/zat/BlackFrame.svg'" />
           <img
-            :src=" winner!.players && winner!.players[1].url  ?winner!.players[1].url  : '/images/u2.jpg'"
+            :src=" winnerTeam!.players && winnerTeam!.players[1].imageUrl  ?winnerTeam!.players[1].imageUrl  : '/images/u2.jpg'"
             class="w-[140px] h-[195px] absolute" />
         </div>
       </div>
@@ -41,12 +41,12 @@
 </template>
 
 <script lang="ts" setup>
-
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();
 import gsap from "gsap";
-const { snapshot, game } = storeToRefs(store.value as BalootStore | HandStore);
-const { gameService } = store.value as BalootStore | HandStore;
+
+const store = useMyHandGameStore();
+const { snapshot, winnerTeam,winnerComment ,winnerTeamName} = storeToRefs(store);
+const { gameService } = store;
+
 const mediaElm = ref<HTMLVideoElement>();
 
 const intro_start_sec = 0;
@@ -76,24 +76,7 @@ const scoreUnMount = () => {
 };
 
 const { sleep } = useSleep();
-const winner = computed(() => {
-  if (game?.value?.winner) {
-    if (game.value.winner == "Us") {
 
-      return {
-        players: game.value.usPlayers.length > 0 ? game.value.usPlayers : null,
-        name: game.value.usName,
-      };
-    } else {
-
-      return {
-        players:
-          game.value.themPlayers.length > 0 ? game.value.themPlayers : null,
-        name: game.value.themName,
-      };
-    }
-  }
-});
 onMounted(() => {
   watchEffect(async () => {
     if (snapshot.value.matches("winner.intro")) {

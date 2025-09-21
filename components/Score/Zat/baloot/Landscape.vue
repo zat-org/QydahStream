@@ -21,7 +21,7 @@
       <p class="left-[0px] score">
         {{
           
-           gameState == "Ended" ? game?.usGameScore : tweenedScores.team1.toFixed(0)
+           gameState == "Ended" ? usGameScore : tweenedScores.team1.toFixed(0)
         }}
       </p>
     </div>
@@ -29,7 +29,7 @@
     <div class="left-[621px] teamWrap" ref="team2wrapper">
       <p class="left-[269px] score">
         {{         
-              gameState == "Ended" ? game?.themGameScore : tweenedScores.team2.toFixed(0)
+              gameState == "Ended" ? themGameScore : tweenedScores.team2.toFixed(0)
         }}
       </p>
       <transition name="fade" mode="out-in">
@@ -45,16 +45,13 @@
 
 <script lang="ts" setup>
 import gsap from "gsap";
+const { sleep } = useSleep();
 
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-import type { SakkaI } from "~/models/game";
-const { store } = DetectBoard();
-const { snapshot, game, } =
-  storeToRefs(store.value as BalootStore | HandStore);
-const { gameService } = store.value as BalootStore | HandStore;
+const store = useMyBalootGameStore();
+const { snapshot,usGameScore,themGameScore,last_sakka,usName,themName,gameState } =storeToRefs(store);
+const { gameService } = store;
 
 const mediaElm = ref<HTMLVideoElement>();
-const { sleep } = useSleep();
 const intro_start_sec = 0;
 const intro_end_sec = 3.5;
 const score_sec = intro_end_sec;
@@ -67,25 +64,7 @@ const tweenedScores = reactive({
   team1: 0,
   team2: 0,
 });
-const themName = computed(() => {
-  return game.value?.themName
-    ? game.value?.themName
-    : game.value?.themPlayers.length == 0
-      ? "لهم"
-      : game.value?.themPlayers[0].name +
-      " | " +
-      game.value?.themPlayers[1].name
-})
 
-
-const usName = computed(() => {
-  return game.value?.usName
-    ? game.value?.usName
-    : game.value?.usPlayers.length == 0
-      ? "لنا"
-      : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
-
-})
 
 const scoreMount = (score1: number, score2: number) => {
   const t1 = gsap.timeline();
@@ -129,15 +108,12 @@ t1.to(
 };
 
 
-const last_sakka = ref<SakkaI>()
-const gameState = ref()
 
 
 
 onMounted(async () => {
   watchEffect(async () => {
-    last_sakka.value = game.value?.sakkas?.[game.value.sakkas.length - 1];
-    gameState.value = game.value?.state;
+    
     if (snapshot.value.matches("score.intro")) {
       if (mediaElm.value) {
         mediaElm.value.currentTime = intro_start_sec;

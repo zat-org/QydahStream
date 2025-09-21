@@ -71,39 +71,12 @@
 import type { BalootStore, HandStore } from "~/composables/DetectBoard";
 const { store } = DetectBoard();
 
-const { game } = storeToRefs(store.value as BalootStore | HandStore);  
+const { top,bottom,left,right } = storeToRefs(store.value as BalootStore | HandStore);  
 
 
 
 
 
-// game.value?.themPlayers
-// game.value?.usPlayers
-console.log("Hello")
-
-const top = computed(() => {
-
-  if (game.value?.themPlayers.length! > 0)
-    return game.value?.usPlayers[0]
-})
-
-const bottom = computed(() => {
-  if (game.value?.themPlayers.length! > 0)
-    return game.value?.usPlayers[1]
-})
-
-const left = computed(() => {
-  if (game.value?.themPlayers.length! > 0)
-    return game.value?.themPlayers[1]
-})
-const right = computed(() => {
-  if (game.value?.themPlayers.length! > 0)
-    return game.value?.themPlayers[0]
-})
-console.log("bottom", bottom.value)
-console.log("top", top.value)
-console.log("left", left.value)
-console.log("right", right.value)
 
 
 

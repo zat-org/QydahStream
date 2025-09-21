@@ -12,7 +12,7 @@
         class="TeamSponsor right-[0px]"
         :src="'/images/zat/zat_white.svg'" />
       <p class="TeamName left-[84px]">
-        {{ game?.usName }}
+        {{ usName }}
       </p>
 
       <p id="team1totalScore" class="TeamScore left-0">
@@ -27,7 +27,7 @@
       <p class="TeamScore right-0">{{ last_sakka?.themSakkaScore }}</p>
 
       <p class="TeamName left-[115px]">
-        {{ game?.themName }}
+        {{ themName }}
       </p>
 
       <img class="TeamSponsor left-[12px]" :src="'/images/zat/zat_black.svg'" />
@@ -40,15 +40,14 @@
 </template>
 
 <script lang="ts" setup>
-
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();  
 import gsap from "gsap";
-import type { SakkaI } from "~/models/game";
+
 const { sleep } = useSleep();
-const { snapshot, game } = storeToRefs(store.value as BalootStore | HandStore);
-const { gameService } = store.value as BalootStore | HandStore;
+const store = useMyBalootGameStore();
+const { snapshot ,usName,themName,last_sakka, ended_moshtras } = storeToRefs(store);
+const { gameService } = store;
 const mediaElm = ref<HTMLVideoElement>();
+
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 const intro_start_sec = 0;
@@ -56,18 +55,7 @@ const intro_end_sec = 3.22;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
-const last_sakka_index = computed(() => {
-  return game.value?.sakkas.length! - 1;
-});
-const last_sakka = computed<SakkaI|undefined>(() => {
-  return game.value?.sakkas[last_sakka_index.value] 
-});
 
-const ended_moshtras = computed(() => {
-  return last_sakka.value?.moshtaras.filter((m) => {
-    return m.state == "Ended";
-  });
-});
 const scoreMount = () => {
   const t1 = gsap.timeline();
   t1.delay(1.75);
@@ -126,13 +114,7 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-/* .detailed-score-comp {
-} */
-/*
-  Based on TailwindCSS recommendations,
-  consider using classes instead of the `@apply` directive
-  @see https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction
-*/
+
 .video-elm {
   @apply relative z-[-1] left-0 top-0;
   /* background-color: aquamarine; */

@@ -39,13 +39,14 @@
 
 <script lang="ts" setup>
 
-
-
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();
 import gsap from "gsap";
-const { snapshot, game } = storeToRefs(store.value as BalootStore | HandStore);
-const { gameService } = store.value as BalootStore | HandStore;
+
+
+const store = useMyBalootGameStore();
+const { snapshot, winner} = storeToRefs(store);
+const { gameService } = store;
+const { sleep } = useSleep();
+
 const mediaElm = ref<HTMLVideoElement>();
 
 const intro_start_sec = 0;
@@ -77,25 +78,7 @@ const scoreUnMount = () => {
   }
 };
 
-const { sleep } = useSleep();
-const winner = computed(() => {
-  if (game?.value?.winner) {
-    if (game.value.winner == "Us") {
 
-      return {
-        players: game.value.usPlayers.length > 0 ? game.value.usPlayers : null,
-        name: game.value.usName,
-      };
-    } else {
- 
-      return {
-        players:
-          game.value.themPlayers.length > 0 ? game.value.themPlayers : null,
-        name: game.value.themName,
-      };
-    }
-  }
-});
 onMounted(() => {
   watchEffect(async () => {
     if (snapshot.value.matches("winner.intro")) {

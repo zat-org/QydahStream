@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import ScoreZatLandscape from "../../../components/Score/Zat/Landscape.vue";
-import DetailZatLandscape from "../../../components/Detail/Zat/landscape.vue";
+import DetailZatLandscape from "../../../components/Detail/Zat/hand/landscape.vue";
 import WinnerZatLandscape from "../../../components/winner/Zat/landscape.vue";
 
 import ScoreQydhaLandscape from "../../../components/Score/Qydha/landscape.vue";

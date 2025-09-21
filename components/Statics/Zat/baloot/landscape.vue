@@ -6,12 +6,12 @@
       <div class= " relative  h-[100px]  flex justify-evenly  items-center text-3xl ">
         <!-- <div class="w-[85%] absolute h-[20px] bg-white top-[-10px] rounded-xl"></div> -->
         <img id="headerBg" class="absolute w-full "  src="~/assets/svg/headerbg.svg" alt="">
-        <p  id="themHead" class="z-[10]  text-white font-semibold"  > {{game?.themName}}</p>
+        <p  id="themHead" class="z-[10]  text-white font-semibold"  > {{themName}}</p>
         <div id="vsHead" class="relative  w-[100px] h-[100px] z-[10]  top-[-14px] flex justify-center items-center ">
           <img    src="~/assets/svg/vsbg_g1.svg" class="   absolute " />
             <p class=" absolute z-[20] top-[10px] text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-500  " >vs </p>
         </div>
-        <p id="usHead" class="  z-[10] text-white font-semibold"> {{game?.usName}}</p>
+        <p id="usHead" class="  z-[10] text-white font-semibold"> {{usName}}</p>
       </div>
       
       <div class="flex flex-col gap-5 mt-5  text-xl text-white font-semibold  ">
@@ -90,6 +90,12 @@
 <script lang="ts" setup>
 import gsap from "gsap";
 const {sleep} = useSleep()
+
+const store = useMyBalootGameStore();
+const { themName,usName,statusUs,statusThem } = storeToRefs(store)
+const { gameService } = store;
+
+
 const t1 = gsap.timeline();
 
 const enterAnimation = ()=>{  
@@ -109,25 +115,9 @@ const outAnimation = () => {
   t1.reverse()
 };
 
-// onMounted(async()=>{
-//   enterAnimation()
-// await sleep(5*1000)
-//   outAnimation()
-// })
 
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();
-const {statics, game } = storeToRefs(store.value as BalootStore | HandStore)
-const { gameService } = store.value as BalootStore | HandStore;
 
-const statusUs = computed(() => {
-  if (statics.value)
-    return statics.value.usStatistics;
-});
-const statusThem = computed(() => {
-  if (statics.value)
-    return statics.value.themStatistics;
-});
+
 
 
 onMounted(async () => {

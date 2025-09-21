@@ -73,11 +73,13 @@
 </template>
 
 <script lang="ts" setup>
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();  
 import gsap from "gsap";
-const { snapshot, game } = storeToRefs(store.value as BalootStore | HandStore);
-const { gameService } = store.value as BalootStore | HandStore;
+
+const store = useMyBalootGameStore();
+const { snapshot, winner } = storeToRefs(store);
+const { gameService } = store;
+const { sleep } = useSleep();
+
 
 const Winnersvg = ref();
 const winnerData = ref(null);
@@ -109,25 +111,7 @@ const scoreUnMount = () => {
   });
 };
 
-const { sleep } = useSleep();
-const winner = computed(() => {
-  if (game?.value?.winner) {
-    if (game.value.winner == "Us") {
-      console.log(game.value.usPlayers);
-      return {
-        players: game.value.usPlayers.length > 0 ? game.value.usPlayers : null,
-        name: game.value.usName,
-      };
-    } else if (game.value.winner == "Them") {
-      console.log(game.value.themPlayers);
-      return {
-        players:
-          game.value.themPlayers.length > 0 ? game.value.themPlayers : null,
-        name: game.value.themName,
-      };
-    }
-  }
-});
+
 onMounted(() => {
   watchEffect(async () => {
     console.log(snapshot);

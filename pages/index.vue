@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 
-import ScoreQydhaPortraitsvg from "../components/Score/Qydha/portraitsvg.vue";
+import ScoreQydhaPortraitsvg from "../components/Score/Qydha/baloot/portraitsvg.vue";
 
 
 
