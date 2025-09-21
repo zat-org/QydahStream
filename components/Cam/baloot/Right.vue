@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center p-5">
 
 
-      <div class="relative w-[140px] h-[195px] " v-if="left && left.url">
+      <div class="relative w-[140px] h-[195px] " v-if="left && ( left.url)">
         <img class="w-[140px] h-[195px] absolute z-[10]" src='/images/zat/themframe.svg' />
         <img :src="left?.url" class="w-[140px] h-[187px] absolute object-cover object-center rounded-2xl top-[5px]" />
       </div>
@@ -48,10 +48,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();
-
-const { top,bottom,left,right } = storeToRefs(store.value as BalootStore | HandStore);  
+const store  = useMyBalootGameStore();
+const { top,bottom,left,right } = storeToRefs(store);  
 
 
 

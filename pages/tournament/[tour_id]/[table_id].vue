@@ -16,19 +16,19 @@
 </template>
 
 <script lang="ts" setup>
-import ScoreZatLandscape from "../../../components/Score/Zat/Landscape.vue";
-import DetailZatLandscape from "../../../components/Detail/Zat/hand/landscape.vue";
-import WinnerZatLandscape from "../../../components/winner/Zat/landscape.vue";
+import ScoreZatLandscape from "../../../components/Score/Zat/baloot/Landscape.vue";
+import DetailZatLandscape from "../../../components/Detail/Zat/baloot/landscape.vue";
+import WinnerZatLandscape from "../../../components/winner/Zat/baloot/landscape.vue";
 
-import ScoreQydhaLandscape from "../../../components/Score/Qydha/landscape.vue";
-import DetailQydhaLandscape from "../../../components/Detail/Qydha/landscape.vue";
-import WinnerQydhaLandscape from "../../../components/winner/Qydha/landscape.vue";
+import ScoreQydhaLandscape from "../../../components/Score/Qydha/baloot/landscape.vue";
+import DetailQydhaLandscape from "../../../components/Detail/Qydha/baloot/landscape.vue";
+import WinnerQydhaLandscape from "../../../components/winner/Qydha/baloot/landscape.vue";
 
 // import ScoreQydhaPortrait from "../../components/Score/Qydha/portrait.vue";
-import ScoreQydhaPortraitsvg from "../../../components/Score/Qydha/portraitsvg.vue";
+import ScoreQydhaPortraitsvg from "../../../components/Score/Qydha/baloot/portraitsvg.vue";
 
-import DetailQydhaPortrait from "../../../components/Detail/Qydha/portrait.vue";
-import WinnerQydhaPortrait from "../../../components/winner/Qydha/portrait.vue";
+import DetailQydhaPortrait from "../../../components/Detail/Qydha/baloot/portrait.vue";
+import WinnerQydhaPortrait from "../../../components/winner/Qydha/baloot/portrait.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -107,12 +107,10 @@ const winnerComponent = computed(() => {
 
 // const table_id =
 //   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
-const game = useMyGameStore()
-const { gameService, initializeConnection ,connection} = game;
+const game = useMyBalootGameStore()
+const { gameService, initializeConnection } = game;
 await initializeConnection();
-if( (connection.state as string) !="Connected"){
-  await initializeConnection();
-}
+
 
 const { snapshot } = storeToRefs(game);
 </script>

@@ -3,21 +3,18 @@
 </template>
 
 <script lang="ts" setup>
-import CamTop from "../../../components/Cam/Top.vue"
-import CamRight from "../../../components/Cam/Right.vue"
-import CamLeft from "../../../components/Cam/Left.vue"
-import CamBottom from "../../../components/Cam/Bottom.vue"
+import CamTop from "../../../../components/Cam/hand/Top.vue"
+import CamRight from "../../../../components/Cam/hand/Right.vue"
+import CamLeft from "../../../../components/Cam/hand/Left.vue"
+import CamBottom from "../../../../components/Cam/hand/Bottom.vue"
 
 
 const route = useRoute()
 const router = useRouter()
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
-const game = useMyGameStore();
-const { gameService, initializeConnection, connection } = game;
-if ((connection.state as string) != "Connected") {
-  await initializeConnection();
-}
+const game = useMyHandGameStore();
+const { gameService, initializeConnection } = game;
 
 // Allowed positions
 const allowedPositions = ['top', 'left', 'right', 'bottom']

@@ -50,10 +50,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
-const { store } = DetectBoard();
-
-const { top,bottom,left,right } = storeToRefs(store.value as BalootStore | HandStore);  
+const store  = useMyBalootGameStore();
+const { top,bottom,left,right } = storeToRefs(store);  
 
 
 
