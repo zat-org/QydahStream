@@ -1,6 +1,6 @@
 <template>
   <!--  MAIN DIMENSION  -->
-  <div class="flex justify-center relative mx-auto duration-300 transition-all" :style="BoardStyles.dimension">
+  <div class="flex justify-center relative mx-auto duration-300 transition-all" v-if="BoardStyles" :style="BoardStyles.dimension">
     <!--  SCORE PANEL -->
     <div class="relative w-full  origin-center  transition-all duration-300" :style="BoardStyles.scorePanel">
       <!-- LOGO -->
@@ -89,7 +89,18 @@
 import gsap from "gsap";
 
 const store = useMyBalootGameStore();
-const { snapshot, last_sakka, usGameScore, themGameScore, BoardStyles, usName, themName, gameState,left,right,bottom } = storeToRefs(store);
+// Don't destructure reactive refs - keep them as refs to maintain reactivity
+const snapshot = storeToRefs(store).snapshot;
+const last_sakka = storeToRefs(store).last_sakka;
+const usGameScore = storeToRefs(store).usGameScore;
+const themGameScore = storeToRefs(store).themGameScore;
+const BoardStyles = storeToRefs(store).BoardStyles;
+const usName = storeToRefs(store).usName;
+const themName = storeToRefs(store).themName;
+const gameState = storeToRefs(store).gameState;
+const left = storeToRefs(store).left;
+const right = storeToRefs(store).right;
+const bottom = storeToRefs(store).bottom;
 const { gameService } = store;
 
 const svgQydha = ref();
@@ -181,10 +192,10 @@ const scoreUnMount = () => {
 
 
 onMounted(() => {
+  // Debug: Watch BoardStyles changes
+  
   watchEffect(async () => {
-
     if (snapshot.value.matches("score.intro")) {
-
       if (svgQydha.value) {
         svgQydha.value.enteranimation();
       }
@@ -192,7 +203,6 @@ onMounted(() => {
       scoreMount(
         last_sakka.value?.themSakkaScore ?? 0,
         last_sakka.value?.usSakkaScore ?? 0,
-
       );
       gameService.send({ type: "NEXT" });
     }
@@ -201,7 +211,6 @@ onMounted(() => {
         last_sakka.value?.themSakkaScore!,
         last_sakka.value?.usSakkaScore!
       );
-
     }
 
     if (snapshot.value.matches("score.outro")) {

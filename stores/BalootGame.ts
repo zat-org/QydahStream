@@ -85,6 +85,32 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   const setupBalootEventListeners = () => {
     const connection = gameConnection.rawConnection;
     connection.on("BalootGameStateChanged", handleGameStateChanged);
+    connection.on("BalootBoardSettingsCahnged", handleBalootBoardSettingsChanged);
+
+
+  };
+  const handleBalootBoardSettingsChanged = (_boardSettings: any) => {
+    _boardSettings = JSON.parse(_boardSettings) as BoardSettingsI;
+    
+    // More detailed validation
+    if (!_boardSettings) {
+      console.warn("Board settings is null or undefined");
+      return;
+    }
+    
+    if (!_boardSettings.portrait) {
+      console.warn("Board settings missing portrait property:", _boardSettings);
+      return;
+    }
+    
+    if (!_boardSettings.portrait.dimension || !_boardSettings.portrait.scorePanel) {
+      console.warn("Board settings missing required portrait properties:", _boardSettings.portrait);
+      return;
+    }
+    
+    // Data is valid, update it
+    console.log("Valid board settings received, updating...");
+    boardSettings.value = _boardSettings;
   };
   async function initializeConnection() {
     try {
@@ -356,121 +382,128 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
   
   })
-  const portraitBoardSettings = computed(() => {
-    return boardSettings.value?.portrait;
+const BoardStyles =ref({
+  dimension: {
+    height: '1920px',
+    width: '1080px',
+  },
+  scorePanel: {
+    "margin-top": "0px",
+    height: "295px",
+    scale: .9,
+    leftTeam: {
+      name: {
+        transform: `translate(0px,0px)`,
+        'font-size': "30px",
+      },
+      score: {
+        transform: `translate(0px,0px)`,
+        'font-size': "50px",
+      },
+    },
+    rightTeam: {
+      name: {
+        transform: `translate(0px,0px)`,
+        'font-size': "30px",
+      },
+      score: {
+        transform: `translate(0px,0px)`,
+        'font-size': "50px",
+      },
+    }
+  },
+  leftPlayer: {
+    top: "calc(50% - 100px)",
+    left: "0px",
+    height: "200px",
+    width: "200px",
+  },
+  rightPlayer: {
+    top: "calc(50% - 100px)",
+    right: "0px",
+    height: "200px",
+    width: "200px",
+  },
+  bottomPlayer: {
+    left: "calc(50% - 100px)",
+    bottom: "0px",
+    height: "200px",
+    width: "200px",
+  },
+  detailScore: {
+    color: "#000000",
+    "font-size": "70px",
+  },
+  playerImageWidth:"200px"
+})
+watch(boardSettings, (newVal) => {
+  console.log(" ____ boardSettings ____", newVal);
+  const portraitBoardSettings = boardSettings.value?.portrait;
+  if (!portraitBoardSettings) {
+    console.log(" ____ portraitBoardSettings ____", portraitBoardSettings);
+    return;
+  }
+  
+  // Use Object.assign to maintain reactivity
+  Object.assign(BoardStyles.value, {
+    dimension: {
+      height: portraitBoardSettings.dimension.height + 'px',
+      width: portraitBoardSettings.dimension.width + 'px',
+    },
+    
+    scorePanel: {
+      'margin-top': portraitBoardSettings.scorePanel.topMargin + "px",
+      height: portraitBoardSettings.scorePanel.height + "px",
+      scale: portraitBoardSettings.scorePanel.position.scale,
+      leftTeam: {
+        name: {
+          transform: `translate(${portraitBoardSettings.scorePanel.leftTeam.name.left}px, ${portraitBoardSettings.scorePanel.leftTeam.name.top}px)`,
+          'font-size': portraitBoardSettings.scorePanel.leftTeam.name.size + "px",
+        },
+        score: {
+          transform: `translate(${portraitBoardSettings.scorePanel.leftTeam.score.left}px,${portraitBoardSettings.scorePanel.leftTeam.score.top}px)`,
+          'font-size': portraitBoardSettings.scorePanel.leftTeam.score.size + "px",
+        }
+      },
+      rightTeam: {
+        name: {
+          transform: `translate(${portraitBoardSettings.scorePanel.rightTeam.name.left}px, ${portraitBoardSettings.scorePanel.rightTeam.name.top}px)`,
+          'font-size': portraitBoardSettings.scorePanel.rightTeam.name.size + "px",
+        },
+        score: {
+          transform: `translate(${portraitBoardSettings.scorePanel.rightTeam.score.left}px,${portraitBoardSettings.scorePanel.rightTeam.score.top}px)`,
+          'font-size': portraitBoardSettings.scorePanel.rightTeam.score.size + "px",
+        }
+      }
+    },
+    leftPlayer: {
+      top: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200)/2}px  + ${portraitBoardSettings.leftPlayer.top}px )`,
+      left: `${portraitBoardSettings.leftPlayer.left}px`,
+      height: `${portraitBoardSettings.playerImageWidth}px`,
+      width: `${portraitBoardSettings.playerImageWidth}px`,
+    },
+    rightPlayer: {
+      top: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200) / 2}px + ${portraitBoardSettings.rightPlayer.top}px )`,
+      right: `${portraitBoardSettings.rightPlayer.right}px`,
+      height: `${portraitBoardSettings.playerImageWidth}px`,
+      width: `${portraitBoardSettings.playerImageWidth}px`,
+    },
+    bottomPlayer: {
+      left: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200) / 2}px + ${portraitBoardSettings.bottomPlayer.left}px )`,
+      bottom: `${portraitBoardSettings.bottomPlayer.bottom}px`,
+      height: `${portraitBoardSettings.playerImageWidth}px`,
+      width: `${portraitBoardSettings.playerImageWidth}px`,
+    },
+    detailScore: {
+      color: portraitBoardSettings.detailScore.color,
+      "font-size": portraitBoardSettings.detailScore.fontSize + "px",
+    },
+    playerImageWidth: `${portraitBoardSettings.playerImageWidth}px`
   });
   
-  const BoardStyles = computed(() => {
-    return {
-      dimension: {
-        height: '1920px',
-        width: '1080px',
-      },
-      scorePanel: {
-        "margin-top": "0px",
-        height: "295px",
-        scale: .9,
-        leftTeam: {
-          name: {
-            transform: `translate(0px,0px)`,
-            'font-size': "30px",
-          },
-          score: {
-            transform: `translate(0px,0px)`,
-            'font-size': "50px",
-          },
-        },
-        rightTeam: {
-          name: {
-            transform: `translate(0px,0px)`,
-            'font-size': "30px",
-          },
-          score: {
-            transform: `translate(0px,0px)`,
-            'font-size': "50px",
-          },
-        }
-      },
-      leftPlayer: {
-        top: "calc(50% - 100px)",
-        left: "0px",
-        height: "200px",
-        width: "200px",
-      },
-      rightPlayer: {
-        top: "calc(50% - 100px)",
-        right: "0px",
-        height: "200px",
-        width: "200px",
-      },
-      bottomPlayer: {
-        left: "calc(50% - 100px)",
-        bottom: "0px",
-        height: "200px",
-        width: "200px",
-      },
-      detailScore: {
-        color: "#000000",
-        "font-size": "70px",
-      }
-    }
-  
-    return {
-      dimension: {
-        height: portraitBoardSettings.value?.dimension.height + 'px',
-        width: portraitBoardSettings.value?.dimension.width + 'px',
-      },
-      scorePanel: {
-        'margin-top': portraitBoardSettings.value?.scorePanel.topMargin + "px",
-        height: portraitBoardSettings.value?.scorePanel.height + "px",
-        scale: portraitBoardSettings.value?.scorePanel.position.scale,
-        leftTeam: {
-          name: {
-            transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.leftTeam.name.top}px)`,
-            'font-size': portraitBoardSettings.value?.scorePanel.leftTeam.name.size + "px",
-          },
-          score: {
-            transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.leftTeam.score.top}px)`,
-            'font-size': portraitBoardSettings.value?.scorePanel.leftTeam.score.size + "px",
-          }
-        },
-        rightTeam: {
-          name: {
-            transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.rightTeam.name.top}px)`,
-            'font-size': portraitBoardSettings.value?.scorePanel.rightTeam.name.size + "px",
-          },
-          score: {
-            transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.rightTeam.score.top}px)`,
-            'font-size': portraitBoardSettings.value?.scorePanel.rightTeam.score.size + "px",
-          }
-        }
-      },
-      leftPlayer: {
-        top: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.leftPlayer.top}px`,
-        left: `${portraitBoardSettings.value?.leftPlayer.left}px`,
-        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
-      },
-      rightPlayer: {
-        top: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.rightPlayer.top}px`,
-        right: `${portraitBoardSettings.value?.rightPlayer.right}px`,
-        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
-      },
-      bottomPlayer: {
-        left: `calc(50% - ${(portraitBoardSettings.value?.playerImageWidth ?? 200) / 2}px ) + ${portraitBoardSettings.value?.bottomPlayer.left}px`,
-        bottom: `${portraitBoardSettings.value?.bottomPlayer.bottom}px`,
-        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
-  
-      },
-      detailScore: {
-        color: portraitBoardSettings.value?.detailScore.color,
-        "font-size": portraitBoardSettings.value?.detailScore.fontSize + "px",
-      }
-    }
-  
-  })
+  console.log("data of BoardStyles", BoardStyles.value);
+}, { deep: true, immediate: true })
+
 
   const last_sakka = computed<SakkaI | undefined>(() => {
     return game.value?.sakkas[game.value?.sakkas.length! - 1];

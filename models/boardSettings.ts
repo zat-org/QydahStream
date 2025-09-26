@@ -1,6 +1,6 @@
 export interface BoardSettingsI {
     portrait: OrientationBoardSettingsI;
-    landscape: OrientationBoardSettingsI;
+    // landscape: OrientationBoardSettingsI;
   }
   
   export interface OrientationBoardSettingsI {
