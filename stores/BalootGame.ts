@@ -28,6 +28,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     autoReconnect: true,
     maxReconnectAttempts: 5,
   });
+  
 
   const sakka_ended = ref(false);
   const newGameFlag = ref(false);

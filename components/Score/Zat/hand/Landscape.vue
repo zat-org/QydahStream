@@ -30,6 +30,15 @@
       </transition>
       <img :src="'/images/zat/zat_black.svg'" class="SponsorImage left-[3px]" />
     </div>
+
+    <div ref="commentWrapper" class="absolute flex justify-center  items-center mt-[75px] top-0 left-0 w-[1920px] z-20"
+      :style="{ pointerEvents: 'none' }">
+      <div class="px-4 py-2 rounded-xl shadow-lg comment" >
+        <span style="text-shadow: 0 2px 6px #000c, 0 0 2px #FDCA53aa;">
+          {{ comment }}
+        </span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -39,7 +48,7 @@ import type { SakkaI } from "~/models/game";
 const { sleep } = useSleep();
 
 const store = useMyHandGameStore();
-const { snapshot, game, usName, themName, usScore, themScore } = storeToRefs(store);
+const { snapshot, game, usName, themName, usScore, themScore ,comment} = storeToRefs(store);
 const { gameService } = store;
 
 const mediaElm = ref<HTMLVideoElement>();
@@ -48,8 +57,9 @@ const intro_end_sec = 3.5;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
-const team1wrapper = ref(null);
-const team2wrapper = ref(null);
+const team1wrapper = useTemplateRef('team1wrapper');
+const team2wrapper =useTemplateRef('team2wrapper') ;
+const commentWrapper =useTemplateRef('commentWrapper');
 
 const tweenedScores = reactive({
   team1: 0,
@@ -60,7 +70,7 @@ const scoreMount = (score1: number, score2: number) => {
   const t1 = gsap.timeline();
   t1.delay(2.15);
   t1.fromTo(
-    [team1wrapper.value, team2wrapper.value],
+    [team1wrapper.value, team2wrapper.value,commentWrapper.value],
     { opacity: 0 },
     {
       duration: 0.5,
@@ -76,7 +86,7 @@ const scoreMount = (score1: number, score2: number) => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value], {
+  t2.to([team1wrapper.value, team2wrapper.value,commentWrapper.value], {
     duration: 0.3,
     opacity: 0,
     ease: "linear",
@@ -158,7 +168,7 @@ onMounted(async () => {
 }
 
 .score {
-  @apply absolute text-[1.6rem] w-[55px] h-[55px] flex justify-center items-center top-0;
+  @apply absolute text-[1.3rem] w-[55px] h-[55px] flex justify-center items-center top-0;
   font-family: "CairoSemiBold";
 }
 
@@ -185,4 +195,15 @@ onMounted(async () => {
 * {
   font-family: "arefBold";
 }
+.comment {
+  @apply px-4;
+  background: black;
+  border: 3px solid red;
+  color: white;
+  font-family: "arefBold";
+  font-size: 1.5rem;
+  text-align: center;
+  filter: drop-shadow(0 4px 16px #0008) ;
+}
+
 </style>

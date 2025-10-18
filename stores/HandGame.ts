@@ -287,6 +287,9 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   const winnerComment = computed(() => {
     return game.value?.comment.winnerRef;
   });
+  const comment = computed(() => {
+    return game.value?.comment.comment;
+  });
 
   const usTeam = computed(() => {
     return game.value?.teams[0];
@@ -522,6 +525,8 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
     themTeamRounds,
     usTeamRounds,
     winnerTeam,
+    comment,
+
     winnerComment,
     winnerTeamName,
     //portrait boradStyles

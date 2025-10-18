@@ -48,6 +48,15 @@
           </transition>
         </div>
       </div>
+
+      <div ref="commentWrapper" class="  h-full   flex items-end justify-center  translate-x-[10px] mt-[45px]  "
+      :style="{ pointerEvents: 'none'  }">
+      <div class="  px-2   rounded-lg shadow-lg comment ">
+        <span >
+          {{ comment }}
+        </span>
+      </div>
+    </div>
     </div>
     <!-- leftPlayer Image -->
     <transition name="fade" mode="out-in">
@@ -89,7 +98,7 @@
 import gsap from "gsap";
 
 const store = useMyHandGameStore();
-const { snapshot, themName,usName,themScore,usScore,BoardStyles,bottom,left,right } =storeToRefs(store);
+const { snapshot, themName,usName,themScore,usScore,BoardStyles,bottom,left,right,comment } =storeToRefs(store);
 const { gameService } = store;
 
 const { sleep } = useSleep();
@@ -116,8 +125,9 @@ const playerImageStyle = computed(() => {
 
 
 
-const team1wrapper = ref(null);
-const team2wrapper = ref(null);
+const team1wrapper = useTemplateRef('team1wrapper');
+const team2wrapper = useTemplateRef('team2wrapper');
+const commentWrapper = useTemplateRef('commentWrapper')
 
 const tweenedScores = reactive({
   team1: 0,
@@ -145,7 +155,7 @@ const scoreMount = (score1: number, score2: number, ) => {
   const t1 = gsap.timeline();
   t1.delay(2);
   t1.fromTo(
-    [team1wrapper.value, team2wrapper.value],
+    [team1wrapper.value, team2wrapper.value,commentWrapper.value],
     { opacity: 0 },
     {
       duration: 1,
@@ -167,7 +177,7 @@ const scoreMount = (score1: number, score2: number, ) => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value], {
+  t2.to([team1wrapper.value, team2wrapper.value ,commentWrapper.value], {
     duration: 0.3,
     opacity: 0,
     ease: "linear",
@@ -254,6 +264,18 @@ onMounted(() => {
 
 .video {
   @apply z-[-1];
+}
+.comment {
+  @apply px-4 w-fit ;
+  scale:4;
+  transform-origin: top center;
+  background: linear-gradient(90deg, #252A56 0%, #31386b 100%);
+  border: 3px solid #FB9B6E;
+  color: white;
+  font-family: "arefBold";
+  /* font-size: 1.5rem; */
+  text-align: center;
+  filter: drop-shadow(0 4px 16px #0008) ;
 }
 
 * {
