@@ -91,10 +91,25 @@ const { gameService } = store;
 const svgQydha = ref();
 
 
-// gsap elments
+// gsap elements
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
 const score = ref(null);
+
+// Animation state guards
+const isAnimating = ref(false);
+const currentState = ref<string | null>(null);
+
+// Get a unique state identifier to track state changes
+const stateIdentifier = computed(() => {
+  const state = snapshot.value;
+  if (!state) return null;
+  // Create a unique identifier for the current state
+  if (state.matches("detail.intro")) return "detail.intro";
+  if (state.matches("detail.main")) return "detail.main";
+  if (state.matches("detail.outro")) return "detail.outro";
+  return state.value?.toString() || null;
+});
 
 
 
@@ -109,7 +124,9 @@ const score = ref(null);
 
 
 const scoreMount = () => {
+  if (isAnimating.value) return; // Prevent re-animation
   console.log("start score mount ");
+  isAnimating.value = true;
   const t1 = gsap.timeline();
   t1.delay(2);
   t1.fromTo(
@@ -119,44 +136,71 @@ const scoreMount = () => {
       duration: 2,
       opacity: 1,
       ease: "linear",
+      onComplete: () => {
+        isAnimating.value = false;
+      }
     }
   );
 };
 
 const scoreUnMount = () => {
+  if (isAnimating.value) return; // Prevent re-animation
+  isAnimating.value = true;
   const t2 = gsap.timeline();
   t2.to([team1wrapper.value, team2wrapper.value, score.value], {
     duration: 0.3,
     opacity: 0,
     ease: "linear",
+    onComplete: () => {
+      isAnimating.value = false;
+    }
   });
 };
 
 onMounted(() => {
-  watchEffect(async () => {
-    if (snapshot.value.matches("detail.intro")) {
-      if (svgQydha.value) {
-        svgQydha.value.enteranimation();
-        scoreMount();
+  // Use watch instead of watchEffect with specific dependency
+  // Only watch the state identifier, not all reactive data
+  watch(
+    stateIdentifier,
+    async (newState, oldState) => {
+      // Only proceed if state actually changed
+      if (newState === oldState || !newState) return;
+      
+      // Prevent duplicate state handling
+      if (currentState.value === newState) return;
+      currentState.value = newState;
+
+      if (snapshot.value.matches("detail.intro")) {
+        if (svgQydha.value && !isAnimating.value) {
+          svgQydha.value.enteranimation();
+          scoreMount();
+          await sleep(4000);
+          if (!isAnimating.value) {
+            gameService.send({ type: "NEXT" });
+          }
+        }
+      }
+      
+      if (snapshot.value.matches("detail.main")) {
         await sleep(4000);
-
-        gameService.send({ type: "NEXT" });
+        if (!isAnimating.value) {
+          gameService.send({ type: "TO_OUTRO" });
+        }
       }
-    }
-    if (snapshot.value.matches("detail.main")) {
-      await sleep(4000);
-      gameService.send({ type: "TO_OUTRO" });
-    }
 
-    if (snapshot.value.matches("detail.outro")) {
-      if (svgQydha.value) {
-        svgQydha.value.outAnimation();
-        scoreUnMount();
-        await sleep(2000);
-        gameService.send({ type: "CHECK_END" });
+      if (snapshot.value.matches("detail.outro")) {
+        if (svgQydha.value && !isAnimating.value) {
+          svgQydha.value.outAnimation();
+          scoreUnMount();
+          await sleep(2000);
+          if (!isAnimating.value) {
+            gameService.send({ type: "CHECK_END" });
+          }
+        }
       }
-    }
-  });
+    },
+    { immediate: true } // Run on mount
+  );
 });
 </script>
 <style scoped>

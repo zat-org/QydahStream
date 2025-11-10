@@ -46,20 +46,20 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   // State machine subscription with debugging
   gameService.subscribe((state) => {
     snapshot.value = state;
-    if (state.matches("detail.outro") && gameEnd.value) {
-      game.value = newGame.value;
-      console.log(winnerTeam.value);
-      if (winnerTeam.value !== null) {
-        let showWinner = winnerTeam.value?.players.every((p) => {
-          return p.imageUrl != null;
-        });
-        console.log(showWinner);
-        gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
-      }
-      gameEnd.value = false;
-    }
-    if (state.matches("score.intro")) {
-      game.value = newGame.value;
+    // if (state.matches("detail.outro") && gameEnd.value) {
+    //   game.value = newGame.value;
+    //   console.log(winnerTeam.value);
+    //   if (winnerTeam.value !== null) {
+    //     let showWinner = winnerTeam.value?.players.every((p) => {
+    //       return p.imageUrl != null;
+    //     });
+    //     console.log(showWinner);
+    //     gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
+    //   }
+    //   gameEnd.value = false;
+    // }
+    if (state.matches("score.intro")) {        
+        game.value = newGame.value;
     }
   });
   const resetState = () => {
@@ -104,6 +104,7 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       }
 
       handleSpecialEvents();
+
     } catch (error) {
       console.error("Error in handleGameStateChanged:", error);
     }
@@ -116,18 +117,22 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
 
   // Handle special events that can occur in any state
   const handleSpecialEvents = () => {
-    if (events.includes("NamesChanged")) {
-      handelNamesChanged();
-    }
-    if (events.includes("ScoreIncreased")) {
-      handelScoreIncreased();
-    }
-    if (events.includes("ScoreDecreased")) {
-      handelScoreDecreased();
-    }
-    if (events.includes("GameEnded")) {
-      handelGameEnded();
-    }
+      if(snapshot.value.matches("score")) {
+        handelScoreMain();
+      }
+      if(snapshot.value.matches("detail")) {
+        handelDetailMain();
+      }
+      if(snapshot.value.matches("statics")) {
+      }
+      if(snapshot.value.matches("winner")) {
+
+      }
+      
+  
+  
+
+
   };
   // Event listeners are now handled by the GameConnection class
 
@@ -214,24 +219,104 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   //   return game;
   // };
 
+const handelScoreMain=()=>{
+  if (events.includes("NamesChanged")) {
+    handelNamesChanged();
+  }
+  if (events.includes("ScoreIncreased" ) && events.length== 1 ) {
+    if(snapshot.value.matches("score.main")) {
+      handelScoreIncreased();
+    }else{
+      handelDetailScoreIncreased();
+    }
+  }
+  if (events.includes("ScoreDecreased")) {
+    console.log("ScoreDecreased","in score");
+    handelScoreDecreased();
+  }
+  if (events.includes("GameStarted")) {
+    if (snapshot.value.matches("score.main")) 
+    handelGameStarted();
+  }
+  if (events.includes("GameEnded") && events.includes("ScoreIncreased")) {
+    handelGameEndedAndScoreIncrease();
+  }
+
+}
+const handelDetailMain=()=>{
+  if (events.includes("NamesChanged")&& events.length== 1 ) {
+    handelNamesChanged();
+  }
+  if (events.includes("ScoreIncreased") && events.length== 1 ) {
+    handelDetailScoreIncreased();
+  }
+  if (events.includes("ScoreDecreased")) {
+    console.log("ScoreDecreased","in detail");
+    handelScoreDecreased();
+  }
+
+  if (events.includes("GameStarted") &&  events.includes("NamesChanged")) {
+    console.log("GameStarted","in detail");
+    // handelGameStarted();
+  }
+  if (events.includes("GameEnded") ) {
+
+    console.log("GameEnded","in detail");
+    handelGameEnded();
+  }
+
+}
+
   const handelNamesChanged = () => {
-    game.value!.teams = newGame.value!.teams;
+    Object.assign(game.value!, newGame.value!);
   };
 
   const handelScoreIncreased = () => {
-    gameService.send({ type: "TO_OUTRO" });
-    game.value!.teams = newGame.value!.teams;
-    game.value!.rounds = newGame.value!.rounds;
+    if(game.value!.id == newGame.value!.id) {
+      gameService.send({ type: "TO_OUTRO" });
+      Object.assign(game.value!, newGame.value!);
+    }
+  };
+  const handelDetailScoreIncreased = () => {
+    if(game.value!.id == newGame.value!.id) {
+    Object.assign(game.value!, newGame.value!);
+    
+  }
   };
   const handelScoreDecreased = () => {
     // gameService.send({ type: "TO_OUTRO" });
-    game.value!.teams = newGame.value!.teams;
+
+    Object.assign(game.value!, newGame.value!);
+    if (winnerTeam.value !== null) {
+      let showWinner = winnerTeam.value?.players.every((p) => {
+        return p.imageUrl != null;
+      });
+      console.log(showWinner);
+      gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
+    }
+  };
+
+  const handelGameStarted = () => {
+    Object.assign(game.value!, newGame.value!);
   };
 
   // to show  winner
+  const handelGameEndedAndScoreIncrease = () => {
+
+    Object.assign(game.value!, newGame.value!);
+    gameService.send({ type: "TO_OUTRO" });
+    console.log(winnerTeam.value);
+    if (winnerTeam.value !== null) {
+      let showWinner = winnerTeam.value?.players.every((p) => {
+        return p.imageUrl != null;
+      });
+      console.log(showWinner);
+      gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
+    }
+};
+
   const handelGameEnded = () => {
-    if (snapshot.value.matches("score")) {
-      game.value = newGame.value;
+      Object.assign(game.value!, newGame.value!);
       console.log(winnerTeam.value);
       if (winnerTeam.value !== null) {
         let showWinner = winnerTeam.value?.players.every((p) => {
@@ -240,9 +325,6 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
         console.log(showWinner);
         gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
       }
-    } else if (snapshot.value.matches("detail")) {
-      gameEnd.value = true;
-    }
   };
   // to show statics
 
@@ -330,6 +412,9 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       return rounds;
     }
   });
+const roundNumber = computed(() => {
+  return game.value?.rounds.length;
+});
 
   const themName = computed(() => {
     const team = themTeam.value;
@@ -522,6 +607,7 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
     usName,
     themScore,
     usScore,
+    roundNumber,
     themTeamRounds,
     usTeamRounds,
     winnerTeam,

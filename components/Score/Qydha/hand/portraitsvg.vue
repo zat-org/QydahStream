@@ -27,7 +27,12 @@
           </p>
         </div>
         <!-- EMPTY SPACE -->
-        <div class=" w-[2.5%] "></div>
+        <div class=" w-[2.5%] flex items-center justify-center relative  " ref="roundNumberWrapper" > 
+        <p class= "absolute top-[10px] left-[-15px] text-white text-center text-[2.5rem]  bg-[#252A56] rounded-full w-14 h-14   flex items-center justify-center">
+          {{ roundNumber }}
+        </p>
+        
+         </div>
         <!-- RIGHT TEAM  -->
         <div class="w-[50.5%] flex justify-between    items-center relative " ref="team1wrapper">
 
@@ -98,7 +103,7 @@
 import gsap from "gsap";
 
 const store = useMyHandGameStore();
-const { snapshot, themName,usName,themScore,usScore,BoardStyles,bottom,left,right,comment } =storeToRefs(store);
+const { snapshot, themName,usName,themScore,usScore,BoardStyles,bottom,left,right,comment,roundNumber } =storeToRefs(store);
 const { gameService } = store;
 
 const { sleep } = useSleep();
@@ -127,6 +132,7 @@ const playerImageStyle = computed(() => {
 
 const team1wrapper = useTemplateRef('team1wrapper');
 const team2wrapper = useTemplateRef('team2wrapper');
+const roundNumberWrapper = useTemplateRef('roundNumberWrapper');
 const commentWrapper = useTemplateRef('commentWrapper')
 
 const tweenedScores = reactive({
@@ -155,7 +161,7 @@ const scoreMount = (score1: number, score2: number, ) => {
   const t1 = gsap.timeline();
   t1.delay(2);
   t1.fromTo(
-    [team1wrapper.value, team2wrapper.value,commentWrapper.value],
+    [team1wrapper.value, team2wrapper.value,commentWrapper.value,roundNumberWrapper.value],
     { opacity: 0 },
     {
       duration: 1,
@@ -177,7 +183,7 @@ const scoreMount = (score1: number, score2: number, ) => {
 
 const scoreUnMount = () => {
   const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value ,commentWrapper.value], {
+  t2.to([team1wrapper.value, team2wrapper.value ,commentWrapper.value,roundNumberWrapper.value], {
     duration: 0.3,
     opacity: 0,
     ease: "linear",

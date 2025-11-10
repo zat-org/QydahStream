@@ -499,7 +499,7 @@ watch(boardSettings, (newVal) => {
       color: portraitBoardSettings.detailScore.color,
       "font-size": portraitBoardSettings.detailScore.fontSize + "px",
     },
-    playerImageWidth: `${portraitBoardSettings.playerImageWidth}px`
+    playerImageWidth: `${portraitBoardSettings.playerImageWidth ?? 200}px`
   });
   
   console.log("data of BoardStyles", BoardStyles.value);
