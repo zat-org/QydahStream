@@ -224,6 +224,8 @@ const handelScoreMain=()=>{
     handelNamesChanged();
   }
   if (events.includes("ScoreIncreased" ) && events.length== 1 ) {
+    console.log("ScoreIncreased","in score");
+    console.log(snapshot.value)
     if(snapshot.value.matches("score.main")) {
       handelScoreIncreased();
     }else{
@@ -234,7 +236,7 @@ const handelScoreMain=()=>{
     console.log("ScoreDecreased","in score");
     handelScoreDecreased();
   }
-  if (events.includes("GameStarted")) {
+  if (events.includes("GameStarted")) { 
     if (snapshot.value.matches("score.main")) 
     handelGameStarted();
   }
@@ -302,15 +304,19 @@ const handelDetailMain=()=>{
 
   // to show  winner
   const handelGameEndedAndScoreIncrease = () => {
-
+    console.log("before to outro")
+    console.log(snapshot.value)
     Object.assign(game.value!, newGame.value!);
+    
+    if (snapshot.value.matches("score.main")) 
     gameService.send({ type: "TO_OUTRO" });
+    console.log("after to outro")
+    console.log(snapshot.value)
     console.log(winnerTeam.value);
     if (winnerTeam.value !== null) {
       let showWinner = winnerTeam.value?.players.every((p) => {
         return p.imageUrl != null;
       });
-      console.log(showWinner);
       gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
     }
 };

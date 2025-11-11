@@ -101,6 +101,7 @@
 
 <script lang="ts" setup>
 import gsap from "gsap";
+import { until } from '@vueuse/core'
 
 const store = useMyHandGameStore();
 const { snapshot, themName,usName,themScore,usScore,BoardStyles,bottom,left,right,comment,roundNumber } =storeToRefs(store);
@@ -140,28 +141,47 @@ const tweenedScores = reactive({
   team2: 0,
 });
 
+// Animation state guards
+const isAnimating = ref(false);
+const currentState = ref<string | null>(null);
+
+// Get a unique state identifier to track state changes
+const stateIdentifier = computed(() => {
+  const state = snapshot.value;
+  if (!state) return null;
+  // Create a unique identifier for the current state
+  if (state.matches("score.intro")) return "score.intro";
+  if (state.matches("score.main")) return "score.main";
+  if (state.matches("score.outro")) return "score.outro";
+  return state.value?.toString() || null;
+});
+
 const mainScoreMount = (score1: number, score2: number) => {
-
-const t1 = gsap.timeline();
-
-t1.to(
-  tweenedScores,
-  {
-    team1: score1,
-    team2: score2,
-    duration: 0.75,
-  },
-);
+  if (isAnimating.value) return; // Prevent re-animation
+  isAnimating.value = true;
+  const t1 = gsap.timeline();
+  t1.to(
+    tweenedScores,
+    {
+      team1: score1,
+      team2: score2,
+      duration: 0.75,
+      onComplete: () => {
+        isAnimating.value = false;
+      }
+    },
+  );
 };
 
 
 
-const scoreMount = (score1: number, score2: number, ) => {
-
+const scoreMount = (score1: number, score2: number) => {
+  if (isAnimating.value) return; // Prevent re-animation
+  isAnimating.value = true;
   const t1 = gsap.timeline();
   t1.delay(2);
   t1.fromTo(
-    [team1wrapper.value, team2wrapper.value,commentWrapper.value,roundNumberWrapper.value],
+    [team1wrapper.value, team2wrapper.value, commentWrapper.value, roundNumberWrapper.value],
     { opacity: 0 },
     {
       duration: 1,
@@ -174,6 +194,9 @@ const scoreMount = (score1: number, score2: number, ) => {
       team1: score1,
       team2: score2,
       duration: 0.75,
+      onComplete: () => {
+        isAnimating.value = false;
+      }
     },
     "<"
   );
@@ -182,8 +205,10 @@ const scoreMount = (score1: number, score2: number, ) => {
 
 
 const scoreUnMount = () => {
+  if (isAnimating.value) return; // Prevent re-animation
+  isAnimating.value = true;
   const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value ,commentWrapper.value,roundNumberWrapper.value], {
+  t2.to([team1wrapper.value, team2wrapper.value, commentWrapper.value, roundNumberWrapper.value], {
     duration: 0.3,
     opacity: 0,
     ease: "linear",
@@ -193,6 +218,9 @@ const scoreUnMount = () => {
       duration: 0.3,
       opacity: 0,
       ease: "linear",
+      onComplete: () => {
+        isAnimating.value = false;
+      }
     },
     "<"
   );
@@ -200,38 +228,67 @@ const scoreUnMount = () => {
 
 
 onMounted(() => {
-  watchEffect(async () => {
-
-    if (snapshot.value.matches("score.intro")) {
+  // Use watch instead of watchEffect with specific dependency
+  // Only watch the state identifier, not all reactive data
+  watch(
+    stateIdentifier,
+    async (newState, oldState) => {
+      // Only proceed if state actually changed
+      if (newState === oldState || !newState) return;
       
-      if (svgQydha.value) {
-        svgQydha.value.enteranimation();        
+      // Prevent duplicate state handling
+      if (currentState.value === newState) return;
+      currentState.value = newState;
+
+      if (snapshot.value.matches("score.intro")) {
+        if (svgQydha.value && !isAnimating.value) {
+          svgQydha.value.enteranimation();
+          scoreMount(
+            themScore.value ?? 0,
+            usScore.value ?? 0,
+          );
+          await until(isAnimating).toBe(false);
+            gameService.send({ type: "NEXT" });
+
+        }
       }
       
-      scoreMount(
-        themScore.value ?? 0,
-        usScore.value ?? 0,
+      if (snapshot.value.matches("score.main")) {
+        if (!isAnimating.value) {
+          mainScoreMount(
+            themScore.value!,
+            usScore.value!
+          );
+        }
+      }
 
-      );
-      gameService.send({type: "NEXT"});
-    }
-    if (snapshot.value.matches("score.main")) {
-      mainScoreMount(
-        themScore.value! ,
-        usScore.value! 
-      );
+      if (snapshot.value.matches("score.outro")) {
+        if (svgQydha.value && !isAnimating.value) {
+          scoreUnMount();
+          svgQydha.value!.outAnimation();
+          await sleep(1250);
+          await until(isAnimating).toBe(false);
+            gameService.send({ type: "NEXT" });
+        }
+      }
+    },
+    { immediate: true } // Run on mount
+  );
 
-    }
-
-    if (snapshot.value.matches("score.outro")) {
-      if (svgQydha.value) {
-        scoreUnMount();
-        svgQydha.value!.outAnimation();
-        await sleep(1250);
-        gameService.send({ type: "NEXT" });
+  // Watch for score changes in score.main state only
+  watch(
+    [themScore, usScore],
+    ([newThemScore, newUsScore], [oldThemScore, oldUsScore]) => {
+      // Only update scores if we're in main state and scores actually changed
+      if (
+        
+        (newThemScore !== oldThemScore || newUsScore !== oldUsScore) &&
+        !isAnimating.value
+      ) {
+        mainScoreMount(newThemScore ?? 0, newUsScore ?? 0);
       }
     }
-  });
+  );
 });
 
 
