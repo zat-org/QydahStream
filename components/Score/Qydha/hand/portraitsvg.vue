@@ -23,7 +23,7 @@
           </transition>
           <!-- LEFT TEAM SCORE -->
           <p class="  score  w-[30%] mx-auto text-center  " :style="BoardStyles.scorePanel.leftTeam.score">
-            {{  tweenedScores.team1.toFixed(0) }}
+            {{  displayScore1 }}
           </p>
         </div>
         <!-- EMPTY SPACE -->
@@ -38,7 +38,7 @@
 
           <!-- RIGHT TEAM SCORE -->
           <p class=" score  w-[30%] mx-auto text-center  " :style="BoardStyles.scorePanel.rightTeam.score">
-            {{ tweenedScores.team2.toFixed(0)}}
+            {{ displayScore2 }}
           </p>
           <transition name="fade" mode="out-in">
             <!-- RIGHT TEAM NAME -->
@@ -136,9 +136,20 @@ const team2wrapper = useTemplateRef('team2wrapper');
 const roundNumberWrapper = useTemplateRef('roundNumberWrapper');
 const commentWrapper = useTemplateRef('commentWrapper')
 
-const tweenedScores = reactive({
+const tweenedScores = reactive<{ team1: string | number, team2: string | number }>({
   team1: 0,
   team2: 0,
+});
+
+// Computed properties to safely display scores (handle both string and number)
+const displayScore1 = computed(() => {
+  const score = tweenedScores.team1;
+  return typeof score === 'number' ? score.toFixed(0) : score;
+});
+
+const displayScore2 = computed(() => {
+  const score = tweenedScores.team2;
+  return typeof score === 'number' ? score.toFixed(0) : score;
 });
 
 // Animation state guards
@@ -156,26 +167,32 @@ const stateIdentifier = computed(() => {
   return state.value?.toString() || null;
 });
 
-const mainScoreMount = (score1: number, score2: number) => {
+const mainScoreMount = (score1: string | number, score2: string | number) => {
   if (isAnimating.value) return; // Prevent re-animation
   isAnimating.value = true;
   const t1 = gsap.timeline();
-  t1.to(
-    tweenedScores,
-    {
-      team1: score1,
-      team2: score2,
-      duration: 0.75,
-      onComplete: () => {
-        isAnimating.value = false;
-      }
-    },
-  );
+  if (typeof score1 === "string" || typeof score2 === "string") {
+    tweenedScores.team1 = score1;
+    tweenedScores.team2 = score2;
+    isAnimating.value = false; // Reset animation flag for string scores
+  }else{
+    t1.to(
+      tweenedScores,
+      {
+        team1: score1,
+        team2: score2,
+        duration: 0.75,
+        onComplete: () => {
+          isAnimating.value = false;
+        }
+      },
+    );
+  }
 };
 
 
 
-const scoreMount = (score1: number, score2: number) => {
+const scoreMount = (score1: string | number, score2: string | number) => {
   if (isAnimating.value) return; // Prevent re-animation
   isAnimating.value = true;
   const t1 = gsap.timeline();
@@ -188,7 +205,17 @@ const scoreMount = (score1: number, score2: number) => {
       opacity: 1,
       ease: "linear",
     }
-  ).to(
+  )
+  if (typeof score1 === "string" || typeof score2 === "string") {
+    tweenedScores.team1 = score1;
+    tweenedScores.team2 = score2;
+    // Note: isAnimating will be set to false after the opacity animation completes
+    t1.call(() => {
+      isAnimating.value = false;
+    });
+  }else{
+
+  t1.to(
     tweenedScores,
     {
       team1: score1,
@@ -200,6 +227,8 @@ const scoreMount = (score1: number, score2: number) => {
     },
     "<"
   );
+  
+  }
 };
 
 
@@ -244,8 +273,8 @@ onMounted(() => {
         if (svgQydha.value && !isAnimating.value) {
           svgQydha.value.enteranimation();
           scoreMount(
-            themScore.value ?? 0,
-            usScore.value ?? 0,
+            themScore.value!,
+            usScore.value!,
           );
           await until(isAnimating).toBe(false);
             gameService.send({ type: "NEXT" });
@@ -263,11 +292,15 @@ onMounted(() => {
       }
 
       if (snapshot.value.matches("score.outro")) {
-        if (svgQydha.value && !isAnimating.value) {
+        console.log("outro");
+        console.log(svgQydha.value )
+        console.log(isAnimating.value)
+        if (svgQydha.value ) {
           scoreUnMount();
           svgQydha.value!.outAnimation();
-          await sleep(1250);
           await until(isAnimating).toBe(false);
+          await sleep(1000);
+          console.log(" wating  un mount end ")
             gameService.send({ type: "NEXT" });
         }
       }
@@ -285,6 +318,7 @@ onMounted(() => {
         (newThemScore !== oldThemScore || newUsScore !== oldUsScore) &&
         !isAnimating.value
       ) {
+
         mainScoreMount(newThemScore ?? 0, newUsScore ?? 0);
       }
     }
