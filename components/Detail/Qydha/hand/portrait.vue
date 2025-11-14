@@ -75,19 +75,6 @@ const stateIdentifier = computed(() => {
   if (state.matches("detail.outro")) return "detail.outro";
   return state.value?.toString() || null;
 });
-
-
-
-
-// balot not hand game
-
-
-
-
-
-
-
-
 const scoreMount = () => {
   if (isAnimating.value) return; // Prevent re-animation
   console.log("start score mount ");

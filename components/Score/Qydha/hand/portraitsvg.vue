@@ -56,7 +56,7 @@
 
       <div ref="commentWrapper" class="  h-full   flex items-end justify-center  translate-x-[10px] mt-[45px]  "
       :style="{ pointerEvents: 'none'  }">
-      <div class="  px-2   rounded-lg shadow-lg comment ">
+      <div class="  px-2   rounded-lg shadow-lg comment " dir="rtl">
         <span >
           {{ comment }}
         </span>

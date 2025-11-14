@@ -61,6 +61,11 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
     if (state.matches("score.intro")) {
       game.value = newGame.value;
     }
+    if (state.matches("detail.intro" )) {
+      if(game.value!.id == newGame.value!.id) {
+      game.value = newGame.value;
+      }
+    }
   });
   const resetState = () => {
     // newGameFlag.value = false;
@@ -113,7 +118,7 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
         console.error("Failed to parse game data:", error);
         return;
       }
-
+      console.log("newGame", newGame.value);
       handleSpecialEvents();
     } catch (error) {
       console.error("Error in handleGameStateChanged:", error);
@@ -131,12 +136,9 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       handelScoreMain();
     }
     if (snapshot.value.matches("detail")) {
-      handelDetailMain();
+        handelDetailMain();      
     }
-    if (snapshot.value.matches("statics")) {
-    }
-    if (snapshot.value.matches("winner")) {
-    }
+    
   };
   // Event listeners are now handled by the GameConnection class
 
@@ -241,12 +243,14 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       handelScoreDecreased();
     }
     if (events.includes("GameStarted")) {
-      if (snapshot.value.matches("score.main")) handelGameStarted();
+      console.log(snapshot.value.matches("score.main"))
+      if (snapshot.value.matches("score.main") || snapshot.value.matches("score.intro")) handelGameStarted();
     }
     if (events.includes("GameEnded") && events.includes("ScoreIncreased")) {
       handelGameEndedAndScoreIncrease();
     }
   };
+
   const handelDetailMain = () => {
     if (events.includes("NamesChanged") && events.length == 1) {
       handelNamesChanged();
@@ -270,13 +274,15 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   };
 
   const handelNamesChanged = () => {
-    Object.assign(game.value!, newGame.value!);
+    if(game.value!.id == newGame.value!.id) {
+      Object.assign(game.value!, newGame.value!);
+    }
   };
 
   const handelScoreIncreased = () => {
     if (game.value!.id == newGame.value!.id) {
       gameService.send({ type: "TO_OUTRO" });
-      Object.assign(game.value!, newGame.value!);
+      // Object.assign(game.value!, newGame.value!);
     }
   };
   const handelDetailScoreIncreased = () => {
@@ -303,9 +309,9 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
 
   // to show  winner
   const handelGameEndedAndScoreIncrease = () => {
-    Object.assign(game.value!, newGame.value!);
+    // Object.assign(game.value!, newGame.value!);
 
-    if (snapshot.value.matches("score.main"))
+    // if (snapshot.value.matches("score.main"))
       gameService.send({ type: "TO_OUTRO" });
 
     console.log(winnerTeam.value);

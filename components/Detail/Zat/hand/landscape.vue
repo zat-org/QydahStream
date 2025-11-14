@@ -40,76 +40,124 @@
 </template>
 
 <script lang="ts" setup>
+import { until } from "@vueuse/core";
 import gsap from "gsap";
 const { sleep } = useSleep();
 const store = useMyHandGameStore();
-const { snapshot,  themName,usName,themScore,usScore,themTeamRounds,usTeamRounds} = storeToRefs(store);
+const { snapshot, themName, usName, themScore, usScore, themTeamRounds, usTeamRounds } = storeToRefs(store);
 const { gameService } = store;
 
 const mediaElm = ref<HTMLVideoElement>();
-const team1wrapper = ref(null);
-const team2wrapper = ref(null);
+const team1wrapper = useTemplateRef('team1wrapper');
+const team2wrapper = useTemplateRef('team2wrapper');
+
 const intro_start_sec = 0;
 const intro_end_sec = 3.22;
 const score_sec = intro_end_sec;
 const outro_start = score_sec;
 
-  
+// Animation state guards
+const isAnimating = ref(false);
+const currentState = ref<string | null>(null);
+
+// Get a unique state identifier to track state changes
+const stateIdentifier = computed(() => {
+  const state = snapshot.value;
+  if (!state) return null;
+  // Create a unique identifier for the current state
+  if (state.matches("detail.intro")) return "detail.intro";
+  if (state.matches("detail.main")) return "detail.main";
+  if (state.matches("detail.outro")) return "detail.outro";
+  return state.value?.toString() || null;
+});
+
 const scoreMount = () => {
+  if (isAnimating.value) return; // Prevent re-animation
+  isAnimating.value = true;
   const t1 = gsap.timeline();
   t1.delay(1.75);
-  t1.to([team1wrapper.value, team2wrapper.value], {
-    duration: 0.75,
-    opacity: 1,
-    ease: "linear",
-  });
+  t1.fromTo(
+    [team1wrapper.value, team2wrapper.value],
+    { opacity: 0 },
+    {
+      duration: 0.75,
+      opacity: 1,
+      ease: "linear",
+      onComplete: () => {
+        isAnimating.value = false;
+      }
+    }
+  );
 };
 
 const scoreUnMount = () => {
+  if (isAnimating.value) return; // Prevent re-animation
+  isAnimating.value = true;
   const t2 = gsap.timeline();
-
-
-  t2.to([team1wrapper.value, team2wrapper.value], {
-    duration: 1,
-    opacity: 0,
-    ease: "linear",
-  });
+  t2.to(
+    [team1wrapper.value, team2wrapper.value],
+    {
+      duration: 0.3,
+      opacity: 0,
+      ease: "linear",
+      onComplete: () => {
+        isAnimating.value = false;
+      }
+    }
+  );
 };
 
+// Use watch instead of watchEffect with specific dependency
+// Only watch the state identifier, not all reactive data
 onMounted(() => {
-  watchEffect(async () => {
-    if (snapshot.value.matches("detail.intro")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = intro_start_sec;
-        mediaElm.value.play();
-        scoreMount();
-        await sleep(score_sec*1000)
-        mediaElm.value.currentTime = score_sec;
-        mediaElm.value.pause();
-        gameService.send({ type: "NEXT" });
-      }
-    }
-    if (snapshot.value.matches("detail.main")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = score_sec;
-      }
-      await sleep(250);
-      gameService.send({ type: "TO_OUTRO" });
-    }
+  watch(
+    stateIdentifier,
+    async (newState, oldState) => {
+      // Only proceed if state actually changed
+      if (newState === oldState || !newState) return;
 
-    if (snapshot.value.matches("detail.outro")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = outro_start;
-        mediaElm.value.playbackRate = 2;
-        mediaElm.value.play();
-        scoreUnMount();
-        mediaElm.value.onended = () => {
-          // mediaElm.value.onended=null;
-          gameService.send({ type: "CHECK_END" });
-        };
+      // Prevent duplicate state handling
+      if (currentState.value === newState) return;
+      currentState.value = newState;
+
+      if (snapshot.value.matches("detail.intro")) {
+        if (mediaElm.value) {
+          mediaElm.value.currentTime = intro_start_sec;
+          mediaElm.value.play();
+          scoreMount();
+          await sleep(intro_end_sec * 1000);
+          mediaElm.value.currentTime = score_sec;
+          mediaElm.value.pause();
+          // await until(isAnimating).toBe(false);
+          gameService.send({ type: "NEXT" });
+        }
       }
-    }
-  });
+
+      if (snapshot.value.matches("detail.main")) {
+        if (mediaElm.value) {
+          mediaElm.value.currentTime = score_sec;
+        }
+        await sleep(2000);
+        // await until(isAnimating).toBe(false);
+        gameService.send({ type: "TO_OUTRO" });
+      }
+
+      if (snapshot.value.matches("detail.outro")) {
+        if (mediaElm.value) {
+          mediaElm.value.currentTime = outro_start;
+          mediaElm.value.playbackRate = 3;
+          mediaElm.value.onended = () => {
+            gameService.send({ type: "CHECK_END" });
+          };
+          mediaElm.value.play();
+          scoreUnMount();
+          // await sleep(2000);
+          // await until(isAnimating).toBe(false);
+        }
+      }
+    },
+    { immediate: true } // Run on mount
+  );
 });
 </script>
 <style scoped>
