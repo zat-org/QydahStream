@@ -1,8 +1,9 @@
 <template>
+
   <div class="flex flex-col justify-between">
     <div class="flex justify-between items-center p-5">
-      <div class="relative w-[140px] h-[195px] " v-if="bottom && bottom.url">
-          <img
+      <div class="relative w-[140px] h-[195px] " v-if="bottom && bottom.url" :key="`bottom-${bottom?.id}-${bottom?.url}`">
+        <img
             class="w-[140px] h-[195px]  absolute z-[10]"
             src='/images/zat/usframe.svg'  />
           <img
@@ -14,7 +15,7 @@
 
 
 
-      <div class="relative w-[140px] h-[195px]  " v-if="left && left.url">
+      <div class="relative w-[140px] h-[195px]  " v-if="left && left.url" :key="`left-${left?.id}-${left?.url}`">
           <img
             class="w-[140px] h-[195px]  absolute z-[10]"
             src='/images/zat/themframe.svg' />
@@ -31,7 +32,7 @@
 
 
 
-      <div class="relative w-[140px] h-[195px] " v-if="right && right.url">
+      <div class="relative w-[140px] h-[195px] " v-if="right && right.url" :key="`right-${right?.id}-${right?.url}`">
           <img
             class="w-[140px] h-[195px]  absolute z-[10] "
             src='/images/zat/themframe.svg' />
@@ -44,7 +45,7 @@
     
 
 
-      <div class="relative w-[140px] h-[195px]" v-if="top && top.url">
+      <div class="relative w-[140px] h-[195px]" v-if="top && top.url" :key="`top-${top?.id}-${top?.url}`">
           <img
             class="w-[140px] h-[195px]  absolute z-[10]"
             src='/images/zat/usframe.svg'  />
@@ -58,7 +59,7 @@
     </div>
 
   </div>
-
+  
 </template>
 
 <script lang="ts" setup>
@@ -66,7 +67,6 @@ import type { BalootStore, HandStore } from "~/composables/DetectBoard";
 const store  = useMyBalootGameStore();
 
 const { top,bottom,left,right } = storeToRefs(store);  
-
 
  
 

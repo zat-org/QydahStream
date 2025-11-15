@@ -165,6 +165,12 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       game.value = newGame.value;
       handelGameEnded();
     }
+    if(events.includes("NamesChanged") && events.length == 1) {
+      game.value!.themName = newGame.value?.themName!;
+      game.value!.usName = newGame.value?.usName!;
+      game.value!.themPlayers = newGame.value?.themPlayers!;
+      game.value!.usPlayers = newGame.value?.usPlayers!;
+    }
   };
 
   const handleGameStateChanged = (
@@ -349,21 +355,85 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     }
   };
 
-  // players images
-  const top = computed(() => {
-    if (game.value?.themPlayers.length! > 0) return game.value?.usPlayers[0];
-  });
+  // players images - using refs instead of computed
+  const top = ref<{ id: string; name: string; url: string; index: number } | undefined>(undefined);
+  const bottom = ref<{ id: string; name: string; url: string; index: number } | undefined>(undefined);
+  const left = ref<{ id: string; name: string; url: string; index: number } | undefined>(undefined);
+  const right = ref<{ id: string; name: string; url: string; index: number } | undefined>(undefined);
 
-  const bottom = computed(() => {
-    if (game.value?.themPlayers.length! > 0) return game.value?.usPlayers[1];
-  });
+  // Function to update player refs
+  const updatePlayerRefs = () => {
+    // Update top (usPlayers[0])
+    const usPlayer0 = game.value?.usPlayers?.[0];
+    if (usPlayer0 && usPlayer0.url) {
+      top.value = {
+        id: usPlayer0.id,
+        name: usPlayer0.name,
+        url: usPlayer0.url,
+        index: usPlayer0.index
+      };
+    } else {
+      top.value = undefined;
+    }
 
-  const left = computed(() => {
-    if (game.value?.themPlayers.length! > 0) return game.value?.themPlayers[1];
-  });
-  const right = computed(() => {
-    if (game.value?.themPlayers.length! > 0) return game.value?.themPlayers[0];
-  });
+    // Update bottom (usPlayers[1])
+    const usPlayer1 = game.value?.usPlayers?.[1];
+    if (usPlayer1 && usPlayer1.url) {
+      bottom.value = {
+        id: usPlayer1.id,
+        name: usPlayer1.name,
+        url: usPlayer1.url,
+        index: usPlayer1.index
+      };
+    } else {
+      bottom.value = undefined;
+    }
+
+    // Update left (themPlayers[1])
+    const themPlayer1 = game.value?.themPlayers?.[1];
+    if (themPlayer1 && themPlayer1.url) {
+      left.value = {
+        id: themPlayer1.id,
+        name: themPlayer1.name,
+        url: themPlayer1.url,
+        index: themPlayer1.index
+      };
+    } else {
+      left.value = undefined;
+    }
+
+    // Update right (themPlayers[0])
+    const themPlayer0 = game.value?.themPlayers?.[0];
+    if (themPlayer0 && themPlayer0.url) {
+      right.value = {
+        id: themPlayer0.id,
+        name: themPlayer0.name,
+        url: themPlayer0.url,
+        index: themPlayer0.index
+      };
+    } else {
+      right.value = undefined;
+    }
+  };
+
+  // Watch for changes to game data (players arrays and names)
+  watch(
+    () => game.value,
+    () => {
+      updatePlayerRefs();
+    },
+    { deep: true, immediate: true }
+  );
+
+  watch(
+    () => game.value,
+    () => {
+      updatePlayerRefs();
+    },
+    { deep: true, immediate: true }
+  );
+
+
 
   const themName = computed(() => {
     return game.value?.themName
@@ -438,10 +508,10 @@ const BoardStyles =ref({
   playerImageWidth:"200px"
 })
 watch(boardSettings, (newVal) => {
-  console.log(" ____ boardSettings ____", newVal);
+  // console.log(" ____ boardSettings ____", newVal);
   const portraitBoardSettings = boardSettings.value?.portrait;
   if (!portraitBoardSettings) {
-    console.log(" ____ portraitBoardSettings ____", portraitBoardSettings);
+    // console.log(" ____ portraitBoardSettings ____", portraitBoardSettings);
     return;
   }
   

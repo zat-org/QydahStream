@@ -15,7 +15,7 @@ const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
 const game = useMyHandGameStore();
 const { gameService, initializeConnection } = game;
-
+await initializeConnection();
 // Allowed positions
 const allowedPositions = ['top', 'left', 'right', 'bottom']
 
@@ -26,7 +26,7 @@ let position = route.params.position as string
 if (!allowedPositions.includes(position)) {
   position = 'top'
   // Optionally, navigate to the default 'top' route
-  router.replace(`/${table_id}/cam/top`)
+  router.replace(`/hand/${table_id}/cam/top`)
 }
 const camComponent = computed(()=>{
   if (position.toLowerCase() == "top") return  CamTop
