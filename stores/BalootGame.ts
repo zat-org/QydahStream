@@ -417,13 +417,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   };
 
   // Watch for changes to game data (players arrays and names)
-  watch(
-    () => game.value,
-    () => {
-      updatePlayerRefs();
-    },
-    { deep: true, immediate: true }
-  );
+ 
 
   watch(
     () => game.value,
