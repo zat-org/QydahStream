@@ -355,77 +355,58 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     }
   };
 
-  // players images - using refs instead of computed
-  const top = ref<{ id: string; name: string; url: string; index: number } | undefined>(undefined);
-  const bottom = ref<{ id: string; name: string; url: string; index: number } | undefined>(undefined);
-  const left = ref<{ id: string; name: string; url: string; index: number } | undefined>(undefined);
-  const right = ref<{ id: string; name: string; url: string; index: number } | undefined>(undefined);
-
-  // Function to update player refs
-  const updatePlayerRefs = () => {
-    // Update top (usPlayers[0])
+  // players images - using computed properties
+  const top = computed(() => {
     const usPlayer0 = game.value?.usPlayers?.[0];
     if (usPlayer0 && usPlayer0.url) {
-      top.value = {
+      return {
         id: usPlayer0.id,
         name: usPlayer0.name,
         url: usPlayer0.url,
         index: usPlayer0.index
       };
-    } else {
-      top.value = undefined;
     }
+    return undefined;
+  });
 
-    // Update bottom (usPlayers[1])
+  const bottom = computed(() => {
     const usPlayer1 = game.value?.usPlayers?.[1];
     if (usPlayer1 && usPlayer1.url) {
-      bottom.value = {
+      return {
         id: usPlayer1.id,
         name: usPlayer1.name,
         url: usPlayer1.url,
         index: usPlayer1.index
       };
-    } else {
-      bottom.value = undefined;
     }
+    return undefined;
+  });
 
-    // Update left (themPlayers[1])
+  const left = computed(() => {
     const themPlayer1 = game.value?.themPlayers?.[1];
     if (themPlayer1 && themPlayer1.url) {
-      left.value = {
+      return {
         id: themPlayer1.id,
         name: themPlayer1.name,
         url: themPlayer1.url,
         index: themPlayer1.index
       };
-    } else {
-      left.value = undefined;
     }
+    return undefined;
+  });
 
-    // Update right (themPlayers[0])
+  const right = computed(() => {
     const themPlayer0 = game.value?.themPlayers?.[0];
     if (themPlayer0 && themPlayer0.url) {
-      right.value = {
+      return {
         id: themPlayer0.id,
         name: themPlayer0.name,
         url: themPlayer0.url,
         index: themPlayer0.index
       };
-    } else {
-      right.value = undefined;
     }
-  };
-
-  // Watch for changes to game data (players arrays and names)
- 
-
-  watch(
-    () => game.value,
-    () => {
-      updatePlayerRefs();
-    },
-    { deep: true, immediate: true }
-  );
+    return undefined;
+  });
 
 
 
