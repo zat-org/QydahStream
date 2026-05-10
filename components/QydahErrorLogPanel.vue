@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ClientErrorEntry } from "~/utils/client-error-log";
+import type { ClientErrorCategory, ClientErrorEntry } from "~/utils/client-error-log";
 import { clientErrorEntries } from "~/utils/client-error-log";
 
 const rows = computed(() =>
@@ -21,7 +21,7 @@ async function copyAll() {
   }
 }
 
-function categoryClass(category: ClientErrorEntry["category"]) {
+function categoryClass(category: ClientErrorCategory) {
   if (category === "chunk_reload_scheduled") return "text-amber-300";
   if (category === "chunk_reload_skipped_debounce") return "text-red-300";
   if (category === "chunk_load") return "text-amber-200";
