@@ -105,12 +105,16 @@ const winnerComponent = computed(() => {
   return null;
 });
 
-// const table_id =
-//   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
-const game = useMyBalootGameStore()
-const { gameService, initializeConnection } = game;
-await initializeConnection();
+const game = useMyBalootGameStore();
+const { gameService, syncBoardForCurrentRoute } = game;
 
+watch(
+  () => `${route.params.tour_id}:${route.params.table_id}`,
+  () => {
+    void syncBoardForCurrentRoute();
+  },
+  { immediate: true },
+);
 
 const { snapshot } = storeToRefs(game);
 </script>

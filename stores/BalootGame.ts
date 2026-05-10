@@ -8,6 +8,7 @@ import {
   type GameConnection,
   ConnectionState,
 } from "~/utils/connection";
+import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
 
 type BalootGameEvent =
   | "GameStarted"
@@ -78,17 +79,26 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       }
     } catch (error) {
       console.error("Failed to join game group:", error);
+      if (import.meta.client) {
+        pushClientErrorFromUnknown("baloot_store", error, {
+          phase: "joinGameGroup",
+        });
+      }
       throw error;
     }
 
     return null;
   };
-  const setupBalootEventListeners = () => {
+
+  const balootHubListenersAttached = ref(false);
+  const setupBalootEventListenersOnce = () => {
+    if (balootHubListenersAttached.value) return;
     const connection = gameConnection.rawConnection;
+    connection.off("BalootGameStateChanged");
+    connection.off("BalootBoardSettingsCahnged");
     connection.on("BalootGameStateChanged", handleGameStateChanged);
     connection.on("BalootBoardSettingsCahnged", handleBalootBoardSettingsChanged);
-
-
+    balootHubListenersAttached.value = true;
   };
   const handleBalootBoardSettingsChanged = (_boardSettings: any) => {
     _boardSettings = JSON.parse(_boardSettings) as BoardSettingsI;
@@ -113,19 +123,34 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     console.log("Valid board settings received, updating...");
     boardSettings.value = _boardSettings;
   };
-  async function initializeConnection() {
+  const syncLastError = ref<string | null>(null);
+
+  async function syncBoardForCurrentRoute() {
+    syncLastError.value = null;
     try {
-      await gameConnection.initializeConnection();
+      await gameConnection.ensureConnected();
+      setupBalootEventListenersOnce();
       const initialGame = await joinGameGroup();
       if (initialGame) {
         game.value = initialGame.gameData;
         boardSettings.value = initialGame.boardSettings;
       }
-      setupBalootEventListeners();
     } catch (error) {
-      console.error("Failed to initialize connection:", error);
+      const msg =
+        error instanceof Error ? error.message : "syncBoardForCurrentRoute failed";
+      syncLastError.value = msg;
+      console.error("Failed to sync baloot board:", error);
+      if (import.meta.client) {
+        pushClientErrorFromUnknown("baloot_store", error, {
+          phase: "syncBoardForCurrentRoute",
+        });
+      }
       throw error;
     }
+  }
+
+  async function initializeConnection() {
+    await syncBoardForCurrentRoute();
   }
 
 
@@ -623,8 +648,12 @@ watch(boardSettings, (newVal) => {
     statusUs,statusThem,
     winner,
 // connection
-
     initializeConnection,
+    syncBoardForCurrentRoute,
+    syncLastError,
+    hubConnectionState: gameConnection.connectionState,
+    hubConnectionError: gameConnection.connectionError,
+
 // set data for index page 
     setGameData,
   };

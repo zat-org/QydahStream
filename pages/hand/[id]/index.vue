@@ -126,17 +126,26 @@ const staticsComponent = computed(() => {
 });
 
 const gamestore = useMyHandGameStore();
-const {  initializeConnection } = gamestore;
-onMounted(async () => {
-  router.push({
-  path: `/hand/${table_id}/`,
-  query: {
-    theme: theme.value,
-    orienation: orienation.value,
-    showPlayers: `${showPlayers.value}`,
+const { syncHandForCurrentRoute } = gamestore;
+
+watch(
+  () => route.params.id,
+  (id, prev) => {
+    if (id && id !== prev) void syncHandForCurrentRoute();
   },
-});
-  await initializeConnection();
+);
+
+await syncHandForCurrentRoute();
+
+onMounted(() => {
+  router.push({
+    path: `/hand/${table_id}/`,
+    query: {
+      theme: theme.value,
+      orienation: orienation.value,
+      showPlayers: `${showPlayers.value}`,
+    },
+  });
 });
 
 const { snapshot, game } = storeToRefs(gamestore);

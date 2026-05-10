@@ -25,6 +25,8 @@ function categoryClass(category: ClientErrorEntry["category"]) {
   if (category === "chunk_reload_scheduled") return "text-amber-300";
   if (category === "chunk_reload_skipped_debounce") return "text-red-300";
   if (category === "chunk_load") return "text-amber-200";
+  if (category === "signalr") return "text-cyan-300";
+  if (category === "baloot_store") return "text-orange-200";
   return "text-slate-200";
 }
 </script>

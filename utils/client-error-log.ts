@@ -7,7 +7,9 @@ export type ClientErrorCategory =
   | "vue"
   | "js_global"
   | "promise"
-  | "resource";
+  | "resource"
+  | "signalr"
+  | "baloot_store";
 
 export type ClientErrorEntry = {
   t: number;

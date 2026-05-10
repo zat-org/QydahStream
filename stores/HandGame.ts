@@ -8,6 +8,7 @@ import {
   type GameConnection,
   ConnectionState,
 } from "~/utils/connection";
+import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
 import type { HandGameI, HandGameDataI } from "~/models/handGame";
 
 type HandGameEvent =
@@ -125,11 +126,6 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
     }
   };
 
-  const setupBalootEventListeners = () => {
-    const connection = gameConnection.rawConnection;
-    connection.on("handgamestatechanged", handleGameStateChanged);
-  };
-
   // Handle special events that can occur in any state
   const handleSpecialEvents = () => {
     if (snapshot.value.matches("score")) {
@@ -169,32 +165,56 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       }
     } catch (error) {
       console.error("Failed to join game group:", error);
+      if (import.meta.client) {
+        pushClientErrorFromUnknown("baloot_store", error, {
+          phase: "joinGameGroup",
+          store: "hand",
+        });
+      }
       throw error;
     }
 
     return null;
   };
 
-  async function initializeConnection() {
+  const handHubListenersAttached = ref(false);
+  const setupHandEventListenersOnce = () => {
+    if (handHubListenersAttached.value) return;
+    const connection = gameConnection.rawConnection;
+    connection.off("handgamestatechanged");
+    connection.on("handgamestatechanged", handleGameStateChanged);
+    handHubListenersAttached.value = true;
+  };
+
+  const syncLastError = ref<string | null>(null);
+
+  async function syncHandForCurrentRoute() {
+    syncLastError.value = null;
     try {
-      await gameConnection.initializeConnection();
+      await gameConnection.ensureConnected();
+      setupHandEventListenersOnce();
       const initialGame = await joinGameGroup();
       if (initialGame) {
-        console.log("initialGame", initialGame);
-
         game.value = initialGame;
-        // get  first 2 lowest team score
         game.value.teams = initialGame.teams.sort((a, b) => a.score - b.score);
-        // console.log("game.value", game.value.teams);
-        // console.log("initialGame.gameData", initialGame.gameData);
-
-        // boardSettings.value = initialGame.boardSettings;
       }
-      setupBalootEventListeners();
     } catch (error) {
-      console.error("Failed to initialize connection:", error);
+      const msg =
+        error instanceof Error ? error.message : "syncHandForCurrentRoute failed";
+      syncLastError.value = msg;
+      console.error("Failed to sync hand game:", error);
+      if (import.meta.client) {
+        pushClientErrorFromUnknown("baloot_store", error, {
+          phase: "syncHandForCurrentRoute",
+          store: "hand",
+        });
+      }
       throw error;
     }
+  }
+
+  async function initializeConnection() {
+    await syncHandForCurrentRoute();
   }
 
   // const sakkaIsMashdoda = (game: GameDataI): GameDataI => {
@@ -655,5 +675,9 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
 
     // Methods
     initializeConnection,
+    syncHandForCurrentRoute,
+    syncLastError,
+    hubConnectionState: gameConnection.connectionState,
+    hubConnectionError: gameConnection.connectionError,
   };
 });

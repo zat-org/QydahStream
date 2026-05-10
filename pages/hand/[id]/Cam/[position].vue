@@ -1,42 +1,63 @@
 <template>
-  <component :is="camComponent" class="w-[1920px] h-[1080px]  "  />
+  <component :is="camComponent" class="h-[1080px] w-[1920px]" />
 </template>
 
 <script lang="ts" setup>
-import CamTop from "../../../../components/Cam/hand/Top.vue"
-import CamRight from "../../../../components/Cam/hand/Right.vue"
-import CamLeft from "../../../../components/Cam/hand/Left.vue"
-import CamBottom from "../../../../components/Cam/hand/Bottom.vue"
+import CamTop from "../../../../components/Cam/hand/Top.vue";
+import CamRight from "../../../../components/Cam/hand/Right.vue";
+import CamLeft from "../../../../components/Cam/hand/Left.vue";
+import CamBottom from "../../../../components/Cam/hand/Bottom.vue";
 
-
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
-const game = useMyHandGameStore();
-const { gameService, initializeConnection } = game;
-await initializeConnection();
-// Allowed positions
-const allowedPositions = ['top', 'left', 'right', 'bottom']
 
-// Get the dynamic position parameter from the URL
-let position = route.params.position as string
+const allowedPositions = ["top", "left", "right", "bottom"] as const;
 
-// Check if the position is valid, otherwise default to 'top'
-if (!allowedPositions.includes(position)) {
-  position = 'top'
-  // Optionally, navigate to the default 'top' route
-  router.replace(`/hand/${table_id}/cam/top`)
-}
-const camComponent = computed(()=>{
-  if (position.toLowerCase() == "top") return  CamTop
-  else if(position.toLowerCase() == "left") return CamLeft
-  else if(position.toLowerCase() == "right") return CamRight
-  else if(position.toLowerCase() == "bottom") return CamBottom
+const gameStore = useMyHandGameStore();
+await gameStore.initializeConnection();
 
-})
+watch(
+  () => route.params.id,
+  (id, prev) => {
+    if (id && id !== prev) void gameStore.syncHandForCurrentRoute();
+  },
+);
 
+const positionKey = computed(() => {
+  const p = String(route.params.position ?? "top").toLowerCase();
+  if ((allowedPositions as readonly string[]).includes(p)) {
+    return p as (typeof allowedPositions)[number];
+  }
+  return "top";
+});
 
+watch(
+  () => route.params.position,
+  (pos) => {
+    const p = String(pos ?? "").toLowerCase();
+    if (!(allowedPositions as readonly string[]).includes(p)) {
+      void router.replace(`/hand/${table_id}/Cam/top`);
+    }
+  },
+  { immediate: true },
+);
+
+const camComponent = computed(() => {
+  switch (positionKey.value) {
+    case "top":
+      return CamTop;
+    case "left":
+      return CamLeft;
+    case "right":
+      return CamRight;
+    case "bottom":
+      return CamBottom;
+    default:
+      return CamTop;
+  }
+});
 </script>
 
 <style></style>

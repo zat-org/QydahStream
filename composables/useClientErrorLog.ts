@@ -10,7 +10,7 @@ import {
 
 export function useClientErrorLog() {
   return {
-    entries: clientErrorEntries as Readonly<typeof clientErrorEntries>,
+    entries: computed(() => clientErrorEntries.value),
     push: pushClientError,
     pushFromUnknown: pushClientErrorFromUnknown,
     clear: clearClientErrors,

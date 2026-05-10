@@ -114,6 +114,11 @@ export class GameConnection {
       if (error) {
         this._connectionError.value = error.message;
         console.error("Connection closed due to error:", error);
+        if (import.meta.client) {
+          void import("~/utils/client-error-log").then(({ pushClientErrorFromUnknown }) => {
+            pushClientErrorFromUnknown("signalr", error, { phase: "onclose" });
+          });
+        }
       } else {
         console.log("Connection closed");
       }
@@ -123,10 +128,22 @@ export class GameConnection {
     this.connection.onreconnecting((error) => {
       this._connectionState.value = ConnectionState.Reconnecting;
       this._reconnectAttempts.value++;
-      console.log("Attempting to reconnect...", { 
-        attempt: this._reconnectAttempts.value, 
-        error 
+      console.log("Attempting to reconnect...", {
+        attempt: this._reconnectAttempts.value,
+        error,
       });
+      if (import.meta.client && error) {
+        void import("~/utils/client-error-log").then(({ pushClientError }) => {
+          pushClientError({
+            category: "signalr",
+            message: `Reconnecting: ${error.message}`,
+            extra: {
+              phase: "onreconnecting",
+              attempt: this._reconnectAttempts.value,
+            },
+          });
+        });
+      }
       this.notifyConnectionStateChanged(this._connectionState.value, error?.message);
     });
 
@@ -170,33 +187,46 @@ export class GameConnection {
     }
   }
 
-  // Main connection initialization function
-  async initializeConnection(): Promise<void> {
-    
-      if (this.connection.state !== signalR.HubConnectionState.Disconnected) {
-          console.warn(
-            `⚠️ Skipping initializeConnection because state = ${this.connection.state}`
-      );
-          return;
+  /** Start the hub when disconnected. Call join/group logic separately on each navigation. */
+  async ensureConnected(): Promise<void> {
+    if (this.connection.state !== signalR.HubConnectionState.Disconnected) {
+      return;
     }
     try {
-        this._connectionState.value = ConnectionState.Connecting;
+      this._connectionState.value = ConnectionState.Connecting;
       this._connectionError.value = null;
 
       await this.connection.start();
       this._connectionState.value = ConnectionState.Connected;
       console.log("SignalR connection established");
 
-      // Setup event listeners
       this.setupEventListeners();
-
     } catch (error) {
       this._connectionState.value = ConnectionState.Failed;
-      this._connectionError.value = error instanceof Error ? error.message : "Connection failed";
+      this._connectionError.value =
+        error instanceof Error ? error.message : "Connection failed";
       console.error("Failed to initialize connection:", error);
-      this.notifyConnectionStateChanged(this._connectionState.value, this._connectionError.value);
+      this.notifyConnectionStateChanged(
+        this._connectionState.value,
+        this._connectionError.value,
+      );
+
+      if (import.meta.client) {
+        const { pushClientErrorFromUnknown } = await import(
+          "~/utils/client-error-log"
+        );
+        pushClientErrorFromUnknown("signalr", error, {
+          phase: "ensureConnected",
+        });
+      }
+
       throw error;
     }
+  }
+
+  /** @deprecated Prefer ensureConnected(); retained for existing callers. */
+  async initializeConnection(): Promise<void> {
+    return this.ensureConnected();
   }
 
   // Join game group methods
