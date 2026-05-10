@@ -19,7 +19,8 @@ export default defineNuxtConfig({
     public: {
       BalootSocket: process.env.WebSocketLinkBaloot,
       HandSocket: process.env.WebSocketLinkHand,
-
+      /** Optional HTTPS endpoint for sendBeacon JSON blobs on fatal app:error */
+      errorReportUrl: process.env.NUXT_PUBLIC_ERROR_REPORT_URL ?? "",
     },
   },
 
