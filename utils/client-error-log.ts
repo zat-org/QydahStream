@@ -18,27 +18,10 @@ export type ClientErrorEntry = {
   extra?: Record<string, unknown>;
 };
 
-export type ClientErrorRemoteSink = (
-  entry: ClientErrorEntry,
-) => void | Promise<void>;
-
 const MAX = 80;
 const STORAGE_KEY = "qydah:client-error-log";
 
 export const clientErrorEntries = shallowRef<ClientErrorEntry[]>([]);
-
-let remoteSink: ClientErrorRemoteSink | null = null;
-
-export function setClientErrorRemoteSink(sink: ClientErrorRemoteSink | null) {
-  remoteSink = sink;
-}
-
-function notifyRemote(row: ClientErrorEntry) {
-  if (!remoteSink) return;
-  Promise.resolve(remoteSink(row)).catch(() => {
-    /* avoid recursive errors */
-  });
-}
 
 function loadFromStorage(): ClientErrorEntry[] {
   if (typeof sessionStorage === "undefined") return [];
@@ -88,7 +71,6 @@ export function pushClientError(entry: Omit<ClientErrorEntry, "t"> & { t?: numbe
   const next = [...clientErrorEntries.value, row].slice(-MAX);
   clientErrorEntries.value = next;
   persist(next);
-  notifyRemote(row);
 
   const tag = `[QydahError:${row.category}]`;
   if (import.meta.dev) {

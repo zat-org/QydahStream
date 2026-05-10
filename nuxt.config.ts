@@ -21,13 +21,6 @@ export default defineNuxtConfig({
       HandSocket: process.env.WebSocketLinkHand,
       /** Optional HTTPS endpoint for sendBeacon JSON blobs on fatal app:error */
       errorReportUrl: process.env.NUXT_PUBLIC_ERROR_REPORT_URL ?? "",
-      /** When true, each log row is also written to Firestore (see plugins/00-firebase-error-sink.client.ts) */
-      firebaseErrorLogEnabled:true,
-        // process.env.NUXT_PUBLIC_FIREBASE_ERROR_LOG === "true",
-      /** Firestore collection name for client error documents */
-      firebaseErrorLogCollection:"client_errors",
-        // process.env.NUXT_PUBLIC_FIREBASE_ERROR_LOG_COLLECTION ??
-        
     },
   },
 
