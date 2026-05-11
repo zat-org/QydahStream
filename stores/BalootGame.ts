@@ -49,6 +49,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     snapshot.value = state;
 
     if (state.matches("score.intro")) {
+      if (!newGame.value) return;
       game.value = newGame.value;
     }
   });
@@ -61,21 +62,45 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
 
     try {
       let gameData: string;
-      if (table_id && tour_id) {
+      const hasTournamentParams = table_id != null || tour_id != null;
+      if (hasTournamentParams) {
+        if (!table_id || !tour_id) {
+          console.warn("Missing required tournament route params", {
+            table_id,
+            tour_id,
+          });
+          return null;
+        }
+        const tournamentId = Number(tour_id);
+        const tournamentTableId = Number(table_id);
+        if (
+          !Number.isInteger(tournamentId) ||
+          !Number.isInteger(tournamentTableId) ||
+          tournamentId <= 0 ||
+          tournamentTableId <= 0
+        ) {
+          console.warn("Invalid tournament route params", { table_id, tour_id });
+          return null;
+        }
         // tournament table
         gameData = await gameConnection.joinTournamentTableGroup(
-          +tour_id,
-          +table_id
+          tournamentId,
+          tournamentTableId
         );
       } else {
+        if (!player_table_id?.trim()) {
+          console.warn("Missing board route param id");
+          return null;
+        }
         // board table
-        gameData = await gameConnection.joinBoardGroup(player_table_id!);
+        gameData = await gameConnection.joinBoardGroup(player_table_id);
       }
 
       if (gameData) {
-        const parsedGame = JSON.parse(gameData) as GameI;
-        parsedGame.gameData = sakkaIsMashdoda(parsedGame.gameData) as GameDataI;
-        return parsedGame;
+        const parsedGame = JSON.parse(gameData) as {hasData:boolean , game:GameI};
+        parsedGame.game.gameData = sakkaIsMashdoda(parsedGame.game.gameData) as GameDataI;
+        if(!parsedGame.hasData) return null;
+        return  parsedGame.game
       }
     } catch (error) {
       console.error("Failed to join game group:", error);
@@ -100,8 +125,14 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     connection.on("BalootBoardSettingsCahnged", handleBalootBoardSettingsChanged);
     balootHubListenersAttached.value = true;
   };
+
   const handleBalootBoardSettingsChanged = (_boardSettings: any) => {
-    _boardSettings = JSON.parse(_boardSettings) as BoardSettingsI;
+    try {
+      _boardSettings = JSON.parse(_boardSettings) as BoardSettingsI;
+    } catch (error) {
+      console.warn("Failed to parse board settings payload:", error);
+      return;
+    }
     
     // More detailed validation
     if (!_boardSettings) {
@@ -191,10 +222,11 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       handelGameEnded();
     }
     if(events.includes("NamesChanged") && events.length == 1) {
-      game.value!.themName = newGame.value?.themName!;
-      game.value!.usName = newGame.value?.usName!;
-      game.value!.themPlayers = newGame.value?.themPlayers!;
-      game.value!.usPlayers = newGame.value?.usPlayers!;
+      if (!game.value || !newGame.value) return;
+      game.value.themName = newGame.value.themName;
+      game.value.usName = newGame.value.usName;
+      game.value.themPlayers = newGame.value.themPlayers;
+      game.value.usPlayers = newGame.value.usPlayers;
     }
   };
 
@@ -277,11 +309,13 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     ) {
     }
     if (events.includes("ScoreDecreased") && newGame.value?.winner == null) {
+      if (!game.value || !newGame.value) return;
       gameService.send({ type: "UPDATE_CONTEXT", ended: null });
-      game.value!.sakkas = newGame.value!.sakkas;
+      game.value.sakkas = newGame.value.sakkas;
     }
     if (events.includes("ScoreIncreased") && newGame.value?.winner == null) {
-      game.value!.sakkas = newGame.value!.sakkas;
+      if (!game.value || !newGame.value) return;
+      game.value.sakkas = newGame.value.sakkas;
     }
   };
   const handelWinner = () => {};
@@ -289,10 +323,11 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
 
   const handelScore = () => {
     if (events.includes("NamesChanged") && events.length == 1) {
-      game.value!.themName = newGame.value?.themName!;
-      game.value!.usName = newGame.value?.usName!;
-      game.value!.themPlayers = newGame.value?.themPlayers!;
-      game.value!.usPlayers = newGame.value?.usPlayers!;
+      if (!game.value || !newGame.value) return;
+      game.value.themName = newGame.value.themName;
+      game.value.usName = newGame.value.usName;
+      game.value.themPlayers = newGame.value.themPlayers;
+      game.value.usPlayers = newGame.value.usPlayers;
     }
     const eventsToCheck: BalootGameEvent[] = [
       "GameStarted",
@@ -314,7 +349,8 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       if (gameedndedevents.every((event) => events.includes(event))) {
         game.value = newGame.value;
       } else {
-        game.value!.sakkas = newGame.value?.sakkas!;
+        if (!game.value || !newGame.value) return;
+        game.value.sakkas = newGame.value.sakkas;
       }
     }
     if (events.includes("ScoreUpdated") && newGame.value?.winner !== null) {
@@ -323,7 +359,8 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     }
 
     if (events.includes("ScoreUpdated") || events.includes("ScoreDecreased")) {
-      game.value!.sakkas = newGame.value?.sakkas!;
+      if (!game.value || !newGame.value) return;
+      game.value.sakkas = newGame.value.sakkas;
     }
     const contimuefrombackEvents:BalootGameEvent[] =["ScoreDecreased", "GameContinuedFromBack"]
     if (contimuefrombackEvents.every((event) => events.includes(event))) {

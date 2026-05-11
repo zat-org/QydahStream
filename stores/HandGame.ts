@@ -60,11 +60,13 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
     //   gameEnd.value = false;
     // }
     if (state.matches("score.intro")) {
+      if (!newGame.value) return;
       game.value = newGame.value;
     }
     if (state.matches("detail.intro" )) {
-      if(game.value!.id == newGame.value!.id) {
-      game.value = newGame.value;
+      if (!game.value || !newGame.value) return;
+      if (game.value.id == newGame.value.id) {
+        game.value = newGame.value;
       }
     }
   });
@@ -147,21 +149,45 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
 
     try {
       let gameData: string;
-      if (table_id && tour_id) {
+      const hasTournamentParams = table_id != null || tour_id != null;
+      if (hasTournamentParams) {
+        if (!table_id || !tour_id) {
+          console.warn("Missing required tournament route params", {
+            table_id,
+            tour_id,
+          });
+          return null;
+        }
+        const tournamentId = Number(tour_id);
+        const tournamentTableId = Number(table_id);
+        if (
+          !Number.isInteger(tournamentId) ||
+          !Number.isInteger(tournamentTableId) ||
+          tournamentId <= 0 ||
+          tournamentTableId <= 0
+        ) {
+          console.warn("Invalid tournament route params", { table_id, tour_id });
+          return null;
+        }
         // tournament table
         gameData = await gameConnection.joinTournamentTableGroup(
-          +tour_id,
-          +table_id
+          tournamentId,
+          tournamentTableId
         );
       } else {
+        if (!player_table_id?.trim()) {
+          console.warn("Missing board route param id");
+          return null;
+        }
         // board table
-        gameData = await gameConnection.joinBoardGroup(player_table_id!);
+        gameData = await gameConnection.joinBoardGroup(player_table_id);
       }
 
       if (gameData) {
-        const parsedGame = JSON.parse(gameData) as HandGameDataI;
+        const parsedGame = JSON.parse(gameData) as {hasData:boolean , game:HandGameDataI};
         // parsedGame.gameData = sakkaIsMashdoda(parsedGame.gameData) as GameDataI;
-        return parsedGame;
+        if(!parsedGame.hasData) return null;
+        return parsedGame.game;
       }
     } catch (error) {
       console.error("Failed to join game group:", error);
@@ -294,26 +320,30 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   };
 
   const handelNamesChanged = () => {
-    if(game.value!.id == newGame.value!.id) {
-      Object.assign(game.value!, newGame.value!);
+    if (!game.value || !newGame.value) return;
+    if (game.value.id == newGame.value.id) {
+      Object.assign(game.value, newGame.value);
     }
   };
 
   const handelScoreIncreased = () => {
-    if (game.value!.id == newGame.value!.id) {
+    if (!game.value || !newGame.value) return;
+    if (game.value.id == newGame.value.id) {
       gameService.send({ type: "TO_OUTRO" });
-      // Object.assign(game.value!, newGame.value!);
+      // Object.assign(game.value, newGame.value);
     }
   };
   const handelDetailScoreIncreased = () => {
-    if (game.value!.id == newGame.value!.id) {
-      Object.assign(game.value!, newGame.value!);
+    if (!game.value || !newGame.value) return;
+    if (game.value.id == newGame.value.id) {
+      Object.assign(game.value, newGame.value);
     }
   };
   const handelScoreDecreased = () => {
     // gameService.send({ type: "TO_OUTRO" });
 
-    Object.assign(game.value!, newGame.value!);
+    if (!game.value || !newGame.value) return;
+    Object.assign(game.value, newGame.value);
     if (winnerTeam.value !== null) {
       let showWinner = winnerTeam.value?.players.every((p) => {
         return p.imageUrl != null;
@@ -324,12 +354,13 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   };
 
   const handelGameStarted = () => {
-    Object.assign(game.value!, newGame.value!);
+    if (!game.value || !newGame.value) return;
+    Object.assign(game.value, newGame.value);
   };
 
   // to show  winner
   const handelGameEndedAndScoreIncrease = () => {
-    // Object.assign(game.value!, newGame.value!);
+    // Object.assign(game.value, newGame.value);
 
     // if (snapshot.value.matches("score.main"))
       gameService.send({ type: "TO_OUTRO" });
@@ -344,7 +375,8 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   };
 
   const handelGameEnded = () => {
-    Object.assign(game.value!, newGame.value!);
+    if (!game.value || !newGame.value) return;
+    Object.assign(game.value, newGame.value);
     console.log(winnerTeam.value);
     if (winnerTeam.value !== null) {
       let showWinner = winnerTeam.value?.players.every((p) => {
@@ -372,10 +404,10 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   });
 
   const winnerTeam = computed(() => {
-    if (game.value!.winnerTeamIndex == null) {
+    if (!game.value || game.value.winnerTeamIndex == null) {
       return null;
     }
-    return game.value?.teams[game.value!.winnerTeamIndex];
+    return game.value.teams[game.value.winnerTeamIndex];
   });
   const winnerTeamName = computed(() => {
     const team = winnerTeam.value;
@@ -420,11 +452,11 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
             }
           )?.score;
           if (
-            game.value!.settings.zatMode == "WinWithZat" &&
+            game.value?.settings.zatMode == "WinWithZat" &&
             round.handRoundData?.selectedTeamIndex == team.index &&
             round.handRoundData.selectedValue.type == "Zat"
           ) {
-            return game.value!.settings.handValues.zat.arabicName;
+            return game.value.settings.handValues.zat.arabicName;
           } else {
             return score;
           }
@@ -444,11 +476,11 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
             }
           )?.score;
           if (
-            game.value!.settings.zatMode == "WinWithZat" &&
+            game.value?.settings.zatMode == "WinWithZat" &&
             round.handRoundData?.selectedTeamIndex == team.index &&
             round.handRoundData.selectedValue.type == "Zat"
           ) {
-            return game.value!.settings.handValues.zat.arabicName;
+            return game.value.settings.handValues.zat.arabicName;
           } else {
             return score;
           }
@@ -499,8 +531,8 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
     const team = themTeam.value;
 
     if (team) {
-      if (game.value!.settings.zatMode == "WinWithZat" && team.hasZat) {
-        return game.value!.settings.handValues.zat.arabicName;
+      if (game.value?.settings.zatMode == "WinWithZat" && team.hasZat) {
+        return game.value.settings.handValues.zat.arabicName;
       }
       return team.score;
     }
@@ -509,8 +541,8 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
     const team = usTeam.value;
     if (team) {
       if (game.value?.teams[0]) {
-        if (game.value!.settings.zatMode == "WinWithZat" && team.hasZat) {
-          return game.value!.settings.handValues.zat.arabicName;
+        if (game.value?.settings.zatMode == "WinWithZat" && team.hasZat) {
+          return game.value.settings.handValues.zat.arabicName;
         }
         return team.score;
       }

@@ -126,17 +126,34 @@ const playerImageStyle = computed(() => {
 
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
+const currentScoreState = ref<string | null>(null);
+const lastHandledSendState = ref<string | null>(null);
+let mainTimeline: gsap.core.Timeline | null = null;
+let mountTimeline: gsap.core.Timeline | null = null;
+let unmountTimeline: gsap.core.Timeline | null = null;
 
 const tweenedScores = reactive({
   team1: 0,
   team2: 0,
 });
 
+const scoreStateKey = computed(() => {
+  if (snapshot.value.matches("score.intro")) return "score.intro";
+  if (snapshot.value.matches("score.main")) return "score.main";
+  if (snapshot.value.matches("score.outro")) return "score.outro";
+  return null;
+});
+
+const sendNextOnceForState = (stateKey: string) => {
+  if (lastHandledSendState.value === stateKey) return;
+  gameService.send({ type: "NEXT" });
+  lastHandledSendState.value = stateKey;
+};
+
 const mainScoreMount = (score1: number, score2: number) => {
-
-  const t1 = gsap.timeline();
-
-  t1.to(
+  mainTimeline?.kill();
+  mainTimeline = gsap.timeline();
+  mainTimeline.to(
     tweenedScores,
     {
       team1: score1,
@@ -149,10 +166,10 @@ const mainScoreMount = (score1: number, score2: number) => {
 
 
 const scoreMount = (score1: number, score2: number,) => {
-
-  const t1 = gsap.timeline();
-  t1.delay(2);
-  t1.fromTo(
+  mountTimeline?.kill();
+  mountTimeline = gsap.timeline();
+  mountTimeline.delay(2);
+  mountTimeline.fromTo(
     [team1wrapper.value, team2wrapper.value],
     { opacity: 0 },
     {
@@ -174,8 +191,9 @@ const scoreMount = (score1: number, score2: number,) => {
 
 
 const scoreUnMount = () => {
-  const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value], {
+  unmountTimeline?.kill();
+  unmountTimeline = gsap.timeline();
+  unmountTimeline.to([team1wrapper.value, team2wrapper.value], {
     duration: 0.3,
     opacity: 0,
     ease: "linear",
@@ -192,36 +210,54 @@ const scoreUnMount = () => {
 
 
 onMounted(() => {
-  // Debug: Watch BoardStyles changes
-  
-  watchEffect(async () => {
-    if (snapshot.value.matches("score.intro")) {
-      if (svgQydha.value) {
-        svgQydha.value.enteranimation();
+  watch(
+    scoreStateKey,
+    async (newState, oldState) => {
+      if (!newState || newState === oldState) return;
+      if (currentScoreState.value === newState) return;
+      currentScoreState.value = newState;
+      if (newState !== oldState) {
+        lastHandledSendState.value = null;
       }
 
-      scoreMount(
-        last_sakka.value?.themSakkaScore ?? 0,
-        last_sakka.value?.usSakkaScore ?? 0,
-      );
-      gameService.send({ type: "NEXT" });
-    }
-    if (snapshot.value.matches("score.main")) {
-      mainScoreMount(
-        last_sakka.value?.themSakkaScore!,
-        last_sakka.value?.usSakkaScore!
-      );
-    }
+      if (newState === "score.intro") {
+        const themScore = last_sakka.value?.themSakkaScore ?? 0;
+        const usScore = last_sakka.value?.usSakkaScore ?? 0;
+        if (svgQydha.value) {
+          svgQydha.value.enteranimation();
+        }
+        scoreMount(themScore, usScore);
+        sendNextOnceForState(newState);
+      }
 
-    if (snapshot.value.matches("score.outro")) {
-      if (svgQydha.value) {
+      if (newState === "score.main") {
+        mainScoreMount(
+          last_sakka.value?.themSakkaScore ?? 0,
+          last_sakka.value?.usSakkaScore ?? 0
+        );
+      }
+
+      if (newState === "score.outro") {
+        if (!svgQydha.value) return;
         scoreUnMount();
-        svgQydha.value!.outAnimation();
+        svgQydha.value.outAnimation();
         await sleep(1250);
-        gameService.send({ type: "NEXT" });
+        if (currentScoreState.value === newState) {
+          sendNextOnceForState(newState);
+        }
       }
-    }
-  });
+    },
+    { immediate: true }
+  );
+});
+
+onBeforeUnmount(() => {
+  mainTimeline?.kill();
+  mountTimeline?.kill();
+  unmountTimeline?.kill();
+  mainTimeline = null;
+  mountTimeline = null;
+  unmountTimeline = null;
 });
 
 

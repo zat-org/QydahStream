@@ -53,19 +53,37 @@ const outro_start = score_sec;
 
 const team1wrapper = ref(null);
 const team2wrapper = ref(null);
+const currentScoreState = ref<string | null>(null);
+const lastHandledSendState = ref<string | null>(null);
+let mountTimeline: gsap.core.Timeline | null = null;
+let unmountTimeline: gsap.core.Timeline | null = null;
+let mainTimeline: gsap.core.Timeline | null = null;
 
 const tweenedScores = reactive({
   team1: 0,
   team2: 0,
 });
 
+const scoreStateKey = computed(() => {
+  if (snapshot.value.matches("score.intro")) return "score.intro";
+  if (snapshot.value.matches("score.main")) return "score.main";
+  if (snapshot.value.matches("score.outro")) return "score.outro";
+  return null;
+});
+
+const sendNextOnceForState = (stateKey: string) => {
+  if (lastHandledSendState.value === stateKey) return;
+  gameService.send({ type: "NEXT" });
+  lastHandledSendState.value = stateKey;
+};
 
 
 
 const scoreMount = (score1: number, score2: number) => {
-  const t1 = gsap.timeline();
-  t1.delay(2);
-  t1.fromTo(
+  mountTimeline?.kill();
+  mountTimeline = gsap.timeline();
+  mountTimeline.delay(2);
+  mountTimeline.fromTo(
     [team1wrapper.value, team2wrapper.value],
     { opacity: 0 },
     {
@@ -81,8 +99,9 @@ const scoreMount = (score1: number, score2: number) => {
 };
 
 const scoreUnMount = () => {
-  const t2 = gsap.timeline();
-  t2.to([team1wrapper.value, team2wrapper.value], {
+  unmountTimeline?.kill();
+  unmountTimeline = gsap.timeline();
+  unmountTimeline.to([team1wrapper.value, team2wrapper.value], {
     duration: 0.5,
     opacity: 0,
     ease: "linear",
@@ -90,10 +109,9 @@ const scoreUnMount = () => {
 };
 
 const mainScoreMount = (score1: number, score2: number) => {
-
-const t1 = gsap.timeline();
-
-t1.to(
+mainTimeline?.kill();
+mainTimeline = gsap.timeline();
+mainTimeline.to(
   tweenedScores,
   {
     team1: score1,
@@ -104,44 +122,71 @@ t1.to(
 };
 
 onMounted(() => {
-  watchEffect(async () => {
+  watch(
+    scoreStateKey,
+    async (newState, oldState) => {
+      if (!newState || newState === oldState) return;
+      if (currentScoreState.value === newState) return;
+      currentScoreState.value = newState;
+      if (newState !== oldState) {
+        lastHandledSendState.value = null;
+      }
 
-    if (snapshot.value.matches("score.intro")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = intro_start_sec;
-        mediaElm.value.play();
+      if (newState === "score.intro") {
+        if (mediaElm.value) {
+          mediaElm.value.currentTime = intro_start_sec;
+          mediaElm.value.play();
+        }
         scoreMount(
-          last_sakka.value!.usSakkaScore!,
-          last_sakka.value!.themSakkaScore!
+          last_sakka.value?.usSakkaScore ?? 0,
+          last_sakka.value?.themSakkaScore ?? 0
         );
         await sleep(intro_end_sec * 1000);
-        mediaElm.value.pause();
-        mediaElm.value.currentTime = score_sec;
-        gameService.send({ type: "NEXT" });
+        if (currentScoreState.value !== newState) return;
+        if (mediaElm.value) {
+          mediaElm.value.pause();
+          mediaElm.value.currentTime = score_sec;
+        }
+        sendNextOnceForState(newState);
       }
-    }
-    if (snapshot.value.matches("score.main")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = score_sec;
+
+      if (newState === "score.main") {
+        if (mediaElm.value) {
+          mediaElm.value.currentTime = score_sec;
+        }
+        mainScoreMount(
+          last_sakka.value?.usSakkaScore ?? 0,
+          last_sakka.value?.themSakkaScore ?? 0
+        );
       }
-      mainScoreMount(
-        last_sakka.value!.usSakkaScore!,
-        last_sakka.value!.themSakkaScore!
-      );
-    }
-    if (snapshot.value.matches("score.outro")) {
-      if (mediaElm.value) {
-        mediaElm.value.currentTime = outro_start;
-        mediaElm.value.playbackRate = 2;
-        mediaElm.value.play();
+
+      if (newState === "score.outro") {
+        if (mediaElm.value) {
+          mediaElm.value.currentTime = outro_start;
+          mediaElm.value.playbackRate = 2;
+          mediaElm.value.onended = () => {
+            if (currentScoreState.value !== newState) return;
+            sendNextOnceForState(newState);
+          };
+          mediaElm.value.play();
+        }
         scoreUnMount();
-        mediaElm.value.onended = () => {
-          // mediaElm.value.onended=null;
-          gameService.send({ type: "NEXT" });
-        };
       }
-    }
-  });
+    },
+    { immediate: true }
+  );
+});
+
+onBeforeUnmount(() => {
+  mountTimeline?.kill();
+  unmountTimeline?.kill();
+  mainTimeline?.kill();
+  mountTimeline = null;
+  unmountTimeline = null;
+  mainTimeline = null;
+  if (mediaElm.value) {
+    mediaElm.value.onended = null;
+  }
 });
 </script>
 <style scoped>
