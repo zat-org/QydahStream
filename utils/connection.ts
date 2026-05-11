@@ -230,7 +230,7 @@ export class GameConnection {
   }
 
   // Join game group methods
-  async joinBoardGroup(playerTableId: string): Promise<string> {
+  async joinBoardGroup(playerTableId: string): Promise<{hasData:boolean , game:string}> {
     try {
       console.log("Joining board group:", { playerTableId });
       return await this.connection.invoke("AddToBoardGroup", playerTableId);
@@ -240,7 +240,7 @@ export class GameConnection {
     }
   }
 
-  async joinTournamentTableGroup(tourId: number, tableId: number): Promise<string> {
+  async joinTournamentTableGroup(tourId: number, tableId: number): Promise<{hasData:boolean , game:string}> {
     try {
       console.log("Joining tournament table group:", { tourId, tableId });
       return await this.connection.invoke("AddToTournamentTableGroup", tourId, tableId);

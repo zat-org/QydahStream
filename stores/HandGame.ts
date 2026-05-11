@@ -170,24 +170,26 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
           return null;
         }
         // tournament table
-        gameData = await gameConnection.joinTournamentTableGroup(
+        const {hasData, game} = await gameConnection.joinTournamentTableGroup(
           tournamentId,
           tournamentTableId
         );
+        gameData = game;
+        if(!hasData) return null;
       } else {
         if (!player_table_id?.trim()) {
           console.warn("Missing board route param id");
           return null;
         }
         // board table
-        gameData = await gameConnection.joinBoardGroup(player_table_id);
+        const {hasData, game} = await gameConnection.joinBoardGroup(player_table_id);
+        gameData = game;
+        if(!hasData) return null;
       }
 
       if (gameData) {
-        const parsedGame = JSON.parse(gameData) as {hasData:boolean , game:HandGameDataI};
-        // parsedGame.gameData = sakkaIsMashdoda(parsedGame.gameData) as GameDataI;
-        if(!parsedGame.hasData) return null;
-        return parsedGame.game;
+        const parsedGame = JSON.parse(gameData) as HandGameDataI;
+        return parsedGame;
       }
     } catch (error) {
       console.error("Failed to join game group:", error);
