@@ -125,9 +125,9 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     if (balootHubListenersAttached.value) return;
     const connection = gameConnection.rawConnection;
     connection.off("BalootGameStateChanged");
-    connection.off("BalootBoardSettingsCahnged");
+    connection.off("BalootBoardSettingsCanhged");
     connection.on("BalootGameStateChanged", handleGameStateChanged);
-    connection.on("BalootBoardSettingsCahnged", handleBalootBoardSettingsChanged);
+    connection.on("BalootBoardSettingsCanhged", handleBalootBoardSettingsChanged);
     balootHubListenersAttached.value = true;
   };
 
