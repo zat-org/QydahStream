@@ -502,6 +502,8 @@ const BoardStyles =ref({
   },
   scorePanel: {
     "margin-top": "0px",
+    left: "0px",
+    top: "0px",
     height: "295px",
     scale: .9,
     leftTeam: {
@@ -566,6 +568,8 @@ watch(boardSettings, (newVal) => {
     
     scorePanel: {
       'margin-top': portraitBoardSettings.scorePanel.topMargin + "px",
+      left: portraitBoardSettings.scorePanel.position.left + "px",
+      top: portraitBoardSettings.scorePanel.position.top + "px",
       height: portraitBoardSettings.scorePanel.height + "px",
       scale: portraitBoardSettings.scorePanel.position.scale,
       leftTeam: {
