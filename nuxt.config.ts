@@ -17,6 +17,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      appEnv: process.env.NUXT_PUBLIC_APP_ENV ?? "development",
       BalootSocket: process.env.WebSocketLinkBaloot,
       HandSocket: process.env.WebSocketLinkHand,
       /** Optional HTTPS endpoint for sendBeacon JSON blobs on fatal app:error */

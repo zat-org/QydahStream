@@ -2,13 +2,17 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'pull_request' && 'ci' || (github.ref_name == 'main' && 'production' || 'staging') }}
+
+    env:
+      APP_ENV: ${{ github.event_name == 'pull_request' && 'preview' || (github.ref_name == 'main' && 'production' || 'staging') }}
 
     steps:
       - name: Checkout
@@ -23,16 +27,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create .env file
+        run: |
+          {
+            echo "WebSocketLinkBaloot=${{ secrets.WEBSOCKET_LINK_BALOOT }}"
+            echo "WebSocketLinkHand=${{ secrets.WEBSOCKET_LINK_HAND }}"
+            echo "NUXT_PUBLIC_APP_ENV=${{ env.APP_ENV }}"
+            echo "NUXT_PUBLIC_ERROR_REPORT_URL=${{ secrets.NUXT_PUBLIC_ERROR_REPORT_URL }}"
+          } > .env
+
       - name: Build
         run: npm run build
-        env:
-          WebSocketLinkBaloot: ${{ secrets.WEBSOCKET_LINK_BALOOT }}
-          WebSocketLinkHand: ${{ secrets.WEBSOCKET_LINK_HAND }}
-          NUXT_PUBLIC_ERROR_REPORT_URL: ${{ secrets.NUXT_PUBLIC_ERROR_REPORT_URL }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: nuxt-build
+          name: nuxt-build-${{ env.APP_ENV }}
           path: .output/public
           retention-days: 7
