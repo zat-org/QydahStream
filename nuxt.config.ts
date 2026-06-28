@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     enabled: false,
   },
   ssr: false,
-  modules: ["@nuxtjs/tailwindcss", '@pinia/nuxt', "nuxt-vuefire"],
+  modules: ["@nuxtjs/tailwindcss", '@pinia/nuxt'],
   css: ["@/assets/css/fonts.css"],
   app: {
     head: {
@@ -23,14 +23,4 @@ export default defineNuxtConfig({
       errorReportUrl: process.env.NUXT_PUBLIC_ERROR_REPORT_URL ?? "",
     },
   },
-
-  vuefire: {
-    config: {
-      apiKey: process.env.apiKey,
-      authDomain:process.env.authDomain,
-      projectId: process.env.projectId,
-      appId: process.env.appId,
-    },
-  },
-
 });
