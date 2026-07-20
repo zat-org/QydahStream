@@ -66,7 +66,8 @@ const router = useRouter();
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
 
-const { theme, orientation, showPlayers, themeQuery } = useRouteTheme("zat");
+const { theme, orientation, showPlayers, themeQuery, themeQueryNeedsNormalize } =
+  useRouteTheme("zat");
 
 const gamestore = useMyHandGameStore();
 const { gameService, syncHandForCurrentRoute } = gamestore;
@@ -131,7 +132,9 @@ watch(
 await syncHandForCurrentRoute();
 
 onMounted(() => {
-  router.push({
+  if (!themeQueryNeedsNormalize()) return;
+  // Drop legacy `orienation` typo; keep only `orientation`.
+  router.replace({
     path: `/hand/${table_id}/`,
     query: themeQuery(),
   });

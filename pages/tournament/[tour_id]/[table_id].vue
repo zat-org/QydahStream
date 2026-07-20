@@ -65,7 +65,8 @@ const router = useRouter();
 const tour_id = route.params.tour_id.toString();
 const table_id = route.params.table_id.toString();
 
-const { theme, orientation, themeQuery } = useRouteTheme("qydha");
+const { theme, orientation, themeQuery, themeQueryNeedsNormalize } =
+  useRouteTheme("qydha");
 
 const gamestore = useMyBalootGameStore();
 const { gameService, syncBoardForCurrentRoute } = gamestore;
@@ -129,7 +130,9 @@ watch(
 );
 
 onMounted(() => {
-  router.push({
+  if (!themeQueryNeedsNormalize()) return;
+  // Drop legacy `orienation` typo; keep only `orientation`.
+  router.replace({
     path: `/tournament/${tour_id}/${table_id}/`,
     query: themeQuery(),
   });
