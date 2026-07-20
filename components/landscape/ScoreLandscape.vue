@@ -169,40 +169,97 @@ const scoreStateKey = computed(() => {
 
 const sendNextOnceForState = (stateKey: string) => {
   if (lastHandledSendState.value === stateKey) return;
+  console.log("[ScoreLandscape] NEXT from", stateKey);
   gameService.send({ type: "NEXT" });
   lastHandledSendState.value = stateKey;
 };
 
+/** readyState: 0=HAVE_NOTHING 1=METADATA 2=CURRENT_DATA 3=FUTURE_DATA 4=ENOUGH_DATA */
+function videoDebugSnapshot(label: string, extra: Record<string, unknown> = {}) {
+  const video = mediaElm.value;
+  const snap = {
+    label,
+    t: Math.round(performance.now()),
+    hasVideoEl: !!video,
+    readyState: video?.readyState ?? null,
+    networkState: video?.networkState ?? null,
+    currentTime: video ? Number(video.currentTime.toFixed(3)) : null,
+    paused: video?.paused ?? null,
+    ended: video?.ended ?? null,
+    src: video?.currentSrc || video?.getAttribute("src") || null,
+    scoreStateKey: scoreStateKey.value,
+    currentScoreState: currentScoreState.value,
+    ...extra,
+  };
+  console.log("[ScoreLandscape]", snap);
+  return snap;
+}
+
 /** Play video from `atSec` immediately — no ready-wait, no fade gate. */
 function playVideo(atSec: number, playbackRate = 1) {
   const video = mediaElm.value;
-  if (!video) return;
+  if (!video) {
+    console.warn("[ScoreLandscape] playVideo: mediaElm is null", { atSec });
+    return;
+  }
+  videoDebugSnapshot("playVideo:before", { wantTime: atSec, playbackRate });
   video.playbackRate = playbackRate;
   try {
     video.currentTime = atSec;
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("[ScoreLandscape] playVideo: seek failed", err);
   }
-  void video.play().catch((err) => {
+  // Seek before metadata often does not stick — check right after
+  queueMicrotask(() => {
+    videoDebugSnapshot("playVideo:afterSeek", {
+      wantTime: atSec,
+      seekStuck: Math.abs(video.currentTime - atSec) > 0.1,
+    });
+  });
+  void video.play().then(() => {
+    videoDebugSnapshot("playVideo:playing", { wantTime: atSec });
+  }).catch((err) => {
     console.warn("[ScoreLandscape] video.play() failed", err);
+    videoDebugSnapshot("playVideo:playFailed", { wantTime: atSec });
   });
 }
 
 function pauseVideoAt(atSec: number) {
   const video = mediaElm.value;
-  if (!video) return;
+  if (!video) {
+    console.warn("[ScoreLandscape] pauseVideoAt: mediaElm is null", { atSec });
+    return;
+  }
+  videoDebugSnapshot("pauseVideoAt:before", { wantTime: atSec });
   video.pause();
   try {
     video.currentTime = atSec;
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("[ScoreLandscape] pauseVideoAt: seek failed", err);
   }
+  queueMicrotask(() => {
+    videoDebugSnapshot("pauseVideoAt:after", {
+      wantTime: atSec,
+      seekStuck: Math.abs(video.currentTime - atSec) > 0.1,
+    });
+  });
 }
 
 const scoreMount = (score1: number, score2: number) => {
   const cfg = scoreCfg.value;
   const els = teamEls();
-  if (!cfg || !els.length) return;
+  if (!cfg || !els.length) {
+    console.warn("[ScoreLandscape] scoreMount skipped", {
+      hasCfg: !!cfg,
+      els: els.length,
+    });
+    return;
+  }
+  videoDebugSnapshot("scoreMount:start", {
+    delaySec: cfg.mountDelaySec,
+    score1,
+    score2,
+  });
   mountTimeline?.kill();
   hideTeams();
   mountTimeline = gsap.timeline({ delay: Math.max(0, cfg.mountDelaySec) });
@@ -214,6 +271,11 @@ const scoreMount = (score1: number, score2: number) => {
         duration: cfg.mountFadeSec,
         opacity: 1,
         ease: "linear",
+        onStart: () => {
+          videoDebugSnapshot("scoreMount:textFadeStart", {
+            note: "text fade begins after mountDelaySec",
+          });
+        },
       },
     )
     .to(tweenedScores, {
@@ -240,6 +302,11 @@ const mainScoreMount = (score1: number, score2: number) => {
   const cfg = scoreCfg.value;
   const els = teamEls();
   if (!cfg || !els.length) return;
+  videoDebugSnapshot("mainScoreMount:SUDDEN_SCORES", {
+    note: "opacity set to 1 immediately — if you see this, you landed on score.main",
+    score1,
+    score2,
+  });
   mainTimeline?.kill();
   gsap.set(els, { opacity: 1 });
   mainTimeline = gsap.timeline();
@@ -261,17 +328,37 @@ async function applyScoreState(newState: string) {
   lastHandledSendState.value = null;
 
   await nextTick();
-  if (generation !== applyGeneration) return;
+  if (generation !== applyGeneration) {
+    console.log("[ScoreLandscape] apply cancelled (stale generation)", {
+      newState,
+      generation,
+      applyGeneration,
+    });
+    return;
+  }
 
   const s1 = last_sakka.value?.usSakkaScore ?? 0;
   const s2 = last_sakka.value?.themSakkaScore ?? 0;
 
+  videoDebugSnapshot("applyScoreState", {
+    newState,
+    generation,
+    introEndSec: cfg.introEndSec,
+    mountDelaySec: cfg.mountDelaySec,
+  });
+
   if (newState === "score.intro") {
+    const introStartedAt = performance.now();
     playVideo(cfg.introStartSec, 1);
     scoreMount(s1, s2);
     await sleep(cfg.introEndSec * 1000);
     if (generation !== applyGeneration) return;
     if (currentScoreState.value !== newState) return;
+    videoDebugSnapshot("intro:sleepDone", {
+      elapsedMs: Math.round(performance.now() - introStartedAt),
+      expectedMs: cfg.introEndSec * 1000,
+      note: "about to seek hold frame + NEXT → main",
+    });
     pauseVideoAt(cfg.introEndSec);
     sendNextOnceForState(newState);
   }
@@ -314,6 +401,13 @@ watch(
       !stateChanged && currentScoreState.value === newState && !videoChanged;
     if (sameStateAlreadyHandled && !cfgJustReady) return;
 
+    console.log("[ScoreLandscape] watch → apply", {
+      newState,
+      oldState,
+      cfgJustReady,
+      videoChanged,
+      stateChanged,
+    });
     void applyScoreState(newState);
   },
   { immediate: true },
