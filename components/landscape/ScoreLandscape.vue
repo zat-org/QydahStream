@@ -354,6 +354,7 @@ async function applyScoreState(newState: string, forceVideoRestart = false) {
     lastAppliedVideo.value = cfg.video;
     await scoreUnMount();
   }
+}
 
 watch(
   [scoreStateKey, scoreCfg],
