@@ -127,8 +127,8 @@ export function useRouteTheme(defaultTheme: ThemeId = "zat") {
   }
 
   /**
-   * True when URL still has the legacy typo, duplicated keys,
-   * or an unsupported orientation that was coerced.
+   * True when URL query should be rewritten to canonical theme/orientation.
+   * Covers: legacy typo key, invalid orientation (e.g. "ladscape"), unsupported combo.
    */
   function themeQueryNeedsNormalize(): boolean {
     const q = route.query;
@@ -137,10 +137,18 @@ export function useRouteTheme(defaultTheme: ThemeId = "zat") {
     const orient = q.orientation;
     if (Array.isArray(orient) && orient.length > 1) return true;
 
+    const urlThemeRaw = firstQueryValue(q.theme);
+    if (typeof urlThemeRaw === "string" && urlThemeRaw.length > 0) {
+      if (!isThemeId(urlThemeRaw)) return true;
+      if (urlThemeRaw !== theme.value) return true;
+    }
+
     const urlOrientRaw = firstQueryValue(
       q.orientation ?? q[LEGACY_ORIENTATION_KEY],
     );
-    if (typeof urlOrientRaw === "string" && isOrientation(urlOrientRaw)) {
+    if (typeof urlOrientRaw === "string" && urlOrientRaw.length > 0) {
+      // Typo / invalid value (e.g. "ladscape") → replace with valid orientation
+      if (!isOrientation(urlOrientRaw)) return true;
       if (!isOrientationSupported(theme.value, urlOrientRaw)) return true;
       if (urlOrientRaw !== orientation.value) return true;
     }

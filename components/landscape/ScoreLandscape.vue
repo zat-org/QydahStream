@@ -148,9 +148,27 @@ function scoreStyle(team: LandscapeTeamLayout) {
   return style;
 }
 
+function teamEls(): HTMLElement[] {
+  return [team1wrapper.value, team2wrapper.value].filter(
+    (el): el is HTMLElement => el != null,
+  );
+}
+
 function hideTeams() {
-  gsap.killTweensOf([team1wrapper.value, team2wrapper.value]);
-  gsap.set([team1wrapper.value, team2wrapper.value], { opacity: 0 });
+  const els = teamEls();
+  if (!els.length) return;
+  gsap.killTweensOf(els);
+  gsap.set(els, { opacity: 0 });
+}
+
+async function waitForTeamEls(tries = 10): Promise<HTMLElement[]> {
+  for (let i = 0; i < tries; i++) {
+    await nextTick();
+    const els = teamEls();
+    if (els.length >= 2) return els;
+    await new Promise((r) => setTimeout(r, 16));
+  }
+  return teamEls();
 }
 
 const scoreStateKey = computed(() => {
@@ -167,15 +185,17 @@ const sendNextOnceForState = (stateKey: string) => {
 };
 
 /** Fade in names/scores — call only after video is ready/playing. */
-const scoreMount = (score1: number, score2: number, delaySec = 0) => {
+const scoreMount = async (score1: number, score2: number, delaySec = 0) => {
   const cfg = scoreCfg.value;
   if (!cfg) return;
+  const els = await waitForTeamEls();
+  if (!els.length) return;
   mountTimeline?.kill();
   hideTeams();
   mountTimeline = gsap.timeline({ delay: Math.max(0, delaySec) });
   mountTimeline
     .fromTo(
-      [team1wrapper.value, team2wrapper.value],
+      els,
       { opacity: 0 },
       {
         duration: cfg.mountFadeSec,
@@ -190,23 +210,27 @@ const scoreMount = (score1: number, score2: number, delaySec = 0) => {
     });
 };
 
-const scoreUnMount = () => {
+const scoreUnMount = async () => {
   const cfg = scoreCfg.value;
   if (!cfg) return;
+  const els = await waitForTeamEls();
+  if (!els.length) return;
   unmountTimeline?.kill();
   unmountTimeline = gsap.timeline();
-  unmountTimeline.to([team1wrapper.value, team2wrapper.value], {
+  unmountTimeline.to(els, {
     duration: cfg.unmountFadeSec,
     opacity: 0,
     ease: "linear",
   });
 };
 
-const mainScoreMount = (score1: number, score2: number) => {
+const mainScoreMount = async (score1: number, score2: number) => {
   const cfg = scoreCfg.value;
   if (!cfg) return;
+  const els = await waitForTeamEls();
+  if (!els.length) return;
   mainTimeline?.kill();
-  gsap.set([team1wrapper.value, team2wrapper.value], { opacity: 1 });
+  gsap.set(els, { opacity: 1 });
   mainTimeline = gsap.timeline();
   mainTimeline.to(tweenedScores, {
     team1: score1,
@@ -299,8 +323,7 @@ async function applyScoreState(newState: string, forceVideoRestart = false) {
     await seekAndPlay(cfg.introStartSec, 1);
     if (generation !== applyGeneration) return;
     lastAppliedVideo.value = cfg.video;
-
-    scoreMount(s1, s2, 0);
+    await scoreMount(s1, s2, 0);
 
     const elapsedMs = performance.now() - introStartedAt;
     const remainingMs = Math.max(0, cfg.introEndSec * 1000 - elapsedMs);
@@ -315,7 +338,7 @@ async function applyScoreState(newState: string, forceVideoRestart = false) {
     await seekPaused(cfg.introEndSec);
     if (generation !== applyGeneration) return;
     lastAppliedVideo.value = cfg.video;
-    mainScoreMount(s1, s2);
+    await mainScoreMount(s1, s2);
   }
 
   if (newState === "score.outro") {
@@ -329,9 +352,8 @@ async function applyScoreState(newState: string, forceVideoRestart = false) {
     await seekAndPlay(cfg.introEndSec, cfg.outroPlaybackRate);
     if (generation !== applyGeneration) return;
     lastAppliedVideo.value = cfg.video;
-    scoreUnMount();
+    await scoreUnMount();
   }
-}
 
 watch(
   [scoreStateKey, scoreCfg],
