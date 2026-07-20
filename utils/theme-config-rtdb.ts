@@ -1,4 +1,4 @@
-import { get, ref as dbRef, set } from "firebase/database";
+import { get, onValue, ref as dbRef, set } from "firebase/database";
 import { ensureFirebase, isFirebaseConfigured } from "~/utils/firebase.client";
 import { getThemeConfig, listThemeIds } from "~/config/themes";
 import type { ThemeConfig } from "~/config/themes/types";
@@ -16,10 +16,14 @@ function deepClone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function isThemeConfigShape(value: unknown): value is ThemeConfig {
+export function isThemeConfigShape(value: unknown): value is ThemeConfig {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
-  return typeof v.id === "string" && v.landscape != null && typeof v.landscape === "object";
+  return (
+    typeof v.id === "string" &&
+    v.landscape != null &&
+    typeof v.landscape === "object"
+  );
 }
 
 /** Read one theme from RTDB (null if missing / Firebase down). */
@@ -66,8 +70,65 @@ export async function saveThemeConfigToRtdb(
 }
 
 /**
- * RTDB first, then local file fallback.
- * Always returns a clone so callers can mutate safely.
+ * Live subscribe to theme_configs/{themeId}.
+ * Emits file fallback first, seeds RTDB if missing, then pushes RTDB updates.
+ * Returns an unsubscribe function.
+ */
+export async function subscribeThemeConfig(
+  themeId: string,
+  onUpdate: (result: ResolvedThemeConfig) => void,
+): Promise<() => void> {
+  const file = getFileThemeConfig(themeId);
+  if (file) {
+    onUpdate({ config: deepClone(file), source: "file" });
+  } else {
+    onUpdate({ config: null, source: null });
+  }
+
+  if (!import.meta.client || !isFirebaseConfigured()) {
+    return () => {};
+  }
+
+  try {
+    await seedThemeConfigFromFileIfMissing(themeId);
+  } catch (err) {
+    if (import.meta.dev) {
+      console.warn("[theme-config] seed before subscribe failed", err);
+    }
+  }
+
+  const ready = await ensureFirebase();
+  if (!ready) {
+    return () => {};
+  }
+
+  const pathRef = dbRef(ready.db, `${THEME_CONFIGS_PATH}/${themeId}`);
+  const unsubscribe = onValue(
+    pathRef,
+    (snap) => {
+      if (snap.exists() && isThemeConfigShape(snap.val())) {
+        onUpdate({ config: deepClone(snap.val()), source: "rtdb" });
+        return;
+      }
+      if (file) {
+        onUpdate({ config: deepClone(file), source: "file" });
+      } else {
+        onUpdate({ config: null, source: null });
+      }
+    },
+    (err) => {
+      console.warn("[theme-config] subscribe error", err);
+      if (file) {
+        onUpdate({ config: deepClone(file), source: "file" });
+      }
+    },
+  );
+
+  return unsubscribe;
+}
+
+/**
+ * One-shot resolve (used by /config reload). Prefers RTDB, else file (+ seed).
  */
 export async function resolveThemeConfig(
   themeId: string,
@@ -76,10 +137,26 @@ export async function resolveThemeConfig(
   if (fromRtdb) {
     return { config: fromRtdb, source: "rtdb" };
   }
+
   const fromFile = getThemeConfig(themeId);
   if (fromFile) {
-    return { config: deepClone(fromFile), source: "file" };
+    const cloned = deepClone(fromFile);
+    try {
+      const seeded = await seedThemeConfigFromFileIfMissing(themeId);
+      if (seeded === "seeded") {
+        const again = await fetchThemeConfigFromRtdb(themeId);
+        if (again) {
+          return { config: again, source: "rtdb" };
+        }
+      }
+    } catch (err) {
+      if (import.meta.dev) {
+        console.warn("[theme-config] seed failed", err);
+      }
+    }
+    return { config: cloned, source: "file" };
   }
+
   return { config: null, source: null };
 }
 

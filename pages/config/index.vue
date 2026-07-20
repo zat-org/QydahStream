@@ -5,8 +5,11 @@
         <div>
           <h1 class="text-xl font-semibold tracking-tight">Theme config</h1>
           <p class="mt-1 text-xs text-zinc-400">
-            RTDB <code class="text-zinc-300">theme_configs</code> · fallback =
-            local files · same password as /log
+            Not Firestore — use
+            <strong class="text-zinc-300">Realtime Database</strong>
+            → path
+            <code class="text-emerald-300/90">theme_configs/{{ activeThemeId || "qydha" }}</code>
+            · default = local file · same password as /log
           </p>
         </div>
         <NuxtLink
@@ -95,6 +98,19 @@
             source:
             <strong class="text-zinc-200">{{ draftSource ?? "—" }}</strong>
           </span>
+          <span
+            class="rounded px-2 py-1 text-[10px]"
+            :class="
+              autoSaveLabel.includes('fail')
+                ? 'bg-red-900/50 text-red-300'
+                : autoSaveLabel.includes('Saving') ||
+                    autoSaveLabel.includes('Pending')
+                  ? 'bg-amber-900/40 text-amber-200'
+                  : 'bg-zinc-800 text-zinc-400'
+            "
+          >
+            {{ autoSaveLabel }}
+          </span>
           <button
             type="button"
             class="rounded bg-zinc-700 px-3 py-1.5 hover:bg-zinc-600"
@@ -113,11 +129,19 @@
           </button>
           <button
             type="button"
+            class="rounded bg-amber-800/90 px-3 py-1.5 hover:bg-amber-700"
+            :disabled="busy || !draft"
+            @click="publishFileToRtdb"
+          >
+            Publish file → RTDB
+          </button>
+          <button
+            type="button"
             class="rounded bg-emerald-700 px-3 py-1.5 hover:bg-emerald-600"
             :disabled="busy || !draft"
-            @click="save"
+            @click="saveNow"
           >
-            Save to RTDB
+            Save now
           </button>
           <button
             type="button"
@@ -239,6 +263,7 @@ import {
   listConfigurableThemeIds,
   resolveThemeConfig,
   saveThemeConfigToRtdb,
+  seedThemeConfigFromFileIfMissing,
   type ThemeConfigSource,
 } from "~/utils/theme-config-rtdb";
 import { isFirebaseConfigured } from "~/utils/firebase.client";
@@ -288,6 +313,11 @@ const draftSource = ref<ThemeConfigSource | null>(null);
 const busy = ref(false);
 const statusMsg = ref("");
 const errorMsg = ref("");
+const suppressAutosave = ref(true);
+const autoSaveLabel = ref("Auto-save on");
+
+const AUTOSAVE_MS = 700;
+let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
 
 const timingFields: { key: TimingKey }[] = [
   { key: "videoWidth" },
@@ -322,6 +352,45 @@ const scoreDraft = computed(
   () => draft.value?.landscape?.baloot?.score ?? null,
 );
 
+function clearAutosaveTimer() {
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+  }
+}
+
+function scheduleAutosave() {
+  if (suppressAutosave.value || !unlocked.value || !draft.value) return;
+  clearAutosaveTimer();
+  autoSaveLabel.value = "Pending save…";
+  autosaveTimer = setTimeout(() => {
+    void runAutosave();
+  }, AUTOSAVE_MS);
+}
+
+async function runAutosave() {
+  if (!draft.value || suppressAutosave.value) return;
+  autoSaveLabel.value = "Saving…";
+  errorMsg.value = "";
+  try {
+    await saveThemeConfigToRtdb(draft.value);
+    draftSource.value = "rtdb";
+    autoSaveLabel.value = `Saved ${new Date().toLocaleTimeString()}`;
+    statusMsg.value = `Auto-saved theme_configs/${draft.value.id} — open boards update live`;
+  } catch (e) {
+    autoSaveLabel.value = "Save failed";
+    errorMsg.value = e instanceof Error ? e.message : "Auto-save failed";
+  }
+}
+
+watch(
+  draft,
+  () => {
+    scheduleAutosave();
+  },
+  { deep: true },
+);
+
 onMounted(() => {
   if (
     typeof sessionStorage !== "undefined" &&
@@ -330,6 +399,10 @@ onMounted(() => {
     unlocked.value = true;
     void reloadDraft();
   }
+});
+
+onBeforeUnmount(() => {
+  clearAutosaveTimer();
 });
 
 function unlock() {
@@ -351,6 +424,8 @@ function lock() {
   unlocked.value = false;
   password.value = "";
   sessionStorage.removeItem(UNLOCK_KEY);
+  clearAutosaveTimer();
+  suppressAutosave.value = true;
 }
 
 function selectTheme(id: string) {
@@ -360,6 +435,8 @@ function selectTheme(id: string) {
 
 async function reloadDraft() {
   busy.value = true;
+  suppressAutosave.value = true;
+  clearAutosaveTimer();
   errorMsg.value = "";
   statusMsg.value = "";
   try {
@@ -369,15 +446,20 @@ async function reloadDraft() {
     const result = await resolveThemeConfig(activeThemeId.value);
     draft.value = result.config;
     draftSource.value = result.source;
+    autoSaveLabel.value = "Auto-save on";
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : "Reload failed";
   } finally {
     busy.value = false;
+    await nextTick();
+    suppressAutosave.value = false;
   }
 }
 
 async function resetToFile() {
   busy.value = true;
+  suppressAutosave.value = true;
+  clearAutosaveTimer();
   errorMsg.value = "";
   statusMsg.value = "";
   try {
@@ -388,25 +470,53 @@ async function resetToFile() {
     }
     draft.value = file;
     draftSource.value = "file";
-    statusMsg.value = "Draft reset to local file (not saved to RTDB yet)";
+    statusMsg.value = "Draft reset to local file — will auto-save shortly";
   } finally {
     busy.value = false;
+    await nextTick();
+    suppressAutosave.value = false;
+    scheduleAutosave();
   }
 }
 
-async function save() {
-  if (!draft.value) return;
+async function saveNow() {
+  clearAutosaveTimer();
+  await runAutosave();
+}
+
+async function publishFileToRtdb() {
   busy.value = true;
+  suppressAutosave.value = true;
+  clearAutosaveTimer();
   errorMsg.value = "";
   statusMsg.value = "";
   try {
-    await saveThemeConfigToRtdb(draft.value);
+    const file = getFileThemeConfig(activeThemeId.value);
+    if (!file) {
+      errorMsg.value = "No local file for this theme";
+      return;
+    }
+    const result = await seedThemeConfigFromFileIfMissing(activeThemeId.value);
+    if (result === "exists") {
+      await saveThemeConfigToRtdb(file);
+      statusMsg.value = `Overwrote theme_configs/${file.id} from local file`;
+    } else if (result === "seeded") {
+      statusMsg.value = `Created theme_configs/${file.id} from local file`;
+    } else if (result === "skipped") {
+      errorMsg.value = "Firebase not configured";
+      return;
+    } else {
+      errorMsg.value = "No local file to publish";
+      return;
+    }
+    await reloadDraft();
     draftSource.value = "rtdb";
-    statusMsg.value = `Saved theme_configs/${draft.value.id} to RTDB`;
   } catch (e) {
-    errorMsg.value = e instanceof Error ? e.message : "Save failed";
+    errorMsg.value = e instanceof Error ? e.message : "Publish failed";
   } finally {
     busy.value = false;
+    await nextTick();
+    suppressAutosave.value = false;
   }
 }
 
