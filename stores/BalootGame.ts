@@ -7,6 +7,7 @@ import {
   parseEvents,
 } from "~/utils/connection";
 import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
+import { logTypeForGameEvents, pushLog } from "~/utils/firebase-logger";
 
 type BalootGameEvent =
   | "GameStarted"
@@ -105,6 +106,13 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       if (gameData) {
         const parsedGame = JSON.parse(gameData) as GameI;
         parsedGame.gameData = sakkaIsMashdoda(parsedGame.gameData) as GameDataI;
+        void pushLog({
+          type: "join",
+          level: "info",
+          message: "Joined baloot board group",
+          game: "baloot",
+          payload: { hasData: true, gameId: parsedGame.gameData?.id },
+        });
         return parsedGame;
       }
     } catch (error) {
@@ -117,6 +125,12 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       throw error;
     }
 
+    void pushLog({
+      type: "join",
+      level: "warn",
+      message: "Joined baloot group but no game data",
+      game: "baloot",
+    });
     return null;
   };
 
@@ -272,6 +286,14 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       snapshot.value = gameService.getSnapshot();
 
       events = parseEvents<BalootGameEvent>(_events);
+
+      void pushLog({
+        type: logTypeForGameEvents(events),
+        level: "info",
+        message: `BalootGameStateChanged: ${events.join(",") || "(none)"}`,
+        game: "baloot",
+        payload: { events },
+      });
 
       if (_statics) {
         try {

@@ -34,6 +34,14 @@ jobs:
             echo "WebSocketLinkHand=${{ secrets.WEBSOCKET_LINK_HAND }}"
             echo "NUXT_PUBLIC_APP_ENV=${{ env.APP_ENV }}"
             echo "NUXT_PUBLIC_ERROR_REPORT_URL=${{ secrets.NUXT_PUBLIC_ERROR_REPORT_URL }}"
+            echo "apiKey=${{ secrets.FIREBASE_API_KEY }}"
+            echo "authDomain=${{ secrets.FIREBASE_AUTH_DOMAIN }}"
+            echo "projectId=${{ secrets.FIREBASE_PROJECT_ID }}"
+            echo "appId=${{ secrets.FIREBASE_APP_ID }}"
+            echo "databaseURL=${{ secrets.FIREBASE_DATABASE_URL }}"
+            echo "storageBucket=${{ secrets.FIREBASE_STORAGE_BUCKET }}"
+            echo "messagingSenderId=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}"
+            echo "loginPassword=${{ secrets.FIREBASE_LOGIN_PASSWORD }}"
           } > .env
 
       - name: Build

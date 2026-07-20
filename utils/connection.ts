@@ -142,6 +142,17 @@ export class GameConnection {
       } else {
         console.log("Connection closed");
       }
+      if (import.meta.client) {
+        void import("~/utils/firebase-logger").then(({ pushLog }) => {
+          void pushLog({
+            type: "disconnect",
+            level: error ? "warn" : "info",
+            message: error
+              ? `Connection closed: ${error.message}`
+              : "Connection closed",
+          });
+        });
+      }
       this.notifyConnectionStateChanged(
         this._connectionState.value,
         error?.message,
@@ -167,6 +178,16 @@ export class GameConnection {
           });
         });
       }
+      if (import.meta.client) {
+        void import("~/utils/firebase-logger").then(({ pushLog }) => {
+          void pushLog({
+            type: "reconnect",
+            level: "warn",
+            message: `Reconnecting (attempt ${this._reconnectAttempts.value})`,
+            payload: { error: error?.message },
+          });
+        });
+      }
       this.notifyConnectionStateChanged(
         this._connectionState.value,
         error?.message,
@@ -178,6 +199,16 @@ export class GameConnection {
       this._connectionError.value = null;
       this._reconnectAttempts.value = 0;
       console.log("Reconnected successfully:", connectionId);
+      if (import.meta.client) {
+        void import("~/utils/firebase-logger").then(({ pushLog }) => {
+          void pushLog({
+            type: "reconnect",
+            level: "info",
+            message: "Reconnected successfully",
+            payload: { connectionId },
+          });
+        });
+      }
       // Hub groups are lost on reconnect — stores must re-join + fetch latest.
       this.notifyConnectionStateChanged(this._connectionState.value);
       this.notifyReconnected();
@@ -240,6 +271,17 @@ export class GameConnection {
       await this.connection.start();
       this._connectionState.value = ConnectionState.Connected;
       console.log("SignalR connection established");
+
+      if (import.meta.client) {
+        void import("~/utils/firebase-logger").then(({ pushLog }) => {
+          void pushLog({
+            type: "connect",
+            level: "info",
+            message: "SignalR connection established",
+            payload: { socketUrl: this.config.socketUrl },
+          });
+        });
+      }
 
       this.setupEventListeners();
     } catch (error) {

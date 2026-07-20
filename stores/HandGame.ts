@@ -6,6 +6,7 @@ import {
   parseEvents,
 } from "~/utils/connection";
 import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
+import { logTypeForGameEvents, pushLog } from "~/utils/firebase-logger";
 import type { HandGameDataI } from "~/models/handGame";
 
 type HandGameEvent =
@@ -84,6 +85,14 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       snapshot.value = gameService.getSnapshot();
 
       events = parseEvents<HandGameEvent>(_events);
+
+      void pushLog({
+        type: logTypeForGameEvents(events),
+        level: "info",
+        message: `handgamestatechanged: ${events.join(",") || "(none)"}`,
+        game: "hand",
+        payload: { events },
+      });
 
       if (_statics) {
         try {
@@ -185,6 +194,13 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
 
       if (gameData) {
         const parsedGame = JSON.parse(gameData) as HandGameDataI;
+        void pushLog({
+          type: "join",
+          level: "info",
+          message: "Joined hand board group",
+          game: "hand",
+          payload: { hasData: true, gameId: parsedGame.id },
+        });
         return parsedGame;
       }
     } catch (error) {
@@ -197,6 +213,12 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       throw error;
     }
 
+    void pushLog({
+      type: "join",
+      level: "warn",
+      message: "Joined hand group but no game data",
+      game: "hand",
+    });
     return null;
   };
 

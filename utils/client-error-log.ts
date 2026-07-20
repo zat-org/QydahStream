@@ -81,6 +81,26 @@ export function pushClientError(entry: Omit<ClientErrorEntry, "t"> & { t?: numbe
   } else {
     console.warn(tag, row.message, row.extra ?? "");
   }
+
+  if (import.meta.client) {
+    void import("~/utils/firebase-logger")
+      .then(({ pushLog }) =>
+        pushLog({
+          type: "error",
+          level: "error",
+          message: `[${row.category}] ${row.message}`,
+          payload: {
+            category: row.category,
+            stack: row.stack,
+            route: row.route,
+            extra: row.extra,
+          },
+        }),
+      )
+      .catch(() => {
+        /* ignore */
+      });
+  }
 }
 
 export function pushClientErrorFromUnknown(
