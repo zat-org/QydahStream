@@ -160,6 +160,38 @@ function hideTeams() {
   gsap.set(els, { opacity: 0 });
 }
 
+/** Config can appear before v-if paints — wait for video + team wrappers. */
+async function waitForScoreDom(tries = 40): Promise<boolean> {
+  for (let i = 0; i < tries; i++) {
+    await nextTick();
+    if (mediaElm.value && teamEls().length >= 2) return true;
+    await new Promise((r) => setTimeout(r, 16));
+  }
+  return !!(mediaElm.value && teamEls().length >= 2);
+}
+
+/** Seek only sticks after metadata — don't start intro clock before this. */
+async function waitForVideoMetadata(
+  video: HTMLVideoElement,
+  timeoutMs = 10000,
+): Promise<void> {
+  if (video.readyState >= HTMLMediaElement.HAVE_METADATA) return;
+
+  await new Promise<void>((resolve) => {
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      video.removeEventListener("loadedmetadata", finish);
+      video.removeEventListener("canplay", finish);
+      resolve();
+    };
+    video.addEventListener("loadedmetadata", finish);
+    video.addEventListener("canplay", finish);
+    window.setTimeout(finish, timeoutMs);
+  });
+}
+
 const scoreStateKey = computed(() => {
   if (snapshot.value.matches("score.intro")) return "score.intro";
   if (snapshot.value.matches("score.main")) return "score.main";
@@ -195,7 +227,6 @@ function videoDebugSnapshot(label: string, extra: Record<string, unknown> = {}) 
   return snap;
 }
 
-/** Play video from `atSec` immediately — no ready-wait, no fade gate. */
 function playVideo(atSec: number, playbackRate = 1) {
   const video = mediaElm.value;
   if (!video) {
@@ -209,19 +240,21 @@ function playVideo(atSec: number, playbackRate = 1) {
   } catch (err) {
     console.warn("[ScoreLandscape] playVideo: seek failed", err);
   }
-  // Seek before metadata often does not stick — check right after
   queueMicrotask(() => {
     videoDebugSnapshot("playVideo:afterSeek", {
       wantTime: atSec,
       seekStuck: Math.abs(video.currentTime - atSec) > 0.1,
     });
   });
-  void video.play().then(() => {
-    videoDebugSnapshot("playVideo:playing", { wantTime: atSec });
-  }).catch((err) => {
-    console.warn("[ScoreLandscape] video.play() failed", err);
-    videoDebugSnapshot("playVideo:playFailed", { wantTime: atSec });
-  });
+  void video
+    .play()
+    .then(() => {
+      videoDebugSnapshot("playVideo:playing", { wantTime: atSec });
+    })
+    .catch((err) => {
+      console.warn("[ScoreLandscape] video.play() failed", err);
+      videoDebugSnapshot("playVideo:playFailed", { wantTime: atSec });
+    });
 }
 
 function pauseVideoAt(atSec: number) {
@@ -302,11 +335,7 @@ const mainScoreMount = (score1: number, score2: number) => {
   const cfg = scoreCfg.value;
   const els = teamEls();
   if (!cfg || !els.length) return;
-  videoDebugSnapshot("mainScoreMount:SUDDEN_SCORES", {
-    note: "opacity set to 1 immediately — if you see this, you landed on score.main",
-    score1,
-    score2,
-  });
+  videoDebugSnapshot("mainScoreMount", { score1, score2 });
   mainTimeline?.kill();
   gsap.set(els, { opacity: 1 });
   mainTimeline = gsap.timeline();
@@ -327,20 +356,22 @@ async function applyScoreState(newState: string) {
   currentScoreState.value = newState;
   lastHandledSendState.value = null;
 
-  await nextTick();
-  if (generation !== applyGeneration) {
-    console.log("[ScoreLandscape] apply cancelled (stale generation)", {
-      newState,
-      generation,
-      applyGeneration,
-    });
+  // Wait until v-if="scoreCfg" has painted video + team wrappers
+  const domReady = await waitForScoreDom();
+  if (generation !== applyGeneration) return;
+  if (!domReady || !mediaElm.value) {
+    console.warn("[ScoreLandscape] DOM not ready — abort apply", { newState });
     return;
   }
+
+  // Seek/play need metadata; start intro clock only after this
+  await waitForVideoMetadata(mediaElm.value);
+  if (generation !== applyGeneration) return;
 
   const s1 = last_sakka.value?.usSakkaScore ?? 0;
   const s2 = last_sakka.value?.themSakkaScore ?? 0;
 
-  videoDebugSnapshot("applyScoreState", {
+  videoDebugSnapshot("applyScoreState:ready", {
     newState,
     generation,
     introEndSec: cfg.introEndSec,
@@ -357,7 +388,6 @@ async function applyScoreState(newState: string) {
     videoDebugSnapshot("intro:sleepDone", {
       elapsedMs: Math.round(performance.now() - introStartedAt),
       expectedMs: cfg.introEndSec * 1000,
-      note: "about to seek hold frame + NEXT → main",
     });
     pauseVideoAt(cfg.introEndSec);
     sendNextOnceForState(newState);
