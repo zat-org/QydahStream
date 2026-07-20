@@ -204,62 +204,122 @@ const mainScoreMount = (score1: number, score2: number) => {
   });
 };
 
-onMounted(() => {
-  watch(
-    scoreStateKey,
-    async (newState, oldState) => {
-      const cfg = scoreCfg.value;
-      if (!cfg || !newState || newState === oldState) return;
-      if (currentScoreState.value === newState) return;
-      currentScoreState.value = newState;
-      if (newState !== oldState) {
-        lastHandledSendState.value = null;
-      }
+async function waitForVideoData(video: HTMLVideoElement) {
+  if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return;
+  await new Promise<void>((resolve) => {
+    const done = () => {
+      video.removeEventListener("loadeddata", done);
+      video.removeEventListener("canplay", done);
+      resolve();
+    };
+    video.addEventListener("loadeddata", done);
+    video.addEventListener("canplay", done);
+    // Kick load if needed (src may have just been bound)
+    try {
+      video.load();
+    } catch {
+      /* ignore */
+    }
+  });
+}
 
-      const s1 = last_sakka.value?.usSakkaScore ?? 0;
-      const s2 = last_sakka.value?.themSakkaScore ?? 0;
+async function seekAndPlay(atSec: number, playbackRate = 1) {
+  const video = mediaElm.value;
+  if (!video) return;
+  await waitForVideoData(video);
+  video.playbackRate = playbackRate;
+  try {
+    video.currentTime = atSec;
+  } catch {
+    /* some browsers throw before metadata */
+  }
+  try {
+    await video.play();
+  } catch (err) {
+    console.warn("[ScoreLandscape] video.play() failed", err);
+  }
+}
 
-      if (newState === "score.intro") {
-        if (mediaElm.value) {
-          mediaElm.value.currentTime = cfg.introStartSec;
-          mediaElm.value.playbackRate = 1;
-          void mediaElm.value.play();
-        }
-        scoreMount(s1, s2);
-        await sleep(cfg.introEndSec * 1000);
+async function seekPaused(atSec: number) {
+  const video = mediaElm.value;
+  if (!video) return;
+  await waitForVideoData(video);
+  video.pause();
+  try {
+    video.currentTime = atSec;
+  } catch {
+    /* ignore */
+  }
+}
+
+let applyGeneration = 0;
+
+async function applyScoreState(newState: string) {
+  const cfg = scoreCfg.value;
+  if (!cfg) return;
+
+  const generation = ++applyGeneration;
+  currentScoreState.value = newState;
+  lastHandledSendState.value = null;
+
+  // Video mounts with v-if="scoreCfg" — wait one tick for ref
+  await nextTick();
+  if (generation !== applyGeneration) return;
+
+  const s1 = last_sakka.value?.usSakkaScore ?? 0;
+  const s2 = last_sakka.value?.themSakkaScore ?? 0;
+
+  if (newState === "score.intro") {
+    await seekAndPlay(cfg.introStartSec, 1);
+    if (generation !== applyGeneration) return;
+    scoreMount(s1, s2);
+    await sleep(cfg.introEndSec * 1000);
+    if (generation !== applyGeneration) return;
+    if (currentScoreState.value !== newState) return;
+    await seekPaused(cfg.introEndSec);
+    sendNextOnceForState(newState);
+  }
+
+  if (newState === "score.main") {
+    await seekPaused(cfg.introEndSec);
+    if (generation !== applyGeneration) return;
+    mainScoreMount(s1, s2);
+  }
+
+  if (newState === "score.outro") {
+    const video = mediaElm.value;
+    if (video) {
+      video.onended = () => {
         if (currentScoreState.value !== newState) return;
-        if (mediaElm.value) {
-          mediaElm.value.pause();
-          mediaElm.value.currentTime = cfg.introEndSec;
-        }
         sendNextOnceForState(newState);
-      }
+      };
+    }
+    await seekAndPlay(cfg.introEndSec, cfg.outroPlaybackRate);
+    if (generation !== applyGeneration) return;
+    scoreUnMount();
+  }
+}
 
-      if (newState === "score.main") {
-        if (mediaElm.value) {
-          mediaElm.value.currentTime = cfg.introEndSec;
-        }
-        mainScoreMount(s1, s2);
-      }
+watch(
+  [scoreStateKey, scoreCfg],
+  ([newState], [oldState, oldCfg]) => {
+    if (!newState || !scoreCfg.value) return;
 
-      if (newState === "score.outro") {
-        if (mediaElm.value) {
-          mediaElm.value.currentTime = cfg.introEndSec;
-          mediaElm.value.playbackRate = cfg.outroPlaybackRate;
-          mediaElm.value.onended = () => {
-            if (currentScoreState.value !== newState) return;
-            sendNextOnceForState(newState);
-          };
-          void mediaElm.value.play();
-        }
-        scoreUnMount();
-      }
-    },
-    { immediate: true },
-  );
-});
+    const stateChanged = newState !== oldState;
+    const cfgJustReady = !oldCfg && !!scoreCfg.value;
+    const sameStateAlreadyHandled =
+      !stateChanged && currentScoreState.value === newState;
+
+    // Skip only if nothing new (same state + config was already there)
+    if (sameStateAlreadyHandled && !cfgJustReady) return;
+
+    void applyScoreState(newState);
+  },
+  { immediate: true },
+);
 
 onBeforeUnmount(() => {
+  applyGeneration++;
   mountTimeline?.kill();
   unmountTimeline?.kill();
   mainTimeline?.kill();
