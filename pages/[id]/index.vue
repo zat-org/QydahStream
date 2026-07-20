@@ -57,7 +57,6 @@ import ScoreZatLandscape from "../../components/Score/Zat/baloot/Landscape.vue";
 import DetailZatLandscape from "../../components/Detail/Zat/baloot/landscape.vue";
 import WinnerZatLandscape from "../../components/winner/Zat/baloot/landscape.vue";
 
-import ScoreQydhaLandscape from "../../components/Score/Qydha/baloot/landscape.vue";
 import DetailQydhaLandscape from "../../components/Detail/Qydha/baloot/landscape.vue";
 import WinnerQydhaLandscape from "../../components/winner/Qydha/baloot/landscape.vue";
 
@@ -69,6 +68,7 @@ import WinnerQydhaPortrait from "../../components/winner/Qydha/baloot/portrait.v
 import StaticsZat from "../../components/Statics/Zat/baloot/landscape.vue";
 import StaticsQydha from "../../components/Statics/Qydha/baloot/portrait.vue";
 import LayoutFallback from "../../components/LayoutFallback.vue";
+import { resolveConfigDrivenScreen } from "~/config/themeRegistry";
 
 const route = useRoute();
 const router = useRouter();
@@ -98,10 +98,16 @@ const {
 } = storeToRefs(gamestore);
 
 const scoreComponent = computed(() => {
+  const fromConfig = resolveConfigDrivenScreen({
+    theme: theme.value,
+    orientation: orientation.value,
+    game: "baloot",
+    screen: "score",
+  });
+  if (fromConfig) return fromConfig;
+
   if (theme.value === "zat" && orientation.value === "landscape") {
     return ScoreZatLandscape;
-  } else if (theme.value === "qydha" && orientation.value === "landscape") {
-    return ScoreQydhaLandscape;
   } else if (theme.value === "qydha" && orientation.value === "portrait") {
     return ScoreQydhaPortraitsvg;
   }
