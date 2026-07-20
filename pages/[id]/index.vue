@@ -157,7 +157,7 @@ await syncBoardForCurrentRoute();
 
 onMounted(() => {
   if (!themeQueryNeedsNormalize()) return;
-  // Drop legacy `orienation` typo; keep only `orientation`.
+  // Drop legacy typo / coerce unsupported orientation (e.g. zat+portrait → landscape).
   router.replace({
     path: `/${table_id}/`,
     query: themeQuery(),

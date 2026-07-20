@@ -133,7 +133,7 @@ await syncHandForCurrentRoute();
 
 onMounted(() => {
   if (!themeQueryNeedsNormalize()) return;
-  // Drop legacy `orienation` typo; keep only `orientation`.
+  // Drop legacy typo / coerce unsupported orientation (e.g. zat+portrait → landscape).
   router.replace({
     path: `/hand/${table_id}/`,
     query: themeQuery(),

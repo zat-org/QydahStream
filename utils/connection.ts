@@ -36,6 +36,8 @@ export type ConnectionStateChangedHandler = (
   state: ConnectionState,
   error?: string,
 ) => void;
+/** Fired after automatic or manual reconnect succeeds — re-join hub groups here. */
+export type ReconnectedHandler = () => void;
 
 // Game connection utility class
 export class GameConnection {
@@ -49,6 +51,7 @@ export class GameConnection {
   private gameStateChangedHandler?: GameStateChangedHandler;
   private connectionErrorHandler?: ConnectionErrorHandler;
   private connectionStateChangedHandler?: ConnectionStateChangedHandler;
+  private reconnectedHandler?: ReconnectedHandler;
 
   constructor(config: ConnectionConfig) {
     this.config = {
@@ -175,7 +178,9 @@ export class GameConnection {
       this._connectionError.value = null;
       this._reconnectAttempts.value = 0;
       console.log("Reconnected successfully:", connectionId);
+      // Hub groups are lost on reconnect — stores must re-join + fetch latest.
       this.notifyConnectionStateChanged(this._connectionState.value);
+      this.notifyReconnected();
     });
   }
 
@@ -203,6 +208,10 @@ export class GameConnection {
     this.connectionStateChangedHandler = handler;
   }
 
+  onReconnected(handler: ReconnectedHandler): void {
+    this.reconnectedHandler = handler;
+  }
+
   // Notify connection state changes
   private notifyConnectionStateChanged(
     state: ConnectionState,
@@ -210,6 +219,12 @@ export class GameConnection {
   ): void {
     if (this.connectionStateChangedHandler) {
       this.connectionStateChangedHandler(state, error);
+    }
+  }
+
+  private notifyReconnected(): void {
+    if (this.reconnectedHandler) {
+      this.reconnectedHandler();
     }
   }
 
@@ -301,6 +316,7 @@ export class GameConnection {
       this._connectionState.value = ConnectionState.Connected;
       console.log("Manual reconnection successful");
       this.notifyConnectionStateChanged(this._connectionState.value);
+      this.notifyReconnected();
     } catch (error) {
       this._connectionState.value = ConnectionState.Failed;
       this._connectionError.value =

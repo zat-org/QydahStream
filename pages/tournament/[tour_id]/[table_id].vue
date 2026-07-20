@@ -131,7 +131,7 @@ watch(
 
 onMounted(() => {
   if (!themeQueryNeedsNormalize()) return;
-  // Drop legacy `orienation` typo; keep only `orientation`.
+  // Drop legacy typo / coerce unsupported orientation (e.g. zat+portrait → landscape).
   router.replace({
     path: `/tournament/${tour_id}/${table_id}/`,
     query: themeQuery(),

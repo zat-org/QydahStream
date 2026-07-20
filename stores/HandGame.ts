@@ -1,7 +1,10 @@
 import { defineStore } from "pinia";
 import type { IStatics } from "~/models/game";
 import { interpret } from "xstate";
-import { createGameConnection, parseEvents } from "~/utils/connection";
+import {
+  createGameConnection,
+  parseEvents,
+} from "~/utils/connection";
 import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
 import type { HandGameDataI } from "~/models/handGame";
 
@@ -207,30 +210,49 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   };
 
   const syncLastError = ref<string | null>(null);
+  let syncInFlight: Promise<void> | null = null;
 
   async function syncHandForCurrentRoute() {
-    syncLastError.value = null;
-    try {
-      await gameConnection.ensureConnected();
-      setupHandEventListenersOnce();
-      const initialGame = await joinGameGroup();
-      if (initialGame) {
-        game.value = initialGame;
-        game.value.teams = initialGame.teams.sort((a, b) => a.score - b.score);
+    if (syncInFlight) return syncInFlight;
+
+    syncInFlight = (async () => {
+      syncLastError.value = null;
+      try {
+        await gameConnection.ensureConnected();
+        setupHandEventListenersOnce();
+        const initialGame = await joinGameGroup();
+        if (initialGame) {
+          game.value = initialGame;
+          game.value.teams = initialGame.teams.sort((a, b) => a.score - b.score);
+        }
+      } catch (error) {
+        const msg =
+          error instanceof Error
+            ? error.message
+            : "syncHandForCurrentRoute failed";
+        syncLastError.value = msg;
+        console.error("Failed to sync hand game:", error);
+        if (import.meta.client) {
+          pushClientErrorFromUnknown("hand_store", error, {
+            phase: "syncHandForCurrentRoute",
+          });
+        }
+        throw error;
+      } finally {
+        syncInFlight = null;
       }
-    } catch (error) {
-      const msg =
-        error instanceof Error ? error.message : "syncHandForCurrentRoute failed";
-      syncLastError.value = msg;
-      console.error("Failed to sync hand game:", error);
-      if (import.meta.client) {
-        pushClientErrorFromUnknown("hand_store", error, {
-          phase: "syncHandForCurrentRoute",
-        });
-      }
-      throw error;
-    }
+    })();
+
+    return syncInFlight;
   }
+
+  // After SignalR auto/manual reconnect, re-join the group and pull latest snapshot.
+  gameConnection.onReconnected(() => {
+    console.log("Hand hub reconnected — re-joining group + fetching latest data");
+    void syncHandForCurrentRoute().catch(() => {
+      /* syncLastError already set */
+    });
+  });
 
   async function initializeConnection() {
     await syncHandForCurrentRoute();

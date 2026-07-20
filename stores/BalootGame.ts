@@ -5,8 +5,6 @@ import { interpret } from "xstate";
 import {
   createGameConnection,
   parseEvents,
-  type GameConnection,
-  ConnectionState,
 } from "~/utils/connection";
 import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
 
@@ -171,32 +169,49 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     boardSettings.value = _boardSettings;
   };
   const syncLastError = ref<string | null>(null);
+  let syncInFlight: Promise<void> | null = null;
 
   async function syncBoardForCurrentRoute() {
-    syncLastError.value = null;
-    try {
-      await gameConnection.ensureConnected();
-      setupBalootEventListenersOnce();
-      const initialGame = await joinGameGroup();
-      if (initialGame) {
-        game.value = initialGame.gameData;
-        boardSettings.value = initialGame.boardSettings;
+    if (syncInFlight) return syncInFlight;
+
+    syncInFlight = (async () => {
+      syncLastError.value = null;
+      try {
+        await gameConnection.ensureConnected();
+        setupBalootEventListenersOnce();
+        const initialGame = await joinGameGroup();
+        if (initialGame) {
+          game.value = initialGame.gameData;
+          boardSettings.value = initialGame.boardSettings;
+        }
+      } catch (error) {
+        const msg =
+          error instanceof Error
+            ? error.message
+            : "syncBoardForCurrentRoute failed";
+        syncLastError.value = msg;
+        console.error("Failed to sync baloot board:", error);
+        if (import.meta.client) {
+          pushClientErrorFromUnknown("baloot_store", error, {
+            phase: "syncBoardForCurrentRoute",
+          });
+        }
+        throw error;
+      } finally {
+        syncInFlight = null;
       }
-    } catch (error) {
-      const msg =
-        error instanceof Error
-          ? error.message
-          : "syncBoardForCurrentRoute failed";
-      syncLastError.value = msg;
-      console.error("Failed to sync baloot board:", error);
-      if (import.meta.client) {
-        pushClientErrorFromUnknown("baloot_store", error, {
-          phase: "syncBoardForCurrentRoute",
-        });
-      }
-      throw error;
-    }
+    })();
+
+    return syncInFlight;
   }
+
+  // After SignalR auto/manual reconnect, re-join the group and pull latest snapshot.
+  gameConnection.onReconnected(() => {
+    console.log("Baloot hub reconnected — re-joining group + fetching latest data");
+    void syncBoardForCurrentRoute().catch(() => {
+      /* syncLastError already set */
+    });
+  });
 
   async function initializeConnection() {
     await syncBoardForCurrentRoute();

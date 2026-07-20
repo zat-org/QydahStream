@@ -9,7 +9,8 @@ export type ClientErrorCategory =
   | "promise"
   | "resource"
   | "signalr"
-  | "baloot_store";
+  | "baloot_store"
+  | "hand_store";
 
 export type ClientErrorEntry = {
   t: number;

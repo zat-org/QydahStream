@@ -8,6 +8,18 @@ export type RouteThemeQuery = {
   showPlayers: "true" | "false";
 };
 
+/**
+ * Orientations that have a full board (score) for each theme.
+ * Unsupported combos are coerced to the first entry.
+ */
+export const SUPPORTED_ORIENTATIONS: Record<
+  ThemeId,
+  readonly Orientation[]
+> = {
+  zat: ["landscape"],
+  qydha: ["landscape", "portrait"],
+} as const;
+
 const THEME_IDS = ["zat", "qydha"] as const satisfies readonly ThemeId[];
 const ORIENTATIONS = [
   "landscape",
@@ -50,6 +62,23 @@ function parseOrientation(value: unknown, fallback: Orientation): Orientation {
   return isOrientation(raw) ? raw : fallback;
 }
 
+/** If orientation is not supported for theme, return the default supported one. */
+export function coerceOrientation(
+  theme: ThemeId,
+  orientation: Orientation,
+): Orientation {
+  const supported = SUPPORTED_ORIENTATIONS[theme];
+  if (supported.includes(orientation)) return orientation;
+  return supported[0];
+}
+
+export function isOrientationSupported(
+  theme: ThemeId,
+  orientation: Orientation,
+): boolean {
+  return SUPPORTED_ORIENTATIONS[theme].includes(orientation);
+}
+
 export function useRouteTheme(defaultTheme: ThemeId = "zat") {
   const route = useRoute();
 
@@ -59,9 +88,12 @@ export function useRouteTheme(defaultTheme: ThemeId = "zat") {
 
   theme.value = parseTheme(firstQueryValue(route.query.theme), defaultTheme);
 
-  const rawOrientation =
-    route.query.orientation ?? route.query[LEGACY_ORIENTATION_KEY];
-  orientation.value = parseOrientation(rawOrientation, "landscape");
+  const requestedOrientation = parseOrientation(
+    route.query.orientation ?? route.query[LEGACY_ORIENTATION_KEY],
+    "landscape",
+  );
+  // e.g. zat + portrait → landscape (zat has no portrait board)
+  orientation.value = coerceOrientation(theme.value, requestedOrientation);
 
   if (route.query.showPlayers) {
     showPlayers.value = firstQueryValue(route.query.showPlayers) === "true";
@@ -70,6 +102,7 @@ export function useRouteTheme(defaultTheme: ThemeId = "zat") {
   /**
    * Canonical query for router push/replace.
    * - Writes only `orientation` (never the `orienation` typo).
+   * - Uses coerced (supported) orientation.
    * - Preserves unrelated params (e.g. obsDebug).
    */
   function themeQuery(
@@ -93,12 +126,25 @@ export function useRouteTheme(defaultTheme: ThemeId = "zat") {
     };
   }
 
-  /** True when URL still has the legacy typo or duplicated orientation values. */
+  /**
+   * True when URL still has the legacy typo, duplicated keys,
+   * or an unsupported orientation that was coerced.
+   */
   function themeQueryNeedsNormalize(): boolean {
     const q = route.query;
     if (LEGACY_ORIENTATION_KEY in q) return true;
+
     const orient = q.orientation;
     if (Array.isArray(orient) && orient.length > 1) return true;
+
+    const urlOrientRaw = firstQueryValue(
+      q.orientation ?? q[LEGACY_ORIENTATION_KEY],
+    );
+    if (typeof urlOrientRaw === "string" && isOrientation(urlOrientRaw)) {
+      if (!isOrientationSupported(theme.value, urlOrientRaw)) return true;
+      if (urlOrientRaw !== orientation.value) return true;
+    }
+
     return false;
   }
 
