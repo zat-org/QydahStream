@@ -79,7 +79,6 @@
  * Step 1 pilot: Baloot only — reads skin from theme config, numbers from Baloot store.
  */
 import gsap from "gsap";
-import { getThemeConfig } from "~/config/themes";
 import type {
   GameType,
   LandscapeScoreConfig,
@@ -108,8 +107,11 @@ const {
 } = storeToRefs(store);
 const { gameService } = store;
 
+const themeId = computed(() => theme.value);
+const { config: resolvedTheme } = useResolvedThemeConfig(themeId);
+
 const scoreCfg = computed<LandscapeScoreConfig | null>(() => {
-  return getThemeConfig(theme.value)?.landscape?.[props.game]?.score ?? null;
+  return resolvedTheme.value?.landscape?.[props.game]?.score ?? null;
 });
 
 const mediaElm = ref<HTMLVideoElement>();

@@ -1,11 +1,14 @@
-# Firebase Realtime Database — debug logs
+# Firebase Realtime Database — debug logs + theme configs
 
-App writes to path `debug_logs/{pushId}` via anonymous Auth.
+App uses anonymous Auth for:
+
+- `debug_logs/{pushId}` — overlay debug events (`/log`)
+- `theme_configs/{themeId}` — theme skin overrides (`/config`, ScoreLandscape resolve)
 
 ## Enable in Firebase Console
 
 1. Authentication → Sign-in method → enable **Anonymous**
-2. Realtime Database → Rules (staging-friendly example):
+2. Realtime Database → Rules:
 
 ```json
 {
@@ -14,12 +17,16 @@ App writes to path `debug_logs/{pushId}` via anonymous Auth.
       ".read": "auth != null",
       ".write": "auth != null",
       ".indexOn": ["t", "appEnv"]
+    },
+    "theme_configs": {
+      ".read": "auth != null",
+      ".write": "auth != null"
     }
   }
 }
 ```
 
-Tighten `.read` for production if needed (e.g. admin-only). The `/log` page signs in anonymously after password unlock, so `auth != null` is enough for internal use.
+Both `/log` and `/config` use `loginPassword` from `.env` (same unlock session key).
 
 ## Env keys (same names as local `.env`)
 
@@ -35,8 +42,9 @@ loginPassword=
 NUXT_PUBLIC_APP_ENV=development
 ```
 
-`NUXT_PUBLIC_APP_ENV` is stored on every log as `appEnv` (`development` | `staging` | `production` | `preview`).
+## Theme resolve order
 
-## View logs
+1. RTDB `theme_configs/{themeId}` if present  
+2. Else local `config/themes/{themeId}.ts`
 
-Open `/log` in the app and enter `loginPassword`, or browse `debug_logs` in the Firebase console.
+Export JSON from `/config` to update the repo file when you want the fallback to match production edits.
