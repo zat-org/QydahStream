@@ -1,15 +1,9 @@
 import { defineStore } from "pinia";
 import type { IStatics } from "~/models/game";
-import type { BoardSettingsI } from "~/models/boardSettings";
 import { interpret } from "xstate";
-import {
-  createGameConnection,
-  parseEvents,
-  type GameConnection,
-  ConnectionState,
-} from "~/utils/connection";
+import { createGameConnection, parseEvents } from "~/utils/connection";
 import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
-import type { HandGameI, HandGameDataI } from "~/models/handGame";
+import type { HandGameDataI } from "~/models/handGame";
 
 type HandGameEvent =
   | "GameStarted"
@@ -35,7 +29,6 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   const gameEnd = ref(false);
   const statics = ref<IStatics>();
   const game = ref<HandGameDataI>()!;
-  const boardSettings = ref<BoardSettingsI>()!;
   const newGame = ref<HandGameDataI>()!;
 
   let events: HandGameEvent[] = [];
@@ -194,9 +187,8 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
     } catch (error) {
       console.error("Failed to join game group:", error);
       if (import.meta.client) {
-        pushClientErrorFromUnknown("baloot_store", error, {
+        pushClientErrorFromUnknown("hand_store", error, {
           phase: "joinGameGroup",
-          store: "hand",
         });
       }
       throw error;
@@ -232,9 +224,8 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       syncLastError.value = msg;
       console.error("Failed to sync hand game:", error);
       if (import.meta.client) {
-        pushClientErrorFromUnknown("baloot_store", error, {
+        pushClientErrorFromUnknown("hand_store", error, {
           phase: "syncHandForCurrentRoute",
-          store: "hand",
         });
       }
       throw error;
@@ -550,139 +541,65 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       }
     }
   });
-  const portraitBoardSettings = computed(() => {
-    return boardSettings.value?.portrait;
-  });
-
-  const BoardStyles = computed(() => {
-    return {
-      dimension: {
-        height: "1920px",
-        width: "1080px",
-      },
-      scorePanel: {
-        "margin-top": "0px",
-        height: "295px",
-        scale: 0.9,
-        leftTeam: {
-          name: {
-            transform: `translate(0px,0px)`,
-            "font-size": "50px",
-          },
-          score: {
-            transform: `translate(0px,0px)`,
-            "font-size": "50px",
-          },
+  const BoardStyles = computed(() => ({
+    dimension: {
+      height: "1920px",
+      width: "1080px",
+    },
+    scorePanel: {
+      "margin-top": "0px",
+      height: "295px",
+      scale: 0.9,
+      leftTeam: {
+        name: {
+          transform: `translate(0px,0px)`,
+          "font-size": "50px",
         },
-        rightTeam: {
-          name: {
-            transform: `translate(0px,0px)`,
-            "font-size": "50px",
-          },
-          score: {
-            transform: `translate(0px,0px)`,
-            "font-size": "50px",
-          },
+        score: {
+          transform: `translate(0px,0px)`,
+          "font-size": "50px",
         },
       },
-      leftPlayer: {
-        top: "calc(50% - 100px)",
-        left: "0px",
-        height: "200px",
-        width: "200px",
-      },
-      rightPlayer: {
-        top: "calc(50% - 100px)",
-        right: "0px",
-        height: "200px",
-        width: "200px",
-      },
-      bottomPlayer: {
-        left: "calc(50% - 100px)",
-        bottom: "0px",
-        height: "200px",
-        width: "200px",
-      },
-      detailScore: {
-        color: "#000000",
-        "font-size": "70px",
-      },
-    };
-
-    return {
-      dimension: {
-        height: portraitBoardSettings.value?.dimension.height + "px",
-        width: portraitBoardSettings.value?.dimension.width + "px",
-      },
-      scorePanel: {
-        "margin-top": portraitBoardSettings.value?.scorePanel.topMargin + "px",
-        height: portraitBoardSettings.value?.scorePanel.height + "px",
-        scale: portraitBoardSettings.value?.scorePanel.position.scale,
-        leftTeam: {
-          name: {
-            transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.leftTeam.name.top}px)`,
-            "font-size":
-              portraitBoardSettings.value?.scorePanel.leftTeam.name.size + "px",
-          },
-          score: {
-            transform: `translate(${portraitBoardSettings.value?.scorePanel.leftTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.leftTeam.score.top}px)`,
-            "font-size":
-              portraitBoardSettings.value?.scorePanel.leftTeam.score.size +
-              "px",
-          },
+      rightTeam: {
+        name: {
+          transform: `translate(0px,0px)`,
+          "font-size": "50px",
         },
-        rightTeam: {
-          name: {
-            transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.name.left}px, ${portraitBoardSettings.value?.scorePanel.rightTeam.name.top}px)`,
-            "font-size":
-              portraitBoardSettings.value?.scorePanel.rightTeam.name.size +
-              "px",
-          },
-          score: {
-            transform: `translate(${portraitBoardSettings.value?.scorePanel.rightTeam.score.left}px,${portraitBoardSettings.value?.scorePanel.rightTeam.score.top}px)`,
-            "font-size":
-              portraitBoardSettings.value?.scorePanel.rightTeam.score.size +
-              "px",
-          },
+        score: {
+          transform: `translate(0px,0px)`,
+          "font-size": "50px",
         },
       },
-      leftPlayer: {
-        top: `calc(50% - ${
-          (portraitBoardSettings.value?.playerImageWidth ?? 200) / 2
-        }px ) + ${portraitBoardSettings.value?.leftPlayer.top}px`,
-        left: `${portraitBoardSettings.value?.leftPlayer.left}px`,
-        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
-      },
-      rightPlayer: {
-        top: `calc(50% - ${
-          (portraitBoardSettings.value?.playerImageWidth ?? 200) / 2
-        }px ) + ${portraitBoardSettings.value?.rightPlayer.top}px`,
-        right: `${portraitBoardSettings.value?.rightPlayer.right}px`,
-        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
-      },
-      bottomPlayer: {
-        left: `calc(50% - ${
-          (portraitBoardSettings.value?.playerImageWidth ?? 200) / 2
-        }px ) + ${portraitBoardSettings.value?.bottomPlayer.left}px`,
-        bottom: `${portraitBoardSettings.value?.bottomPlayer.bottom}px`,
-        height: `${portraitBoardSettings.value?.playerImageWidth}px`,
-        width: `${portraitBoardSettings.value?.playerImageWidth}px`,
-      },
-      detailScore: {
-        color: portraitBoardSettings.value?.detailScore.color,
-        "font-size": portraitBoardSettings.value?.detailScore.fontSize + "px",
-      },
-    };
-  });
+    },
+    leftPlayer: {
+      top: "calc(50% - 100px)",
+      left: "0px",
+      height: "200px",
+      width: "200px",
+    },
+    rightPlayer: {
+      top: "calc(50% - 100px)",
+      right: "0px",
+      height: "200px",
+      width: "200px",
+    },
+    bottomPlayer: {
+      left: "calc(50% - 100px)",
+      bottom: "0px",
+      height: "200px",
+      width: "200px",
+    },
+    detailScore: {
+      color: "#000000",
+      "font-size": "70px",
+    },
+  }));
 
   return {
     // Existing reactive data
     // game_updated,
 
     game: game,
-    boardSettings: boardSettings,
     statics,
     snapshot,
     gameService,

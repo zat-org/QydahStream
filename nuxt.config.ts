@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     enabled: false,
   },
   ssr: false,
-  modules: ["@nuxtjs/tailwindcss", '@pinia/nuxt'],
+  modules: ["@nuxtjs/tailwindcss", "@pinia/nuxt"],
   css: ["@/assets/css/fonts.css"],
   app: {
     head: {

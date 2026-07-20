@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type {  GameDataI, GameI, IStatics, SakkaI } from "~/models/game";
+import type { GameDataI, GameI, IStatics, SakkaI } from "~/models/game";
 import type { BoardSettingsI } from "~/models/boardSettings";
 import { interpret } from "xstate";
 import {
@@ -29,7 +29,6 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     autoReconnect: true,
     maxReconnectAttempts: 5,
   });
-  
 
   const sakka_ended = ref(false);
   const newGameFlag = ref(false);
@@ -44,7 +43,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   const { gameMachine } = useNashraMachine();
   const gameService = interpret(gameMachine).start();
   const snapshot = ref(gameService.getSnapshot());
-  
+
   gameService.subscribe((state) => {
     snapshot.value = state;
 
@@ -80,32 +79,35 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
           tournamentId <= 0 ||
           tournamentTableId <= 0
         ) {
-          console.warn("Invalid tournament route params", { table_id, tour_id });
+          console.warn("Invalid tournament route params", {
+            table_id,
+            tour_id,
+          });
           return null;
         }
         // tournament table
-        const {hasData, game} = await gameConnection.joinTournamentTableGroup(
+        const { hasData, game } = await gameConnection.joinTournamentTableGroup(
           tournamentId,
-          tournamentTableId
+          tournamentTableId,
         );
         gameData = game;
-        if(!hasData) return null;
+        if (!hasData) return null;
       } else {
         if (!player_table_id?.trim()) {
           console.warn("Missing board route param id");
           return null;
         }
         // board table
-        const {hasData, game} = await gameConnection.joinBoardGroup(player_table_id);
+        const { hasData, game } =
+          await gameConnection.joinBoardGroup(player_table_id);
         gameData = game;
-        if(!hasData) return null;
+        if (!hasData) return null;
       }
 
       if (gameData) {
-        
         const parsedGame = JSON.parse(gameData) as GameI;
         parsedGame.gameData = sakkaIsMashdoda(parsedGame.gameData) as GameDataI;
-        return  parsedGame
+        return parsedGame;
       }
     } catch (error) {
       console.error("Failed to join game group:", error);
@@ -127,7 +129,10 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     connection.off("BalootGameStateChanged");
     connection.off("BalootBoardSettingsChanged");
     connection.on("BalootGameStateChanged", handleGameStateChanged);
-    connection.on("BalootBoardSettingsChanged", handleBalootBoardSettingsChanged);
+    connection.on(
+      "BalootBoardSettingsChanged",
+      handleBalootBoardSettingsChanged,
+    );
     balootHubListenersAttached.value = true;
   };
 
@@ -138,23 +143,29 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       console.warn("Failed to parse board settings payload:", error);
       return;
     }
-    
+
     // More detailed validation
     if (!_boardSettings) {
       console.warn("Board settings is null or undefined");
       return;
     }
-    
+
     if (!_boardSettings.portrait) {
       console.warn("Board settings missing portrait property:", _boardSettings);
       return;
     }
-    
-    if (!_boardSettings.portrait.dimension || !_boardSettings.portrait.scorePanel) {
-      console.warn("Board settings missing required portrait properties:", _boardSettings.portrait);
+
+    if (
+      !_boardSettings.portrait.dimension ||
+      !_boardSettings.portrait.scorePanel
+    ) {
+      console.warn(
+        "Board settings missing required portrait properties:",
+        _boardSettings.portrait,
+      );
       return;
     }
-    
+
     // Data is valid, update it
     console.log("Valid board settings received, updating...");
     boardSettings.value = _boardSettings;
@@ -173,7 +184,9 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       }
     } catch (error) {
       const msg =
-        error instanceof Error ? error.message : "syncBoardForCurrentRoute failed";
+        error instanceof Error
+          ? error.message
+          : "syncBoardForCurrentRoute failed";
       syncLastError.value = msg;
       console.error("Failed to sync baloot board:", error);
       if (import.meta.client) {
@@ -188,9 +201,6 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   async function initializeConnection() {
     await syncBoardForCurrentRoute();
   }
-
-
-
 
   const resetState = () => {
     newGameFlag.value = false;
@@ -226,7 +236,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       game.value = newGame.value;
       handelGameEnded();
     }
-    if(events.includes("NamesChanged") && events.length == 1) {
+    if (events.includes("NamesChanged") && events.length == 1) {
       if (!game.value || !newGame.value) return;
       game.value.themName = newGame.value.themName;
       game.value.usName = newGame.value.usName;
@@ -238,7 +248,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   const handleGameStateChanged = (
     _events: any,
     _gamedata: any,
-    _statics: any
+    _statics: any,
   ) => {
     try {
       resetState();
@@ -272,11 +282,6 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       console.error("Error in handleGameStateChanged:", error);
     }
   };
-
-  
-
-  
-
 
   const sakkaIsMashdoda = (game: GameDataI): GameDataI => {
     if (game.sakkas && game.sakkas.length <= 0) return game;
@@ -367,16 +372,17 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       if (!game.value || !newGame.value) return;
       game.value.sakkas = newGame.value.sakkas;
     }
-    const contimuefrombackEvents:BalootGameEvent[] =["ScoreDecreased", "GameContinuedFromBack"]
+    const contimuefrombackEvents: BalootGameEvent[] = [
+      "ScoreDecreased",
+      "GameContinuedFromBack",
+    ];
     if (contimuefrombackEvents.every((event) => events.includes(event))) {
       game.value = newGame.value;
     }
-    
   };
   // to show  winner
   const handelGameEnded = () => {
     let winner = false;
- 
 
     const us_photo =
       game?.value &&
@@ -430,7 +436,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         id: usPlayer0.id,
         name: usPlayer0.name,
         url: usPlayer0.url,
-        index: usPlayer0.index
+        index: usPlayer0.index,
       };
     }
     return undefined;
@@ -443,7 +449,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         id: usPlayer1.id,
         name: usPlayer1.name,
         url: usPlayer1.url,
-        index: usPlayer1.index
+        index: usPlayer1.index,
       };
     }
     return undefined;
@@ -456,7 +462,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         id: themPlayer1.id,
         name: themPlayer1.name,
         url: themPlayer1.url,
-        index: themPlayer1.index
+        index: themPlayer1.index,
       };
     }
     return undefined;
@@ -469,13 +475,11 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         id: themPlayer0.id,
         name: themPlayer0.name,
         url: themPlayer0.url,
-        index: themPlayer0.index
+        index: themPlayer0.index,
       };
     }
     return undefined;
   });
-
-
 
   const themName = computed(() => {
     return game.value?.themName
@@ -483,149 +487,155 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       : game.value?.themPlayers.length == 0
         ? "لهم"
         : game.value?.themPlayers[0].name +
-        " | " +
-        game.value?.themPlayers[1].name
-  })
-  
+          " | " +
+          game.value?.themPlayers[1].name;
+  });
+
   const usName = computed(() => {
     return game.value?.usName
       ? game.value?.usName
       : game.value?.usPlayers.length == 0
         ? "لنا"
-        : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name
-  
-  })
-const BoardStyles =ref({
-  dimension: {
-    height: '1920px',
-    width: '1080px',
-  },
-  scorePanel: {
-    "margin-top": "0px",
-    left: "0px",
-    top: "0px",
-    height: "295px",
-    scale: .9,
-    leftTeam: {
-      name: {
-        transform: `translate(0px,0px)`,
-        'font-size': "30px",
-      },
-      score: {
-        transform: `translate(0px,0px)`,
-        'font-size': "50px",
-      },
-    },
-    rightTeam: {
-      name: {
-        transform: `translate(0px,0px)`,
-        'font-size': "30px",
-      },
-      score: {
-        transform: `translate(0px,0px)`,
-        'font-size': "50px",
-      },
-    }
-  },
-  leftPlayer: {
-    top: "calc(50% - 100px)",
-    left: "0px",
-    height: "200px",
-    width: "200px",
-  },
-  rightPlayer: {
-    top: "calc(50% - 100px)",
-    right: "0px",
-    height: "200px",
-    width: "200px",
-  },
-  bottomPlayer: {
-    left: "calc(50% - 100px)",
-    bottom: "0px",
-    height: "200px",
-    width: "200px",
-  },
-  detailScore: {
-    color: "#000000",
-    "font-size": "70px",
-  },
-  playerImageWidth:"200px"
-})
-watch(boardSettings, (newVal) => {
-  // console.log(" ____ boardSettings ____", newVal);
-  const portraitBoardSettings = boardSettings.value?.portrait;
-  if (!portraitBoardSettings) {
-    // console.log(" ____ portraitBoardSettings ____", portraitBoardSettings);
-    return;
-  }
-  
-  // Use Object.assign to maintain reactivity
-  Object.assign(BoardStyles.value, {
+        : game.value?.usPlayers[0].name + " | " + game.value?.usPlayers[1].name;
+  });
+  const BoardStyles = ref({
     dimension: {
-      height: portraitBoardSettings.dimension.height + 'px',
-      width: portraitBoardSettings.dimension.width + 'px',
+      height: "1920px",
+      width: "1080px",
     },
-    
     scorePanel: {
-      'margin-top': portraitBoardSettings.scorePanel.topMargin + "px",
-      left: portraitBoardSettings.scorePanel.position.left + "px",
-      top: portraitBoardSettings.scorePanel.position.top + "px",
-      height: portraitBoardSettings.scorePanel.height + "px",
-      scale: portraitBoardSettings.scorePanel.position.scale,
+      "margin-top": "0px",
+      left: "0px",
+      top: "0px",
+      height: "295px",
+      scale: 0.9,
       leftTeam: {
         name: {
-          transform: `translate(${portraitBoardSettings.scorePanel.leftTeam.name.left}px, ${portraitBoardSettings.scorePanel.leftTeam.name.top}px)`,
-          'font-size': portraitBoardSettings.scorePanel.leftTeam.name.size + "px",
+          transform: `translate(0px,0px)`,
+          "font-size": "30px",
         },
         score: {
-          transform: `translate(${portraitBoardSettings.scorePanel.leftTeam.score.left}px,${portraitBoardSettings.scorePanel.leftTeam.score.top}px)`,
-          'font-size': portraitBoardSettings.scorePanel.leftTeam.score.size + "px",
-        }
+          transform: `translate(0px,0px)`,
+          "font-size": "50px",
+        },
       },
       rightTeam: {
         name: {
-          transform: `translate(${portraitBoardSettings.scorePanel.rightTeam.name.left}px, ${portraitBoardSettings.scorePanel.rightTeam.name.top}px)`,
-          'font-size': portraitBoardSettings.scorePanel.rightTeam.name.size + "px",
+          transform: `translate(0px,0px)`,
+          "font-size": "30px",
         },
         score: {
-          transform: `translate(${portraitBoardSettings.scorePanel.rightTeam.score.left}px,${portraitBoardSettings.scorePanel.rightTeam.score.top}px)`,
-          'font-size': portraitBoardSettings.scorePanel.rightTeam.score.size + "px",
-        }
-      }
+          transform: `translate(0px,0px)`,
+          "font-size": "50px",
+        },
+      },
     },
     leftPlayer: {
-      top: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200)/2}px  + ${portraitBoardSettings.leftPlayer.top}px )`,
-      left: `${portraitBoardSettings.leftPlayer.left}px`,
-      height: `${portraitBoardSettings.playerImageWidth}px`,
-      width: `${portraitBoardSettings.playerImageWidth}px`,
+      top: "calc(50% - 100px)",
+      left: "0px",
+      height: "200px",
+      width: "200px",
     },
     rightPlayer: {
-      top: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200) / 2}px + ${portraitBoardSettings.rightPlayer.top}px )`,
-      right: `${portraitBoardSettings.rightPlayer.right}px`,
-      height: `${portraitBoardSettings.playerImageWidth}px`,
-      width: `${portraitBoardSettings.playerImageWidth}px`,
+      top: "calc(50% - 100px)",
+      right: "0px",
+      height: "200px",
+      width: "200px",
     },
     bottomPlayer: {
-      left: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200) / 2}px + ${portraitBoardSettings.bottomPlayer.left}px )`,
-      bottom: `${portraitBoardSettings.bottomPlayer.bottom}px`,
-      height: `${portraitBoardSettings.playerImageWidth}px`,
-      width: `${portraitBoardSettings.playerImageWidth}px`,
+      left: "calc(50% - 100px)",
+      bottom: "0px",
+      height: "200px",
+      width: "200px",
     },
     detailScore: {
-      color: portraitBoardSettings.detailScore.color,
-      "font-size": portraitBoardSettings.detailScore.fontSize + "px",
+      color: "#000000",
+      "font-size": "70px",
     },
-    playerImageWidth: `${portraitBoardSettings.playerImageWidth ?? 200}px`
+    playerImageWidth: "200px",
   });
-  
-  console.log("data of BoardStyles", BoardStyles.value);
-}, { deep: true, immediate: true })
+  watch(
+    boardSettings,
+    (newVal) => {
+      // console.log(" ____ boardSettings ____", newVal);
+      const portraitBoardSettings = boardSettings.value?.portrait;
+      if (!portraitBoardSettings) {
+        // console.log(" ____ portraitBoardSettings ____", portraitBoardSettings);
+        return;
+      }
 
+      // Use Object.assign to maintain reactivity
+      Object.assign(BoardStyles.value, {
+        dimension: {
+          height: portraitBoardSettings.dimension.height + "px",
+          width: portraitBoardSettings.dimension.width + "px",
+        },
+
+        scorePanel: {
+          "margin-top": portraitBoardSettings.scorePanel.topMargin + "px",
+          left: portraitBoardSettings.scorePanel.position.left + "px",
+          top: portraitBoardSettings.scorePanel.position.top + "px",
+          height: portraitBoardSettings.scorePanel.height + "px",
+          scale: portraitBoardSettings.scorePanel.position.scale,
+          leftTeam: {
+            name: {
+              transform: `translate(${portraitBoardSettings.scorePanel.leftTeam.name.left}px, ${portraitBoardSettings.scorePanel.leftTeam.name.top}px)`,
+              "font-size":
+                portraitBoardSettings.scorePanel.leftTeam.name.size + "px",
+            },
+            score: {
+              transform: `translate(${portraitBoardSettings.scorePanel.leftTeam.score.left}px,${portraitBoardSettings.scorePanel.leftTeam.score.top}px)`,
+              "font-size":
+                portraitBoardSettings.scorePanel.leftTeam.score.size + "px",
+            },
+          },
+          rightTeam: {
+            name: {
+              transform: `translate(${portraitBoardSettings.scorePanel.rightTeam.name.left}px, ${portraitBoardSettings.scorePanel.rightTeam.name.top}px)`,
+              "font-size":
+                portraitBoardSettings.scorePanel.rightTeam.name.size + "px",
+            },
+            score: {
+              transform: `translate(${portraitBoardSettings.scorePanel.rightTeam.score.left}px,${portraitBoardSettings.scorePanel.rightTeam.score.top}px)`,
+              "font-size":
+                portraitBoardSettings.scorePanel.rightTeam.score.size + "px",
+            },
+          },
+        },
+        leftPlayer: {
+          top: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200) / 2}px  + ${portraitBoardSettings.leftPlayer.top}px )`,
+          left: `${portraitBoardSettings.leftPlayer.left}px`,
+          height: `${portraitBoardSettings.playerImageWidth}px`,
+          width: `${portraitBoardSettings.playerImageWidth}px`,
+        },
+        rightPlayer: {
+          top: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200) / 2}px + ${portraitBoardSettings.rightPlayer.top}px )`,
+          right: `${portraitBoardSettings.rightPlayer.right}px`,
+          height: `${portraitBoardSettings.playerImageWidth}px`,
+          width: `${portraitBoardSettings.playerImageWidth}px`,
+        },
+        bottomPlayer: {
+          left: `calc(50% - ${(portraitBoardSettings.playerImageWidth ?? 200) / 2}px + ${portraitBoardSettings.bottomPlayer.left}px )`,
+          bottom: `${portraitBoardSettings.bottomPlayer.bottom}px`,
+          height: `${portraitBoardSettings.playerImageWidth}px`,
+          width: `${portraitBoardSettings.playerImageWidth}px`,
+        },
+        detailScore: {
+          color: portraitBoardSettings.detailScore.color,
+          "font-size": portraitBoardSettings.detailScore.fontSize + "px",
+        },
+        playerImageWidth: `${portraitBoardSettings.playerImageWidth ?? 200}px`,
+      });
+
+      console.log("data of BoardStyles", BoardStyles.value);
+    },
+    { deep: true, immediate: true },
+  );
 
   const last_sakka = computed<SakkaI | undefined>(() => {
     return game.value?.sakkas[game.value?.sakkas.length! - 1];
   });
-  
+
   const ended_moshtras = computed(() => {
     return last_sakka.value?.moshtaras.filter((m) => {
       return m.state == "Ended";
@@ -643,27 +653,24 @@ watch(boardSettings, (newVal) => {
   const themGameScore = computed(() => {
     return game.value?.themGameScore;
   });
-  
+
   const statusUs = computed(() => {
-    if (statics.value)
-      return statics.value.usStatistics;
+    if (statics.value) return statics.value.usStatistics;
   });
   const statusThem = computed(() => {
-    if (statics.value)
-      return statics.value.themStatistics;
+    if (statics.value) return statics.value.themStatistics;
   });
 
   const winner = computed(() => {
     if (game?.value?.winner) {
       if (game.value.winner == "Us") {
-  
         return {
-          players: game.value.usPlayers.length > 0 ? game.value.usPlayers : null,
+          players:
+            game.value.usPlayers.length > 0 ? game.value.usPlayers : null,
           name: game.value.usName,
           type: "Us",
         };
       } else {
-   
         return {
           players:
             game.value.themPlayers.length > 0 ? game.value.themPlayers : null,
@@ -675,32 +682,36 @@ watch(boardSettings, (newVal) => {
   });
 
   return {
-  
-
     game: game,
     boardSettings: boardSettings,
     statics,
     snapshot,
     gameService,
 
-    //data to repersent 
-    top,bottom,left,right,
-    themName,usName,
+    //data to repersent
+    top,
+    bottom,
+    left,
+    right,
+    themName,
+    usName,
     BoardStyles,
     last_sakka,
     ended_moshtras,
     gameState,
-    usGameScore,themGameScore,
-    statusUs,statusThem,
+    usGameScore,
+    themGameScore,
+    statusUs,
+    statusThem,
     winner,
-// connection
+    // connection
     initializeConnection,
     syncBoardForCurrentRoute,
     syncLastError,
     hubConnectionState: gameConnection.connectionState,
     hubConnectionError: gameConnection.connectionError,
 
-// set data for index page 
+    // set data for index page
     setGameData,
   };
 });

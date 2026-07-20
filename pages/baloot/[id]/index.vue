@@ -1,11 +1,11 @@
 <template>
   <template v-if="gameService">
-    <BalootLayoutFallback
+    <LayoutFallback
       v-if="layoutUnsupported"
       title="تنسيق غير مدعوم / Unsupported layout"
-      hint="استخدم theme=qydha أو zat مع orientation=landscape أو portrait حسب التصميم المتاح. مثال: ?theme=qydha&orienation=landscape"
+      hint="استخدم theme=qydha أو zat مع orientation=landscape أو portrait حسب التصميم المتاح. مثال: ?theme=qydha&orientation=landscape"
       :theme="theme"
-      :orientation="orienation"
+      :orientation="orientation"
     />
 
     <div
@@ -68,7 +68,7 @@ import WinnerQydhaPortrait from "../../../components/winner/Qydha/baloot/portrai
 
 import StaticsZat from "../../../components/Statics/Zat/baloot/landscape.vue";
 import StaticsQydha from "../../../components/Statics/Qydha/baloot/portrait.vue";
-import BalootLayoutFallback from "../../../components/BalootLayoutFallback.vue";
+import LayoutFallback from "../../../components/LayoutFallback.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -76,9 +76,7 @@ const router = useRouter();
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
 
-const theme = ref("zat");
-const orienation = ref("landscape");
-const showPlayers = ref(false);
+const { theme, orientation, showPlayers, themeQuery } = useRouteTheme("zat");
 
 const showObsDebug = computed(
   () =>
@@ -87,79 +85,6 @@ const showObsDebug = computed(
     route.query.debugErrors === "1" ||
     route.query.debugErrors === "true",
 );
-
-if (
-  route.query.theme &&
-  (route.query.theme == "zat" || route.query.theme == "qydha")
-) {
-  theme.value = route.query.theme ? route.query.theme : "zat";
-}
-if (
-  route.query.orienation &&
-  (route.query.orienation == "landscape" ||
-    route.query.orienation == "portrait")
-) {
-  orienation.value = route.query.orienation
-    ? route.query.orienation
-    : "landscape";
-}
-
-if (route.query.showPlayers) {
-  showPlayers.value = route.query.showPlayers == "true" ? true : false;
-}
-
-const scoreComponent = computed(() => {
-  if (theme.value === "zat" && orienation.value === "landscape") {
-    return ScoreZatLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "landscape") {
-    return ScoreQydhaLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "portrait") {
-    return ScoreQydhaPortraitsvg;
-  }
-  return null;
-});
-
-const detailComponent = computed(() => {
-  if (theme.value === "zat" && orienation.value === "landscape") {
-    return DetailZatLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "landscape") {
-    return DetailQydhaLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "portrait") {
-    return DetailQydhaPortrait;
-  }
-  return null;
-});
-
-const winnerComponent = computed(() => {
-  if (theme.value === "zat" && orienation.value === "landscape") {
-    return WinnerZatLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "landscape") {
-    return WinnerQydhaLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "portrait") {
-    return WinnerQydhaPortrait;
-  }
-  return null;
-});
-
-const staticsComponent = computed(() => {
-  if (theme.value === "zat" && orienation.value === "landscape") {
-    return StaticsZat;
-  } else if (theme.value === "qydha" && orienation.value === "landscape") {
-    return StaticsZat;
-  } else if (theme.value === "qydha" && orienation.value === "portrait") {
-    return StaticsQydha;
-  }
-  return null;
-});
-
-const layoutUnsupported = computed(() => {
-  const s = snapshot.value;
-  if (s.matches("score")) return scoreComponent.value == null;
-  if (s.matches("detail")) return detailComponent.value == null;
-  if (s.matches("statics")) return staticsComponent.value == null;
-  if (s.matches("winner")) return winnerComponent.value == null;
-  return false;
-});
 
 const gamestore = useMyBalootGameStore();
 const { gameService, syncBoardForCurrentRoute } = gamestore;
@@ -170,6 +95,55 @@ const {
   hubConnectionError,
   syncLastError,
 } = storeToRefs(gamestore);
+
+const scoreComponent = computed(() => {
+  if (theme.value === "zat" && orientation.value === "landscape") {
+    return ScoreZatLandscape;
+  } else if (theme.value === "qydha" && orientation.value === "landscape") {
+    return ScoreQydhaLandscape;
+  } else if (theme.value === "qydha" && orientation.value === "portrait") {
+    return ScoreQydhaPortraitsvg;
+  }
+  return null;
+});
+
+const detailComponent = computed(() => {
+  if (theme.value === "zat" && orientation.value === "landscape") {
+    return DetailZatLandscape;
+  } else if (theme.value === "qydha" && orientation.value === "landscape") {
+    return DetailQydhaLandscape;
+  } else if (theme.value === "qydha" && orientation.value === "portrait") {
+    return DetailQydhaPortrait;
+  }
+  return null;
+});
+
+const winnerComponent = computed(() => {
+  if (theme.value === "zat" && orientation.value === "landscape") {
+    return WinnerZatLandscape;
+  } else if (theme.value === "qydha" && orientation.value === "landscape") {
+    return WinnerQydhaLandscape;
+  } else if (theme.value === "qydha" && orientation.value === "portrait") {
+    return WinnerQydhaPortrait;
+  }
+  return null;
+});
+
+const staticsComponent = computed(() => {
+  if (theme.value === "zat" && orientation.value === "landscape") {
+    return StaticsZat;
+  } else if (theme.value === "qydha" && orientation.value === "portrait") {
+    return StaticsQydha;
+  }
+  return null;
+});
+
+const layoutUnsupported = useLayoutUnsupported(snapshot, {
+  scoreComponent,
+  detailComponent,
+  staticsComponent,
+  winnerComponent,
+});
 
 watch(
   () => route.params.id,
@@ -183,11 +157,7 @@ await syncBoardForCurrentRoute();
 onMounted(() => {
   router.push({
     path: `/baloot/${table_id}/`,
-    query: {
-      theme: theme.value,
-      orienation: orienation.value,
-      showPlayers: `${showPlayers.value}`,
-    },
+    query: themeQuery(),
   });
 });
 </script>

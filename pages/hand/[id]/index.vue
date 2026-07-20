@@ -1,33 +1,45 @@
-<template v-if="gameService">
-<div v-show="snapshot.matches('score')">
-    <component :is="scoreComponent" v-if="snapshot.matches('score') && game" />
-  </div>
-
-  <!-- Detail Screen -->
-  <div v-show="snapshot.matches('detail')">
-    <component
-      :is="detailComponent"
-      v-if="snapshot.matches('detail') && game"
+<template>
+  <template v-if="gameService">
+    <LayoutFallback
+      v-if="layoutUnsupported"
+      title="تنسيق غير مدعوم / Unsupported layout"
+      hint="استخدم theme=qydha أو zat مع orientation=landscape أو portrait حسب التصميم المتاح."
+      :theme="theme"
+      :orientation="orientation"
     />
-  </div>
 
-  <div v-show="snapshot.matches('statics')">
-    <transition name="fade" mode="out-in">
+    <div v-show="snapshot.matches('score')">
       <component
-        :is="staticsComponent"
-        v-if="snapshot.matches('statics') && game"
+        :is="scoreComponent"
+        v-if="snapshot.matches('score') && game && scoreComponent"
       />
-    </transition>
-  </div>
+    </div>
 
-  <div v-show="snapshot.matches('winner')">
-    <transition name="fade" mode="out-in">
+    <div v-show="snapshot.matches('detail')">
       <component
-        :is="winnerComponent"
-        v-if="snapshot.matches('winner') && game"
+        :is="detailComponent"
+        v-if="snapshot.matches('detail') && game && detailComponent"
       />
-    </transition>
-  </div>
+    </div>
+
+    <div v-show="snapshot.matches('statics')">
+      <transition name="fade" mode="out-in">
+        <component
+          :is="staticsComponent"
+          v-if="snapshot.matches('statics') && game && staticsComponent"
+        />
+      </transition>
+    </div>
+
+    <div v-show="snapshot.matches('winner')">
+      <transition name="fade" mode="out-in">
+        <component
+          :is="winnerComponent"
+          v-if="snapshot.matches('winner') && game && winnerComponent"
+        />
+      </transition>
+    </div>
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -39,7 +51,6 @@ import ScoreQydhaLandscape from "../../../components/Score/Qydha/hand/landscape.
 import DetailQydhaLandscape from "../../../components/Detail/Qydha/hand/landscape.vue";
 import WinnerQydhaLandscape from "../../../components/winner/Qydha/hand/landscape.vue";
 
-// import ScoreQydhaPortrait from "../../components/Score/Qydha/portrait.vue";
 import ScoreQydhaPortraitsvg from "../../../components/Score/Qydha/hand/portraitsvg.vue";
 
 import DetailQydhaPortrait from "../../../components/Detail/Qydha/hand/portrait.vue";
@@ -47,86 +58,68 @@ import WinnerQydhaPortrait from "../../../components/winner/Qydha/hand/portrait.
 
 import StaticsZat from "../../../components/Statics/Zat/hand/landscape.vue";
 import StaticsQydha from "../../../components/Statics/Qydha/hand/portrait.vue";
+import LayoutFallback from "../../../components/LayoutFallback.vue";
 
 const route = useRoute();
 const router = useRouter();
 
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
-// const { getOrCreateTable } = useTable();
-// await getOrCreateTable(table_id);
-const theme = ref("zat");
-const orienation = ref("landscape");
-const showPlayers = ref(false);
 
-if (
-  route.query.theme &&
-  (route.query.theme == "zat" || route.query.theme == "qydha")
-) {
-  theme.value = route.query.theme ? route.query.theme : "zat";
-}
-if (
-  route.query.orienation &&
-  (route.query.orienation == "landscape" ||
-    route.query.orienation == "portrait")
-) {
-  orienation.value = route.query.orienation
-    ? route.query.orienation
-    : "landscape";
-}
+const { theme, orientation, showPlayers, themeQuery } = useRouteTheme("zat");
 
-if (route.query.showPlayers) {
-  showPlayers.value = route.query.showPlayers == "true" ? true : false;
-}
-
-
+const gamestore = useMyHandGameStore();
+const { gameService, syncHandForCurrentRoute } = gamestore;
+const { snapshot, game } = storeToRefs(gamestore);
 
 const scoreComponent = computed(() => {
-  if (theme.value === "zat" && orienation.value === "landscape") {
+  if (theme.value === "zat" && orientation.value === "landscape") {
     return ScoreZatLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "landscape") {
+  } else if (theme.value === "qydha" && orientation.value === "landscape") {
     return ScoreQydhaLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "portrait") {
+  } else if (theme.value === "qydha" && orientation.value === "portrait") {
     return ScoreQydhaPortraitsvg;
   }
   return null;
 });
 
 const detailComponent = computed(() => {
-  if (theme.value === "zat" && orienation.value === "landscape") {
+  if (theme.value === "zat" && orientation.value === "landscape") {
     return DetailZatLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "landscape") {
+  } else if (theme.value === "qydha" && orientation.value === "landscape") {
     return DetailQydhaLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "portrait") {
+  } else if (theme.value === "qydha" && orientation.value === "portrait") {
     return DetailQydhaPortrait;
   }
   return null;
 });
 
 const winnerComponent = computed(() => {
-  if (theme.value === "zat" && orienation.value === "landscape") {
+  if (theme.value === "zat" && orientation.value === "landscape") {
     return WinnerZatLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "landscape") {
+  } else if (theme.value === "qydha" && orientation.value === "landscape") {
     return WinnerQydhaLandscape;
-  } else if (theme.value === "qydha" && orienation.value === "portrait") {
+  } else if (theme.value === "qydha" && orientation.value === "portrait") {
     return WinnerQydhaPortrait;
   }
   return null;
 });
 
 const staticsComponent = computed(() => {
-  if (theme.value === "zat" && orienation.value === "landscape") {
+  if (theme.value === "zat" && orientation.value === "landscape") {
     return StaticsZat;
-  } else if (theme.value === "qydha" && orienation.value === "landscape") {
-    return StaticsZat;
-  } else if (theme.value === "qydha" && orienation.value === "portrait") {
+  } else if (theme.value === "qydha" && orientation.value === "portrait") {
     return StaticsQydha;
   }
   return null;
 });
 
-const gamestore = useMyHandGameStore();
-const { syncHandForCurrentRoute } = gamestore;
+const layoutUnsupported = useLayoutUnsupported(snapshot, {
+  scoreComponent,
+  detailComponent,
+  staticsComponent,
+  winnerComponent,
+});
 
 watch(
   () => route.params.id,
@@ -140,15 +133,9 @@ await syncHandForCurrentRoute();
 onMounted(() => {
   router.push({
     path: `/hand/${table_id}/`,
-    query: {
-      theme: theme.value,
-      orienation: orienation.value,
-      showPlayers: `${showPlayers.value}`,
-    },
+    query: themeQuery(),
   });
 });
-
-const { snapshot, game } = storeToRefs(gamestore);
 </script>
 
 <style>

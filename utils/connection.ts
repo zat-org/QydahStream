@@ -10,10 +10,10 @@ export interface GameStateChangedData {
 // Connection states
 export enum ConnectionState {
   Disconnected = "Disconnected",
-  Connecting = "Connecting", 
+  Connecting = "Connecting",
   Connected = "Connected",
   Reconnecting = "Reconnecting",
-  Failed = "Failed"
+  Failed = "Failed",
 }
 
 // Connection configuration interface
@@ -26,9 +26,16 @@ export interface ConnectionConfig {
 }
 
 // Event handler types
-export type GameStateChangedHandler = (events: string, gameData: string, statics?: string) => void;
+export type GameStateChangedHandler = (
+  events: string,
+  gameData: string,
+  statics?: string,
+) => void;
 export type ConnectionErrorHandler = (error: string) => void;
-export type ConnectionStateChangedHandler = (state: ConnectionState, error?: string) => void;
+export type ConnectionStateChangedHandler = (
+  state: ConnectionState,
+  error?: string,
+) => void;
 
 // Game connection utility class
 export class GameConnection {
@@ -37,7 +44,7 @@ export class GameConnection {
   private _connectionState = ref<ConnectionState>(ConnectionState.Disconnected);
   private _connectionError = ref<string | null>(null);
   private _reconnectAttempts = ref(0);
-  
+
   // Event handlers
   private gameStateChangedHandler?: GameStateChangedHandler;
   private connectionErrorHandler?: ConnectionErrorHandler;
@@ -49,7 +56,7 @@ export class GameConnection {
       autoReconnect: true,
       maxReconnectAttempts: 5,
       logLevel: signalR.LogLevel.Information,
-      ...config
+      ...config,
     };
 
     this.connection = this.createConnection();
@@ -70,13 +77,16 @@ export class GameConnection {
   }
 
   get isConnected() {
-    return computed(() => this._connectionState.value === ConnectionState.Connected);
+    return computed(
+      () => this._connectionState.value === ConnectionState.Connected,
+    );
   }
 
   get isConnecting() {
-    return computed(() => 
-      this._connectionState.value === ConnectionState.Connecting || 
-      this._connectionState.value === ConnectionState.Reconnecting
+    return computed(
+      () =>
+        this._connectionState.value === ConnectionState.Connecting ||
+        this._connectionState.value === ConnectionState.Reconnecting,
     );
   }
 
@@ -95,12 +105,15 @@ export class GameConnection {
 
     if (this.config.autoReconnect) {
       builder.withAutomaticReconnect({
-        nextRetryDelayInMilliseconds: retryContext => {
+        nextRetryDelayInMilliseconds: (retryContext) => {
           if (retryContext.previousRetryCount === 0) {
             return 0;
           }
-          return Math.min(1000 * Math.pow(2, retryContext.previousRetryCount), 30000);
-        }
+          return Math.min(
+            1000 * Math.pow(2, retryContext.previousRetryCount),
+            30000,
+          );
+        },
       });
     }
 
@@ -115,14 +128,21 @@ export class GameConnection {
         this._connectionError.value = error.message;
         console.error("Connection closed due to error:", error);
         if (import.meta.client) {
-          void import("~/utils/client-error-log").then(({ pushClientErrorFromUnknown }) => {
-            pushClientErrorFromUnknown("signalr", error, { phase: "onclose" });
-          });
+          void import("~/utils/client-error-log").then(
+            ({ pushClientErrorFromUnknown }) => {
+              pushClientErrorFromUnknown("signalr", error, {
+                phase: "onclose",
+              });
+            },
+          );
         }
       } else {
         console.log("Connection closed");
       }
-      this.notifyConnectionStateChanged(this._connectionState.value, error?.message);
+      this.notifyConnectionStateChanged(
+        this._connectionState.value,
+        error?.message,
+      );
     });
 
     this.connection.onreconnecting((error) => {
@@ -144,7 +164,10 @@ export class GameConnection {
           });
         });
       }
-      this.notifyConnectionStateChanged(this._connectionState.value, error?.message);
+      this.notifyConnectionStateChanged(
+        this._connectionState.value,
+        error?.message,
+      );
     });
 
     this.connection.onreconnected((connectionId) => {
@@ -160,7 +183,7 @@ export class GameConnection {
   private setupEventListeners(): void {
     // Event listeners are now set up in individual stores for maximum flexibility
     // Stores can use: gameConnection.connection.on("EventName", handler)
-    
+
     // Only keep essential connection error handling here
     this.connection.on("ConnectionError", (error: string) => {
       console.error("Server reported connection error:", error);
@@ -181,7 +204,10 @@ export class GameConnection {
   }
 
   // Notify connection state changes
-  private notifyConnectionStateChanged(state: ConnectionState, error?: string): void {
+  private notifyConnectionStateChanged(
+    state: ConnectionState,
+    error?: string,
+  ): void {
     if (this.connectionStateChangedHandler) {
       this.connectionStateChangedHandler(state, error);
     }
@@ -212,9 +238,8 @@ export class GameConnection {
       );
 
       if (import.meta.client) {
-        const { pushClientErrorFromUnknown } = await import(
-          "~/utils/client-error-log"
-        );
+        const { pushClientErrorFromUnknown } =
+          await import("~/utils/client-error-log");
         pushClientErrorFromUnknown("signalr", error, {
           phase: "ensureConnected",
         });
@@ -230,7 +255,9 @@ export class GameConnection {
   }
 
   // Join game group methods
-  async joinBoardGroup(playerTableId: string): Promise<{hasData:boolean , game:string}> {
+  async joinBoardGroup(
+    playerTableId: string,
+  ): Promise<{ hasData: boolean; game: string }> {
     try {
       console.log("Joining board group:", { playerTableId });
       return await this.connection.invoke("AddToBoardGroup", playerTableId);
@@ -240,10 +267,17 @@ export class GameConnection {
     }
   }
 
-  async joinTournamentTableGroup(tourId: number, tableId: number): Promise<{hasData:boolean , game:string}> {
+  async joinTournamentTableGroup(
+    tourId: number,
+    tableId: number,
+  ): Promise<{ hasData: boolean; game: string }> {
     try {
       console.log("Joining tournament table group:", { tourId, tableId });
-      return await this.connection.invoke("AddToTournamentTableGroup", tourId, tableId);
+      return await this.connection.invoke(
+        "AddToTournamentTableGroup",
+        tourId,
+        tableId,
+      );
     } catch (error) {
       console.error("Failed to join tournament table group:", error);
       throw error;
@@ -252,8 +286,10 @@ export class GameConnection {
 
   // Manual reconnection function
   async reconnect(): Promise<void> {
-    if (this._connectionState.value === ConnectionState.Connecting || 
-        this._connectionState.value === ConnectionState.Reconnecting) {
+    if (
+      this._connectionState.value === ConnectionState.Connecting ||
+      this._connectionState.value === ConnectionState.Reconnecting
+    ) {
       console.log("Connection already in progress");
       return;
     }
@@ -267,9 +303,13 @@ export class GameConnection {
       this.notifyConnectionStateChanged(this._connectionState.value);
     } catch (error) {
       this._connectionState.value = ConnectionState.Failed;
-      this._connectionError.value = error instanceof Error ? error.message : "Reconnection failed";
+      this._connectionError.value =
+        error instanceof Error ? error.message : "Reconnection failed";
       console.error("Manual reconnection failed:", error);
-      this.notifyConnectionStateChanged(this._connectionState.value, this._connectionError.value);
+      this.notifyConnectionStateChanged(
+        this._connectionState.value,
+        this._connectionError.value,
+      );
       throw error;
     }
   }
@@ -310,8 +350,8 @@ export const parseEvents = <T extends string>(eventName: string): T[] => {
   try {
     return eventName
       .split(",")
-      .map(e => e.trim() as T)
-      .filter(e => e); // Remove empty strings
+      .map((e) => e.trim() as T)
+      .filter((e) => e); // Remove empty strings
   } catch (error) {
     console.error("Failed to parse events:", error);
     return [];
@@ -319,9 +359,12 @@ export const parseEvents = <T extends string>(eventName: string): T[] => {
 };
 
 // Factory function to create a game connection
-export const createGameConnection = (socketUrl: string, options?: Partial<ConnectionConfig>): GameConnection => {
+export const createGameConnection = (
+  socketUrl: string,
+  options?: Partial<ConnectionConfig>,
+): GameConnection => {
   return new GameConnection({
     socketUrl,
-    ...options
+    ...options,
   });
 };

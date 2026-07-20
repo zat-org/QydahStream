@@ -9,19 +9,32 @@
 import gsap from "gsap";
 const {sleep} =useSleep()
 import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+const route = useRoute();
 const { store } = DetectBoard();
-const { boardSettings } = storeToRefs(store.value as BalootStore | HandStore);
-const Boardstyles = computed(()=>{
-  return {
-    left:"-14px",
-    top:"0px",
-  };
-  return {
+const storeRef = store.value as BalootStore   ;
+const { boardSettings } = storeToRefs(storeRef);
 
-    left:boardSettings.value?.portrait.scorePanel.position.left+"px",
-    top:boardSettings.value?.portrait.scorePanel.position.top+"px",
+const boardStyles = computed(() => {
+  if (route.path.includes("hand")) {
+    return {
+      left: "-14px",
+      top: "0px",
+    };
   }
-})
+
+  const portrait = boardSettings.value?.portrait;
+  if (portrait?.scorePanel?.position) {
+    return {
+      left: `${portrait.scorePanel.position.left}px`,
+      top: `${portrait.scorePanel.position.top}px`,
+    };
+  }
+
+  return {
+    left: "-14px",
+    top: "0px",
+  };
+});
 const svg=computed( ()=>{
 return `<svg 
       version="1.1"
@@ -29,8 +42,8 @@ return `<svg
       width="1149px"
       style=" 
       position:absolute ;
-      left:${Boardstyles.value.left } ;
-      top:${Boardstyles.value.top } "
+      left:${boardStyles.value.left } ;
+      top:${boardStyles.value.top } "
       height="312px"
       sodipodi:docname="Qydha Coner Score Layers.svg"
       inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"

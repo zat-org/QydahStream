@@ -28,6 +28,7 @@
     "vue": "latest"
   },
   "devDependencies": {
-    "@nuxtjs/svg": "^0.4.1"
+    "@nuxtjs/svg": "^0.4.1",
+    "@vitejs/plugin-basic-ssl": "^1.2.0"
   }
 }

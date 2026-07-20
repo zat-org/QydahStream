@@ -1,11 +1,3 @@
-import type { BoardSettingsI } from "./boardSettings";
-
-export interface HandGameI {
-    gameData: HandGameDataI;
-    boardSettings: BoardSettingsI;
-  }
-
-
 export interface HandGameDataI {
     id: string
     createdAt: string
