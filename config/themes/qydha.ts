@@ -14,8 +14,8 @@ export const qydhaTheme: ThemeConfig = {
         videoHeight: 1080,
         introStartSec: 0,
         introEndSec: 4.5,
-        /** Kept for /config compatibility; score text now starts as soon as video is ready (delay 0). */
-        mountDelaySec: 0,
+        /** Matches video’s built-in intro — text fades in after this delay. */
+        mountDelaySec: 2,
         mountFadeSec: 1.2,
         scoreTweenSec: 0.75,
         unmountFadeSec: 0.5,

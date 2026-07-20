@@ -3,7 +3,6 @@
     <video
       ref="mediaElm"
       class="video"
-      :class="{ 'video--ready': videoReady }"
       muted
       playsinline
       preload="auto"
@@ -79,7 +78,8 @@
 <script lang="ts" setup>
 /**
  * Shared landscape Score shell.
- * Names/scores stay hidden until the score video has data, then GSAP fades them in.
+ * Same timing as the old Qydha score Vue: play video immediately,
+ * delay text with mountDelaySec, fixed introEndSec clock.
  */
 import gsap from "gsap";
 import type {
@@ -120,7 +120,6 @@ const scoreCfg = computed<LandscapeScoreConfig | null>(() => {
 const mediaElm = ref<HTMLVideoElement>();
 const team1wrapper = ref<HTMLElement | null>(null);
 const team2wrapper = ref<HTMLElement | null>(null);
-const videoReady = ref(false);
 const currentScoreState = ref<string | null>(null);
 const lastHandledSendState = ref<string | null>(null);
 let mountTimeline: gsap.core.Timeline | null = null;
@@ -161,16 +160,6 @@ function hideTeams() {
   gsap.set(els, { opacity: 0 });
 }
 
-async function waitForTeamEls(tries = 10): Promise<HTMLElement[]> {
-  for (let i = 0; i < tries; i++) {
-    await nextTick();
-    const els = teamEls();
-    if (els.length >= 2) return els;
-    await new Promise((r) => setTimeout(r, 16));
-  }
-  return teamEls();
-}
-
 const scoreStateKey = computed(() => {
   if (snapshot.value.matches("score.intro")) return "score.intro";
   if (snapshot.value.matches("score.main")) return "score.main";
@@ -184,15 +173,39 @@ const sendNextOnceForState = (stateKey: string) => {
   lastHandledSendState.value = stateKey;
 };
 
-/** Fade in names/scores — call only after video is ready/playing. */
-const scoreMount = async (score1: number, score2: number, delaySec = 0) => {
+/** Play video from `atSec` immediately — no ready-wait, no fade gate. */
+function playVideo(atSec: number, playbackRate = 1) {
+  const video = mediaElm.value;
+  if (!video) return;
+  video.playbackRate = playbackRate;
+  try {
+    video.currentTime = atSec;
+  } catch {
+    /* ignore */
+  }
+  void video.play().catch((err) => {
+    console.warn("[ScoreLandscape] video.play() failed", err);
+  });
+}
+
+function pauseVideoAt(atSec: number) {
+  const video = mediaElm.value;
+  if (!video) return;
+  video.pause();
+  try {
+    video.currentTime = atSec;
+  } catch {
+    /* ignore */
+  }
+}
+
+const scoreMount = (score1: number, score2: number) => {
   const cfg = scoreCfg.value;
-  if (!cfg) return;
-  const els = await waitForTeamEls();
-  if (!els.length) return;
+  const els = teamEls();
+  if (!cfg || !els.length) return;
   mountTimeline?.kill();
   hideTeams();
-  mountTimeline = gsap.timeline({ delay: Math.max(0, delaySec) });
+  mountTimeline = gsap.timeline({ delay: Math.max(0, cfg.mountDelaySec) });
   mountTimeline
     .fromTo(
       els,
@@ -210,11 +223,10 @@ const scoreMount = async (score1: number, score2: number, delaySec = 0) => {
     });
 };
 
-const scoreUnMount = async () => {
+const scoreUnMount = () => {
   const cfg = scoreCfg.value;
-  if (!cfg) return;
-  const els = await waitForTeamEls();
-  if (!els.length) return;
+  const els = teamEls();
+  if (!cfg || !els.length) return;
   unmountTimeline?.kill();
   unmountTimeline = gsap.timeline();
   unmountTimeline.to(els, {
@@ -224,11 +236,10 @@ const scoreUnMount = async () => {
   });
 };
 
-const mainScoreMount = async (score1: number, score2: number) => {
+const mainScoreMount = (score1: number, score2: number) => {
   const cfg = scoreCfg.value;
-  if (!cfg) return;
-  const els = await waitForTeamEls();
-  if (!els.length) return;
+  const els = teamEls();
+  if (!cfg || !els.length) return;
   mainTimeline?.kill();
   gsap.set(els, { opacity: 1 });
   mainTimeline = gsap.timeline();
@@ -239,67 +250,9 @@ const mainScoreMount = async (score1: number, score2: number) => {
   });
 };
 
-async function waitForVideoData(video: HTMLVideoElement) {
-  if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-    videoReady.value = true;
-    return;
-  }
-
-  await new Promise<void>((resolve) => {
-    let settled = false;
-    const done = () => {
-      if (settled) return;
-      settled = true;
-      video.removeEventListener("loadeddata", done);
-      video.removeEventListener("canplay", done);
-      videoReady.value = true;
-      resolve();
-    };
-    video.addEventListener("loadeddata", done);
-    video.addEventListener("canplay", done);
-    window.setTimeout(done, 8000);
-  });
-}
-
-async function seekAndPlay(atSec: number, playbackRate = 1) {
-  const video = mediaElm.value;
-  if (!video) return;
-  await waitForVideoData(video);
-  video.playbackRate = playbackRate;
-  try {
-    if (Math.abs(video.currentTime - atSec) > 0.05) {
-      video.currentTime = atSec;
-    }
-  } catch {
-    /* ignore */
-  }
-  try {
-    if (video.paused) {
-      await video.play();
-    }
-  } catch (err) {
-    console.warn("[ScoreLandscape] video.play() failed", err);
-  }
-}
-
-async function seekPaused(atSec: number) {
-  const video = mediaElm.value;
-  if (!video) return;
-  await waitForVideoData(video);
-  video.pause();
-  try {
-    if (Math.abs(video.currentTime - atSec) > 0.05) {
-      video.currentTime = atSec;
-    }
-  } catch {
-    /* ignore */
-  }
-}
-
 let applyGeneration = 0;
-const lastAppliedVideo = ref<string | null>(null);
 
-async function applyScoreState(newState: string, forceVideoRestart = false) {
+async function applyScoreState(newState: string) {
   const cfg = scoreCfg.value;
   if (!cfg) return;
 
@@ -310,35 +263,22 @@ async function applyScoreState(newState: string, forceVideoRestart = false) {
   await nextTick();
   if (generation !== applyGeneration) return;
 
-  // Keep text + video faded out until media has frames
-  hideTeams();
-  videoReady.value = false;
-
   const s1 = last_sakka.value?.usSakkaScore ?? 0;
   const s2 = last_sakka.value?.themSakkaScore ?? 0;
 
   if (newState === "score.intro") {
-    // Wait for video download/ready, then start text animation immediately (no extra delay)
-    const introStartedAt = performance.now();
-    await seekAndPlay(cfg.introStartSec, 1);
-    if (generation !== applyGeneration) return;
-    lastAppliedVideo.value = cfg.video;
-    await scoreMount(s1, s2, 0);
-
-    const elapsedMs = performance.now() - introStartedAt;
-    const remainingMs = Math.max(0, cfg.introEndSec * 1000 - elapsedMs);
-    await sleep(remainingMs);
+    playVideo(cfg.introStartSec, 1);
+    scoreMount(s1, s2);
+    await sleep(cfg.introEndSec * 1000);
     if (generation !== applyGeneration) return;
     if (currentScoreState.value !== newState) return;
-    await seekPaused(cfg.introEndSec);
+    pauseVideoAt(cfg.introEndSec);
     sendNextOnceForState(newState);
   }
 
   if (newState === "score.main") {
-    await seekPaused(cfg.introEndSec);
-    if (generation !== applyGeneration) return;
-    lastAppliedVideo.value = cfg.video;
-    await mainScoreMount(s1, s2);
+    pauseVideoAt(cfg.introEndSec);
+    mainScoreMount(s1, s2);
   }
 
   if (newState === "score.outro") {
@@ -349,10 +289,8 @@ async function applyScoreState(newState: string, forceVideoRestart = false) {
         sendNextOnceForState(newState);
       };
     }
-    await seekAndPlay(cfg.introEndSec, cfg.outroPlaybackRate);
-    if (generation !== applyGeneration) return;
-    lastAppliedVideo.value = cfg.video;
-    await scoreUnMount();
+    playVideo(cfg.introEndSec, cfg.outroPlaybackRate);
+    scoreUnMount();
   }
 }
 
@@ -376,7 +314,7 @@ watch(
       !stateChanged && currentScoreState.value === newState && !videoChanged;
     if (sameStateAlreadyHandled && !cfgJustReady) return;
 
-    void applyScoreState(newState, videoChanged);
+    void applyScoreState(newState);
   },
   { immediate: true },
 );
@@ -414,17 +352,12 @@ onBeforeUnmount(() => {
   @apply absolute text-[1.5rem] h-[40px] flex justify-center items-center top-1.5;
 }
 
-/* Hidden until video has frames — then GSAP fades in */
 .teamWrap {
   @apply text-[white] text-center absolute opacity-0;
 }
 
 .video {
-  @apply relative top-0 left-0 z-[-1] opacity-0 transition-opacity duration-300;
-}
-
-.video--ready {
-  @apply opacity-100;
+  @apply relative top-0 left-0 z-[-1];
 }
 
 .SponsorImage {
