@@ -4,6 +4,8 @@
       ref="mediaElm"
       class="video"
       muted
+      playsinline
+      preload="auto"
       :height="scoreCfg.videoHeight"
       :width="scoreCfg.videoWidth"
       :src="scoreCfg.video"
@@ -206,20 +208,21 @@ const mainScoreMount = (score1: number, score2: number) => {
 
 async function waitForVideoData(video: HTMLVideoElement) {
   if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return;
+
   await new Promise<void>((resolve) => {
+    let settled = false;
     const done = () => {
+      if (settled) return;
+      settled = true;
       video.removeEventListener("loadeddata", done);
       video.removeEventListener("canplay", done);
       resolve();
     };
     video.addEventListener("loadeddata", done);
     video.addEventListener("canplay", done);
-    // Kick load if needed (src may have just been bound)
-    try {
-      video.load();
-    } catch {
-      /* ignore */
-    }
+    // Do NOT call video.load() — it aborts and restarts the download (slow).
+    // Timeout so we never hang forever
+    window.setTimeout(done, 8000);
   });
 }
 
@@ -229,12 +232,16 @@ async function seekAndPlay(atSec: number, playbackRate = 1) {
   await waitForVideoData(video);
   video.playbackRate = playbackRate;
   try {
-    video.currentTime = atSec;
+    if (Math.abs(video.currentTime - atSec) > 0.05) {
+      video.currentTime = atSec;
+    }
   } catch {
     /* some browsers throw before metadata */
   }
   try {
-    await video.play();
+    if (video.paused) {
+      await video.play();
+    }
   } catch (err) {
     console.warn("[ScoreLandscape] video.play() failed", err);
   }
@@ -246,15 +253,19 @@ async function seekPaused(atSec: number) {
   await waitForVideoData(video);
   video.pause();
   try {
-    video.currentTime = atSec;
+    if (Math.abs(video.currentTime - atSec) > 0.05) {
+      video.currentTime = atSec;
+    }
   } catch {
     /* ignore */
   }
 }
 
 let applyGeneration = 0;
+/** Last video URL we started playback for — avoid restart when RTDB only changes positions. */
+const lastAppliedVideo = ref<string | null>(null);
 
-async function applyScoreState(newState: string) {
+async function applyScoreState(newState: string, forceVideoRestart = false) {
   const cfg = scoreCfg.value;
   if (!cfg) return;
 
@@ -262,15 +273,19 @@ async function applyScoreState(newState: string) {
   currentScoreState.value = newState;
   lastHandledSendState.value = null;
 
-  // Video mounts with v-if="scoreCfg" — wait one tick for ref
   await nextTick();
   if (generation !== applyGeneration) return;
 
   const s1 = last_sakka.value?.usSakkaScore ?? 0;
   const s2 = last_sakka.value?.themSakkaScore ?? 0;
+  const videoChanged =
+    forceVideoRestart || lastAppliedVideo.value !== cfg.video;
 
   if (newState === "score.intro") {
-    await seekAndPlay(cfg.introStartSec, 1);
+    if (videoChanged || mediaElm.value?.paused !== false) {
+      await seekAndPlay(cfg.introStartSec, 1);
+      lastAppliedVideo.value = cfg.video;
+    }
     if (generation !== applyGeneration) return;
     scoreMount(s1, s2);
     await sleep(cfg.introEndSec * 1000);
@@ -283,6 +298,7 @@ async function applyScoreState(newState: string) {
   if (newState === "score.main") {
     await seekPaused(cfg.introEndSec);
     if (generation !== applyGeneration) return;
+    lastAppliedVideo.value = cfg.video;
     mainScoreMount(s1, s2);
   }
 
@@ -296,6 +312,7 @@ async function applyScoreState(newState: string) {
     }
     await seekAndPlay(cfg.introEndSec, cfg.outroPlaybackRate);
     if (generation !== applyGeneration) return;
+    lastAppliedVideo.value = cfg.video;
     scoreUnMount();
   }
 }
@@ -307,13 +324,22 @@ watch(
 
     const stateChanged = newState !== oldState;
     const cfgJustReady = !oldCfg && !!scoreCfg.value;
-    const sameStateAlreadyHandled =
-      !stateChanged && currentScoreState.value === newState;
+    const videoChanged =
+      !!oldCfg &&
+      !!scoreCfg.value &&
+      oldCfg.video !== scoreCfg.value.video;
 
-    // Skip only if nothing new (same state + config was already there)
+    // RTDB arrived with same video — only positions/timings; styles update reactively.
+    // Do not restart playback.
+    if (!stateChanged && !cfgJustReady && !videoChanged) {
+      return;
+    }
+
+    const sameStateAlreadyHandled =
+      !stateChanged && currentScoreState.value === newState && !videoChanged;
     if (sameStateAlreadyHandled && !cfgJustReady) return;
 
-    void applyScoreState(newState);
+    void applyScoreState(newState, videoChanged);
   },
   { immediate: true },
 );

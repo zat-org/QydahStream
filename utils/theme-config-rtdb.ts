@@ -71,13 +71,12 @@ export async function saveThemeConfigToRtdb(
 
 /**
  * Live subscribe to theme_configs/{themeId}.
- * Emits file fallback first, seeds RTDB if missing, then pushes RTDB updates.
- * Returns an unsubscribe function.
+ * Always emits local file first (sync), then RTDB when ready — never blocks on Firebase.
  */
-export async function subscribeThemeConfig(
+export function subscribeThemeConfig(
   themeId: string,
   onUpdate: (result: ResolvedThemeConfig) => void,
-): Promise<() => void> {
+): () => void {
   const file = getFileThemeConfig(themeId);
   if (file) {
     onUpdate({ config: deepClone(file), source: "file" });
@@ -89,42 +88,46 @@ export async function subscribeThemeConfig(
     return () => {};
   }
 
-  try {
-    await seedThemeConfigFromFileIfMissing(themeId);
-  } catch (err) {
-    if (import.meta.dev) {
-      console.warn("[theme-config] seed before subscribe failed", err);
+  let unsubscribed = false;
+  let unsubscribeRtdb: (() => void) | null = null;
+
+  void (async () => {
+    try {
+      // Seed in background if needed — do not block first paint
+      void seedThemeConfigFromFileIfMissing(themeId).catch(() => {});
+
+      const ready = await ensureFirebase();
+      if (!ready || unsubscribed) return;
+
+      const pathRef = dbRef(ready.db, `${THEME_CONFIGS_PATH}/${themeId}`);
+      unsubscribeRtdb = onValue(
+        pathRef,
+        (snap) => {
+          if (unsubscribed) return;
+          if (snap.exists() && isThemeConfigShape(snap.val())) {
+            onUpdate({ config: deepClone(snap.val()), source: "rtdb" });
+            return;
+          }
+          if (file) {
+            onUpdate({ config: deepClone(file), source: "file" });
+          }
+        },
+        (err) => {
+          console.warn("[theme-config] subscribe error", err);
+        },
+      );
+    } catch (err) {
+      if (import.meta.dev) {
+        console.warn("[theme-config] subscribe setup failed", err);
+      }
     }
-  }
+  })();
 
-  const ready = await ensureFirebase();
-  if (!ready) {
-    return () => {};
-  }
-
-  const pathRef = dbRef(ready.db, `${THEME_CONFIGS_PATH}/${themeId}`);
-  const unsubscribe = onValue(
-    pathRef,
-    (snap) => {
-      if (snap.exists() && isThemeConfigShape(snap.val())) {
-        onUpdate({ config: deepClone(snap.val()), source: "rtdb" });
-        return;
-      }
-      if (file) {
-        onUpdate({ config: deepClone(file), source: "file" });
-      } else {
-        onUpdate({ config: null, source: null });
-      }
-    },
-    (err) => {
-      console.warn("[theme-config] subscribe error", err);
-      if (file) {
-        onUpdate({ config: deepClone(file), source: "file" });
-      }
-    },
-  );
-
-  return unsubscribe;
+  return () => {
+    unsubscribed = true;
+    unsubscribeRtdb?.();
+    unsubscribeRtdb = null;
+  };
 }
 
 /**
