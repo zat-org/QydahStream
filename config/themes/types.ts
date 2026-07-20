@@ -27,7 +27,7 @@ export type LandscapeScoreConfig = {
   videoHeight: number;
   introStartSec: number;
   introEndSec: number;
-  /** Delay before team wraps fade in on intro. */
+  /** Extra delay AFTER video is ready/playing before team text fades in. */
   mountDelaySec: number;
   mountFadeSec: number;
   scoreTweenSec: number;

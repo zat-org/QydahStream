@@ -3,6 +3,7 @@
     <video
       ref="mediaElm"
       class="video"
+      :class="{ 'video--ready': videoReady }"
       muted
       playsinline
       preload="auto"
@@ -78,7 +79,7 @@
 <script lang="ts" setup>
 /**
  * Shared landscape Score shell.
- * Step 1 pilot: Baloot only — reads skin from theme config, numbers from Baloot store.
+ * Names/scores stay hidden until the score video has data, then GSAP fades them in.
  */
 import gsap from "gsap";
 import type {
@@ -119,6 +120,7 @@ const scoreCfg = computed<LandscapeScoreConfig | null>(() => {
 const mediaElm = ref<HTMLVideoElement>();
 const team1wrapper = ref<HTMLElement | null>(null);
 const team2wrapper = ref<HTMLElement | null>(null);
+const videoReady = ref(false);
 const currentScoreState = ref<string | null>(null);
 const lastHandledSendState = ref<string | null>(null);
 let mountTimeline: gsap.core.Timeline | null = null;
@@ -146,6 +148,11 @@ function scoreStyle(team: LandscapeTeamLayout) {
   return style;
 }
 
+function hideTeams() {
+  gsap.killTweensOf([team1wrapper.value, team2wrapper.value]);
+  gsap.set([team1wrapper.value, team2wrapper.value], { opacity: 0 });
+}
+
 const scoreStateKey = computed(() => {
   if (snapshot.value.matches("score.intro")) return "score.intro";
   if (snapshot.value.matches("score.main")) return "score.main";
@@ -159,12 +166,13 @@ const sendNextOnceForState = (stateKey: string) => {
   lastHandledSendState.value = stateKey;
 };
 
-const scoreMount = (score1: number, score2: number) => {
+/** Fade in names/scores — call only after video is ready/playing. */
+const scoreMount = (score1: number, score2: number, delaySec = 0) => {
   const cfg = scoreCfg.value;
   if (!cfg) return;
   mountTimeline?.kill();
-  mountTimeline = gsap.timeline();
-  mountTimeline.delay(cfg.mountDelaySec);
+  hideTeams();
+  mountTimeline = gsap.timeline({ delay: Math.max(0, delaySec) });
   mountTimeline
     .fromTo(
       [team1wrapper.value, team2wrapper.value],
@@ -198,6 +206,7 @@ const mainScoreMount = (score1: number, score2: number) => {
   const cfg = scoreCfg.value;
   if (!cfg) return;
   mainTimeline?.kill();
+  gsap.set([team1wrapper.value, team2wrapper.value], { opacity: 1 });
   mainTimeline = gsap.timeline();
   mainTimeline.to(tweenedScores, {
     team1: score1,
@@ -207,7 +216,10 @@ const mainScoreMount = (score1: number, score2: number) => {
 };
 
 async function waitForVideoData(video: HTMLVideoElement) {
-  if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return;
+  if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    videoReady.value = true;
+    return;
+  }
 
   await new Promise<void>((resolve) => {
     let settled = false;
@@ -216,12 +228,11 @@ async function waitForVideoData(video: HTMLVideoElement) {
       settled = true;
       video.removeEventListener("loadeddata", done);
       video.removeEventListener("canplay", done);
+      videoReady.value = true;
       resolve();
     };
     video.addEventListener("loadeddata", done);
     video.addEventListener("canplay", done);
-    // Do NOT call video.load() — it aborts and restarts the download (slow).
-    // Timeout so we never hang forever
     window.setTimeout(done, 8000);
   });
 }
@@ -236,7 +247,7 @@ async function seekAndPlay(atSec: number, playbackRate = 1) {
       video.currentTime = atSec;
     }
   } catch {
-    /* some browsers throw before metadata */
+    /* ignore */
   }
   try {
     if (video.paused) {
@@ -262,7 +273,6 @@ async function seekPaused(atSec: number) {
 }
 
 let applyGeneration = 0;
-/** Last video URL we started playback for — avoid restart when RTDB only changes positions. */
 const lastAppliedVideo = ref<string | null>(null);
 
 async function applyScoreState(newState: string, forceVideoRestart = false) {
@@ -276,19 +286,25 @@ async function applyScoreState(newState: string, forceVideoRestart = false) {
   await nextTick();
   if (generation !== applyGeneration) return;
 
+  // Keep text + video faded out until media has frames
+  hideTeams();
+  videoReady.value = false;
+
   const s1 = last_sakka.value?.usSakkaScore ?? 0;
   const s2 = last_sakka.value?.themSakkaScore ?? 0;
-  const videoChanged =
-    forceVideoRestart || lastAppliedVideo.value !== cfg.video;
 
   if (newState === "score.intro") {
-    if (videoChanged || mediaElm.value?.paused !== false) {
-      await seekAndPlay(cfg.introStartSec, 1);
-      lastAppliedVideo.value = cfg.video;
-    }
+    // Wait for video download/ready, then start text animation immediately (no extra delay)
+    const introStartedAt = performance.now();
+    await seekAndPlay(cfg.introStartSec, 1);
     if (generation !== applyGeneration) return;
-    scoreMount(s1, s2);
-    await sleep(cfg.introEndSec * 1000);
+    lastAppliedVideo.value = cfg.video;
+
+    scoreMount(s1, s2, 0);
+
+    const elapsedMs = performance.now() - introStartedAt;
+    const remainingMs = Math.max(0, cfg.introEndSec * 1000 - elapsedMs);
+    await sleep(remainingMs);
     if (generation !== applyGeneration) return;
     if (currentScoreState.value !== newState) return;
     await seekPaused(cfg.introEndSec);
@@ -329,8 +345,6 @@ watch(
       !!scoreCfg.value &&
       oldCfg.video !== scoreCfg.value.video;
 
-    // RTDB arrived with same video — only positions/timings; styles update reactively.
-    // Do not restart playback.
     if (!stateChanged && !cfgJustReady && !videoChanged) {
       return;
     }
@@ -377,12 +391,17 @@ onBeforeUnmount(() => {
   @apply absolute text-[1.5rem] h-[40px] flex justify-center items-center top-1.5;
 }
 
+/* Hidden until video has frames — then GSAP fades in */
 .teamWrap {
-  @apply text-[white] text-center absolute opacity-100;
+  @apply text-[white] text-center absolute opacity-0;
 }
 
 .video {
-  @apply relative top-0 left-0 z-[-1];
+  @apply relative top-0 left-0 z-[-1] opacity-0 transition-opacity duration-300;
+}
+
+.video--ready {
+  @apply opacity-100;
 }
 
 .SponsorImage {
