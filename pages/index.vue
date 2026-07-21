@@ -15,15 +15,8 @@ import ScoreQydhaPortraitsvg from "../components/Score/Qydha/baloot/portraitsvg.
 
 
 const gamestore = useMyBalootGameStore();
-const { gameService, initializeConnection, setGameData } = gamestore;
-onMounted(async () => {
-  await initializeConnection();
-});
-// if ((connection.state as string) != "Connected") {
-//   await initializeConnection();
-// }
-
-const { snapshot, game } = storeToRefs(gamestore);
+const { setGameData } = gamestore;
+// Demo page only — do not open SignalR (no board id → unknown noise in /log)
 setGameData({
   createdAt: "2024-10-25T17:53:58.744865+00:00",
   endedAt: null,

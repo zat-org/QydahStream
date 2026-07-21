@@ -79,8 +79,15 @@ function truncatePayload(
 }
 
 function inferGame(path: string): LogGame {
-  if (path.includes("/hand")) return "hand";
-  if (path.includes("/baloot") || path.includes("/tournament")) return "baloot";
+  const clean = path.split("?")[0] ?? path;
+  if (clean.includes("/hand")) return "hand";
+  if (clean.includes("/baloot") || clean.includes("/tournament")) return "baloot";
+  // Live board by id: /{uuid} or /{id}
+  if (/^\/[^/]+$/i.test(clean) && !["/log", "/config"].includes(clean)) {
+    return "baloot";
+  }
+  // Demo home uses baloot store + ScoreQydha
+  if (clean === "/") return "baloot";
   return "unknown";
 }
 
@@ -301,14 +308,21 @@ export async function pushLog(input: PushLogInput): Promise<void> {
     if (!ready) return;
 
     const ctx = collectContext();
+    const game = input.game ?? ctx.game;
+    // Skip noise from /log, /config, and other non-board pages
+    if (game === "unknown") return;
+
     const gameId =
       input.gameId ||
       (typeof input.payload?.gameId === "string"
         ? input.payload.gameId
         : undefined) ||
       ctx.tableId ||
-      "unknown";
-    const eventSeq = nextEventSeq(gameId);
+      undefined;
+    // Client/vue errors without a real board id → don't create "unknown" groups
+    if (!gameId && input.type === "error") return;
+
+    const eventSeq = nextEventSeq(gameId || ctx.tableId || "nogame");
     const hubEvents =
       input.hubEvents ??
       (Array.isArray(input.payload?.events)
@@ -322,8 +336,8 @@ export async function pushLog(input: PushLogInput): Promise<void> {
       level: input.level ?? "info",
       type: input.type,
       message: input.message.slice(0, 500),
-      game: input.game ?? ctx.game,
-      gameId,
+      game,
+      gameId: gameId || ctx.tableId || "pending",
       eventSeq,
       hubEvents,
       changes,
@@ -442,4 +456,17 @@ export function subscribeRecentLogs(
     unsubRtdb?.();
     unsubRtdb = null;
   };
+}
+
+/** Wipe all entries under debug_logs (used by /log Clear button). */
+export async function clearDebugLogs(): Promise<void> {
+  if (!import.meta.client) return;
+  if (!isFirebaseConfigured()) return;
+
+  const { remove } = await import("firebase/database");
+  const ready = await ensureFirebase();
+  if (!ready) throw new Error("Firebase is not configured");
+
+  await remove(dbRef(ready.db, RTDB_PATH));
+  eventSeqByGameId.clear();
 }

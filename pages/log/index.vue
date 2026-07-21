@@ -130,6 +130,14 @@
           </button>
           <button
             type="button"
+            class="rounded bg-red-900/80 px-3 py-1.5 text-xs text-red-100 hover:bg-red-800 disabled:opacity-50"
+            :disabled="clearing || loading"
+            @click="clearLogs"
+          >
+            {{ clearing ? "Clearing…" : "Clear logs" }}
+          </button>
+          <button
+            type="button"
             class="rounded bg-zinc-700 px-3 py-1.5 text-xs hover:bg-zinc-600"
             @click="copyJson"
           >
@@ -231,7 +239,8 @@
                   </span>
                   <span
                     v-if="group.appEnv"
-                    class="text-[10px] uppercase text-zinc-600"
+                    class="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                    :class="envBadge(group.appEnv)"
                   >
                     {{ group.appEnv }}
                   </span>
@@ -296,6 +305,12 @@
                   </span>
                   <div class="min-w-0 flex-1 space-y-1.5">
                     <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span
+                        class="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                        :class="envBadge(row.appEnv)"
+                      >
+                        {{ row.appEnv || "?" }}
+                      </span>
                       <span class="text-[10px] text-zinc-500">{{
                         formatTime(row.t)
                       }}</span>
@@ -417,6 +432,7 @@
 <script setup lang="ts">
 import {
   subscribeRecentLogs,
+  clearDebugLogs,
   formatChangeValue,
   diffFields,
   type DebugLogEntry,
@@ -455,6 +471,7 @@ const password = ref("");
 const authError = ref("");
 const unlocked = ref(false);
 const loading = ref(false);
+const clearing = ref(false);
 const loadError = ref("");
 const liveOk = ref(false);
 const rows = ref<LogRow[]>([]);
@@ -745,6 +762,31 @@ function reconnectLive() {
   startLive();
 }
 
+async function clearLogs() {
+  if (
+    !confirm(
+      "Clear ALL debug logs in Firebase? This cannot be undone.",
+    )
+  ) {
+    return;
+  }
+  clearing.value = true;
+  loadError.value = "";
+  try {
+    if (!isFirebaseConfigured()) {
+      loadError.value = "Firebase is not configured.";
+      return;
+    }
+    await clearDebugLogs();
+    rows.value = [];
+  } catch (e) {
+    loadError.value =
+      e instanceof Error ? e.message : "Failed to clear logs";
+  } finally {
+    clearing.value = false;
+  }
+}
+
 async function copyJson() {
   try {
     await navigator.clipboard.writeText(
@@ -769,6 +811,14 @@ function relativeAgo(t: number) {
   const min = Math.floor(sec / 60);
   if (min < 60) return `${min}m ago`;
   return `${Math.floor(min / 60)}h ago`;
+}
+
+function envBadge(env: string | undefined) {
+  if (env === "production") return "bg-rose-950 text-rose-300 border border-rose-800/60";
+  if (env === "staging") return "bg-amber-950 text-amber-200 border border-amber-800/60";
+  if (env === "preview") return "bg-sky-950 text-sky-300 border border-sky-800/60";
+  if (env === "development") return "bg-zinc-800 text-zinc-300 border border-zinc-700";
+  return "bg-zinc-900 text-zinc-500 border border-zinc-800";
 }
 
 function levelBadge(level: LogLevel | undefined) {

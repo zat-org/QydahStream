@@ -8,11 +8,9 @@
 <script lang="ts" setup>
 import gsap from "gsap";
 const {sleep} =useSleep()
-import type { BalootStore, HandStore } from "~/composables/DetectBoard";
+import type { BalootStore } from "~/composables/DetectBoard";
 const route = useRoute();
 const { store } = DetectBoard();
-const storeRef = store.value as BalootStore   ;
-const { boardSettings } = storeToRefs(storeRef);
 
 const boardStyles = computed(() => {
   if (route.path.includes("hand")) {
@@ -22,7 +20,9 @@ const boardStyles = computed(() => {
     };
   }
 
-  const portrait = boardSettings.value?.portrait;
+  // Pinia unwraps refs on the store; DetectBoard always sets baloot|hand now
+  const portrait = (store.value as BalootStore | undefined)?.boardSettings
+    ?.portrait;
   if (portrait?.scorePanel?.position) {
     return {
       left: `${portrait.scorePanel.position.left}px`,
