@@ -25,7 +25,8 @@ One landscape shell per screen reads both
 
 ## Deferred
 
-- **Statics:** Qydha has no landscape statics Vue (portrait only). `/config` statics tab stays unavailable until a landscape design exists (or a separate portrait-config pass).
+- **Statics (config harvest):** Still not in `qydha.ts` /config tabs.
+- **Qydha landscape statics UI:** No dedicated Qydha landscape Vue — boards reuse **Zat landscape statics** shell so sakka-end → statics works (avoids Unsupported layout). Portrait still uses `Statics/Qydha/baloot/portrait.vue`.
 
 ## Next
 

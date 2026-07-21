@@ -128,7 +128,12 @@ const winnerComponent = computed(() => {
 });
 
 const staticsComponent = computed(() => {
-  if (theme.value === "zat" && orientation.value === "landscape") {
+  // Qydha has no dedicated landscape statics Vue — reuse Zat landscape shell
+  // (same Baloot store stats) so sakka-end flow works instead of Unsupported layout.
+  if (
+    orientation.value === "landscape" &&
+    (theme.value === "zat" || theme.value === "qydha")
+  ) {
     return StaticsZat;
   } else if (theme.value === "qydha" && orientation.value === "portrait") {
     return StaticsQydha;
