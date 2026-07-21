@@ -348,7 +348,19 @@ export async function pushLog(input: PushLogInput): Promise<void> {
   }
 }
 
-/** Fetch recent logs for /log page (newest first). */
+function rowsFromSnap(
+  snap: { exists: () => boolean; forEach: (cb: (child: { key: string | null; val: () => unknown }) => void) => void },
+): Array<DebugLogEntry & { id: string }> {
+  if (!snap.exists()) return [];
+  const rows: Array<DebugLogEntry & { id: string }> = [];
+  snap.forEach((child) => {
+    const val = child.val() as DebugLogEntry;
+    rows.push({ id: child.key ?? "", ...val });
+  });
+  return rows.reverse();
+}
+
+/** One-shot fetch (newest first). Prefer subscribeRecentLogs on /log. */
 export async function fetchRecentLogs(limit = 400): Promise<
   Array<DebugLogEntry & { id: string }>
 > {
@@ -369,16 +381,65 @@ export async function fetchRecentLogs(limit = 400): Promise<
       limitToLast(limit),
     );
     const snap = await get(q);
-    if (!snap.exists()) return [];
-
-    const rows: Array<DebugLogEntry & { id: string }> = [];
-    snap.forEach((child) => {
-      const val = child.val() as DebugLogEntry;
-      rows.push({ id: child.key ?? "", ...val });
-    });
-    return rows.reverse();
+    return rowsFromSnap(snap);
   } catch (err) {
     console.warn("[firebase-logger] fetch failed", err);
     return [];
   }
+}
+
+/**
+ * Live RTDB subscription for /log — updates whenever debug_logs change.
+ * Returns an unsubscribe function (safe to call multiple times).
+ */
+export function subscribeRecentLogs(
+  limit: number,
+  onRows: (rows: Array<DebugLogEntry & { id: string }>) => void,
+  onError?: (message: string) => void,
+): () => void {
+  let cancelled = false;
+  let unsubRtdb: (() => void) | null = null;
+
+  void (async () => {
+    if (!import.meta.client || !isFirebaseConfigured()) {
+      onError?.("Firebase is not configured.");
+      onRows([]);
+      return;
+    }
+    try {
+      const { onValue, query, limitToLast, orderByChild } = await import(
+        "firebase/database"
+      );
+      const ready = await ensureFirebase();
+      if (!ready || cancelled) return;
+
+      const q = query(
+        dbRef(ready.db, RTDB_PATH),
+        orderByChild("t"),
+        limitToLast(limit),
+      );
+      unsubRtdb = onValue(
+        q,
+        (snap) => {
+          if (cancelled) return;
+          onRows(rowsFromSnap(snap));
+        },
+        (err) => {
+          console.warn("[firebase-logger] subscribe error", err);
+          onError?.(err.message || "Live log subscribe failed");
+        },
+      );
+    } catch (err) {
+      console.warn("[firebase-logger] subscribe setup failed", err);
+      onError?.(
+        err instanceof Error ? err.message : "Live log subscribe failed",
+      );
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+    unsubRtdb?.();
+    unsubRtdb = null;
+  };
 }

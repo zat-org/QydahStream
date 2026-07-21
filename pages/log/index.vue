@@ -5,12 +5,29 @@
         <div>
           <h1 class="text-xl font-semibold tracking-tight">Debug logs</h1>
           <p class="mt-1 text-xs text-zinc-400">
-            Grouped by game · numbered events · field diffs · RTDB
+            Live · running games first · event diffs · RTDB
           </p>
         </div>
-        <p class="font-mono text-[11px] text-zinc-500">
-          this build: {{ appEnv }}
-        </p>
+        <div class="flex items-center gap-3">
+          <span
+            v-if="unlocked"
+            class="inline-flex items-center gap-1.5 font-mono text-[11px]"
+            :class="liveOk ? 'text-emerald-400' : 'text-zinc-500'"
+          >
+            <span
+              class="h-1.5 w-1.5 rounded-full"
+              :class="
+                liveOk
+                  ? 'animate-pulse bg-emerald-400'
+                  : 'bg-zinc-600'
+              "
+            />
+            {{ liveOk ? "live" : "offline" }}
+          </span>
+          <p class="font-mono text-[11px] text-zinc-500">
+            this build: {{ appEnv }}
+          </p>
+        </div>
       </header>
 
       <form
@@ -81,13 +98,21 @@
             <input v-model="hubOnly" type="checkbox" class="rounded border-zinc-600" />
             hub events only
           </label>
+          <label class="flex items-center gap-1.5 text-[11px] text-zinc-400">
+            <input
+              v-model="liveOnly"
+              type="checkbox"
+              class="rounded border-zinc-600"
+            />
+            running only
+          </label>
           <button
             type="button"
             class="rounded bg-zinc-700 px-3 py-1.5 text-xs hover:bg-zinc-600"
             :disabled="loading"
-            @click="reload"
+            @click="reconnectLive"
           >
-            {{ loading ? "Loading…" : "Refresh" }}
+            {{ loading ? "Connecting…" : "Reconnect" }}
           </button>
           <button
             type="button"
@@ -121,8 +146,12 @@
 
         <p v-if="loadError" class="mb-3 text-sm text-red-400">{{ loadError }}</p>
         <p class="mb-3 text-xs text-zinc-500">
+          <span v-if="liveCount" class="text-emerald-400"
+            >{{ liveCount }} running ·
+          </span>
           {{ groups.length }} game group(s) · {{ filtered.length }} event(s) /
           {{ rows.length }} loaded
+          <span class="text-zinc-600"> · auto-updates</span>
         </p>
 
         <div
@@ -136,20 +165,60 @@
           <section
             v-for="group in groups"
             :key="group.key"
-            class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/60"
+            class="overflow-hidden rounded-xl border"
+            :class="
+              group.isLive
+                ? 'border-emerald-500/70 bg-emerald-950/25 shadow-[0_0_0_1px_rgba(16,185,129,0.15)]'
+                : 'border-zinc-800 bg-zinc-900/60'
+            "
           >
             <button
               type="button"
-              class="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-zinc-900"
+              class="flex w-full items-center gap-3 px-4 py-3 text-left"
+              :class="
+                group.isLive
+                  ? 'bg-emerald-950/40 hover:bg-emerald-950/55'
+                  : 'hover:bg-zinc-900'
+              "
               @click="toggleGroup(group.key)"
             >
-              <span class="font-mono text-sm text-zinc-500">
+              <span
+                class="font-mono text-sm"
+                :class="group.isLive ? 'text-emerald-400' : 'text-zinc-500'"
+              >
                 {{ collapsed[group.key] ? "▸" : "▾" }}
               </span>
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="rounded bg-emerald-900/50 px-2 py-0.5 font-mono text-[11px] text-emerald-300">
+                  <span
+                    v-if="group.isLive"
+                    class="inline-flex items-center gap-1 rounded-full border border-emerald-500/50 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-300"
+                  >
+                    <span
+                      class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400"
+                    />
+                    Running
+                  </span>
+                  <span
+                    class="rounded px-2 py-0.5 font-mono text-[11px]"
+                    :class="
+                      group.isLive
+                        ? 'bg-emerald-800/50 text-emerald-200'
+                        : 'bg-zinc-800 text-zinc-400'
+                    "
+                  >
                     game {{ shortId(group.key) }}
+                  </span>
+                  <span
+                    v-if="group.game"
+                    class="rounded px-1.5 py-0.5 text-[10px] uppercase"
+                    :class="
+                      group.isLive
+                        ? 'bg-emerald-900/60 text-emerald-300'
+                        : 'bg-zinc-800 text-zinc-500'
+                    "
+                  >
+                    {{ group.game }}
                   </span>
                   <span class="text-[11px] text-zinc-500">
                     {{ group.events.length }} events
@@ -160,28 +229,68 @@
                   <span v-if="group.theme" class="text-[11px] text-zinc-500">
                     {{ group.theme }}/{{ group.orientation ?? "?" }}
                   </span>
+                  <span
+                    v-if="group.appEnv"
+                    class="text-[10px] uppercase text-zinc-600"
+                  >
+                    {{ group.appEnv }}
+                  </span>
                 </div>
-                <p class="mt-0.5 truncate font-mono text-[10px] text-zinc-600">
+                <p
+                  class="mt-0.5 truncate font-mono text-[10px]"
+                  :class="group.isLive ? 'text-emerald-500/60' : 'text-zinc-600'"
+                >
                   {{ group.key }}
                 </p>
+                <p
+                  v-if="group.scoreLabel"
+                  class="mt-1 font-mono text-[10px]"
+                  :class="group.isLive ? 'text-emerald-200/80' : 'text-zinc-500'"
+                >
+                  {{ group.scoreLabel }}
+                </p>
               </div>
-              <span class="shrink-0 text-[10px] text-zinc-500">
-                {{ formatTime(group.latestT) }}
-              </span>
+              <div class="shrink-0 text-right">
+                <span
+                  class="block text-[10px]"
+                  :class="group.isLive ? 'text-emerald-400' : 'text-zinc-500'"
+                >
+                  {{ formatTime(group.latestT) }}
+                </span>
+                <span
+                  v-if="group.isLive"
+                  class="mt-0.5 block text-[9px] text-emerald-500/80"
+                >
+                  {{ relativeAgo(group.latestT) }}
+                </span>
+              </div>
             </button>
 
             <ol
               v-show="!collapsed[group.key]"
-              class="divide-y divide-zinc-800/80 border-t border-zinc-800"
+              class="divide-y border-t"
+              :class="
+                group.isLive
+                  ? 'divide-emerald-900/40 border-emerald-800/50'
+                  : 'divide-zinc-800/80 border-zinc-800'
+              "
             >
               <li
                 v-for="(row, idx) in group.events"
                 :key="row.id"
-                class="px-4 py-3 hover:bg-zinc-950/50"
+                class="px-4 py-3"
+                :class="
+                  group.isLive ? 'hover:bg-emerald-950/30' : 'hover:bg-zinc-950/50'
+                "
               >
                 <div class="flex flex-wrap items-start gap-2">
                   <span
-                    class="mt-0.5 inline-flex h-5 min-w-[2rem] items-center justify-center rounded bg-zinc-800 px-1.5 font-mono text-[10px] font-semibold text-zinc-300"
+                    class="mt-0.5 inline-flex h-5 min-w-[2rem] items-center justify-center rounded px-1.5 font-mono text-[10px] font-semibold"
+                    :class="
+                      group.isLive
+                        ? 'bg-emerald-900/60 text-emerald-200'
+                        : 'bg-zinc-800 text-zinc-300'
+                    "
                   >
                     #{{ row.eventSeq ?? idx + 1 }}
                   </span>
@@ -307,17 +416,21 @@
 
 <script setup lang="ts">
 import {
-  fetchRecentLogs,
+  subscribeRecentLogs,
   formatChangeValue,
   diffFields,
   type DebugLogEntry,
   type FieldChange,
   type LogEventType,
+  type LogGame,
   type LogLevel,
 } from "~/utils/firebase-logger";
 import { isFirebaseConfigured } from "~/utils/firebase.client";
 
 const UNLOCK_KEY = "qydah:log-unlocked";
+/** Board with an event in the last 3 minutes counts as running. */
+const LIVE_WINDOW_MS = 3 * 60 * 1000;
+const LOG_LIMIT = 400;
 
 type LogRow = DebugLogEntry & { id: string };
 
@@ -326,7 +439,11 @@ type GameGroup = {
   tableId?: string;
   theme?: string;
   orientation?: string;
+  game?: LogGame;
+  appEnv?: string;
   latestT: number;
+  isLive: boolean;
+  scoreLabel: string | null;
   events: LogRow[];
 };
 
@@ -339,16 +456,23 @@ const authError = ref("");
 const unlocked = ref(false);
 const loading = ref(false);
 const loadError = ref("");
+const liveOk = ref(false);
 const rows = ref<LogRow[]>([]);
+/** Ticks so "running" badges age without a new event. */
+const nowMs = ref(Date.now());
 
 const filterEnv = ref("");
 const filterType = ref<"" | LogEventType>("");
 const filterTable = ref("");
 const filterGameId = ref("");
 const hubOnly = ref(false);
+const liveOnly = ref(false);
 
 const collapsed = reactive<Record<string, boolean>>({});
 const rawOpen = reactive<Record<string, boolean>>({});
+
+let stopLive: (() => void) | null = null;
+let clockTimer: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
   if (
@@ -356,8 +480,13 @@ onMounted(() => {
     sessionStorage.getItem(UNLOCK_KEY) === "1"
   ) {
     unlocked.value = true;
-    void reload();
+    startLive();
   }
+});
+
+onBeforeUnmount(() => {
+  stopLiveSub();
+  stopClock();
 });
 
 const filtered = computed(() => {
@@ -378,6 +507,7 @@ const filtered = computed(() => {
 
 const groups = computed((): GameGroup[] => {
   const map = new Map<string, GameGroup>();
+  const now = nowMs.value;
   // filtered is newest-first; build chronological within each group
   for (const row of [...filtered.value].reverse()) {
     const key = groupKey(row);
@@ -388,7 +518,11 @@ const groups = computed((): GameGroup[] => {
         tableId: row.tableId,
         theme: row.theme,
         orientation: row.orientation,
+        game: row.game,
+        appEnv: row.appEnv,
         latestT: row.t,
+        isLive: false,
+        scoreLabel: null,
         events: [],
       };
       map.set(key, g);
@@ -398,9 +532,41 @@ const groups = computed((): GameGroup[] => {
     if (!g.tableId && row.tableId) g.tableId = row.tableId;
     if (!g.theme && row.theme) g.theme = row.theme;
     if (!g.orientation && row.orientation) g.orientation = row.orientation;
+    if (!g.game && row.game) g.game = row.game;
+    if (!g.appEnv && row.appEnv) g.appEnv = row.appEnv;
   }
-  return [...map.values()].sort((a, b) => b.latestT - a.latestT);
+
+  for (const g of map.values()) {
+    g.isLive = now - g.latestT <= LIVE_WINDOW_MS && !groupLooksEnded(g);
+    // Prefer latest event that has a score label
+    for (let i = g.events.length - 1; i >= 0; i--) {
+      const label = scorePreviewLabel(g.events[i]!);
+      if (label) {
+        g.scoreLabel = label;
+        break;
+      }
+    }
+  }
+
+  let list = [...map.values()];
+  if (liveOnly.value) list = list.filter((g) => g.isLive);
+
+  return list.sort((a, b) => {
+    if (a.isLive !== b.isLive) return a.isLive ? -1 : 1;
+    return b.latestT - a.latestT;
+  });
 });
+
+const liveCount = computed(() => groups.value.filter((g) => g.isLive).length);
+
+function groupLooksEnded(g: GameGroup): boolean {
+  const last = g.events[g.events.length - 1];
+  if (!last) return false;
+  const names = hubNames(last);
+  return names.some(
+    (n) => n === "GameEnded" || n === "MatchEnded" || n === "GameFinished",
+  );
+}
 
 function groupKey(row: LogRow): string {
   return row.gameId || row.tableId || row.tourId || "unknown";
@@ -506,32 +672,77 @@ function unlock() {
   }
   unlocked.value = true;
   sessionStorage.setItem(UNLOCK_KEY, "1");
-  void reload();
+  startLive();
 }
 
 function lock() {
   unlocked.value = false;
   password.value = "";
   sessionStorage.removeItem(UNLOCK_KEY);
+  stopLiveSub();
+  stopClock();
+  liveOk.value = false;
 }
 
-async function reload() {
+function stopLiveSub() {
+  stopLive?.();
+  stopLive = null;
+}
+
+function stopClock() {
+  if (clockTimer) {
+    clearInterval(clockTimer);
+    clockTimer = null;
+  }
+}
+
+function startClock() {
+  stopClock();
+  nowMs.value = Date.now();
+  clockTimer = setInterval(() => {
+    nowMs.value = Date.now();
+  }, 15_000);
+}
+
+function startLive() {
+  stopLiveSub();
+  startClock();
   loading.value = true;
   loadError.value = "";
-  try {
-    if (!isFirebaseConfigured()) {
-      loadError.value =
-        "Firebase is not configured (apiKey / projectId / appId / databaseURL).";
-      rows.value = [];
-      return;
-    }
-    rows.value = await fetchRecentLogs(400);
-  } catch (e) {
+  liveOk.value = false;
+
+  if (!isFirebaseConfigured()) {
     loadError.value =
-      e instanceof Error ? e.message : "Failed to load logs from Firebase";
-  } finally {
+      "Firebase is not configured (apiKey / projectId / appId / databaseURL).";
+    rows.value = [];
     loading.value = false;
+    return;
   }
+
+  stopLive = subscribeRecentLogs(
+    LOG_LIMIT,
+    (next) => {
+      rows.value = next;
+      loading.value = false;
+      liveOk.value = true;
+      loadError.value = "";
+      // Auto-expand newly live games the first time we see them
+      for (const g of groups.value) {
+        if (g.isLive && collapsed[g.key] === undefined) {
+          collapsed[g.key] = false;
+        }
+      }
+    },
+    (message) => {
+      loading.value = false;
+      liveOk.value = false;
+      loadError.value = message;
+    },
+  );
+}
+
+function reconnectLive() {
+  startLive();
 }
 
 async function copyJson() {
@@ -550,6 +761,14 @@ function formatTime(t: number) {
   } catch {
     return String(t);
   }
+}
+
+function relativeAgo(t: number) {
+  const sec = Math.max(0, Math.floor((nowMs.value - t) / 1000));
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  return `${Math.floor(min / 60)}h ago`;
 }
 
 function levelBadge(level: LogLevel | undefined) {
