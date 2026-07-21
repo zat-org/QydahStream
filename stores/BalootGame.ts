@@ -14,6 +14,7 @@ function gameSnapshotForLog(g: GameDataI | null | undefined) {
   if (!g) return null;
   const last = g.sakkas?.[g.sakkas.length - 1];
   return {
+    id: g.id,
     state: g.state,
     usName: g.usName,
     themName: g.themName,
@@ -23,6 +24,7 @@ function gameSnapshotForLog(g: GameDataI | null | undefined) {
     sakkaCount: g.sakkas?.length ?? 0,
     lastSakka: last
       ? {
+          id: last.id,
           usSakkaScore: last.usSakkaScore,
           themSakkaScore: last.themSakkaScore,
           isMashdoda: last.isMashdoda,
@@ -73,6 +75,9 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   const newGame = ref<GameDataI>()!;
 
   let events: BalootGameEvent[] = [];
+
+  const resolveLogGameId = () =>
+    newGame.value?.id || game.value?.id || undefined;
 
   const { gameMachine } = useNashraMachine();
   const gameService = interpret(gameMachine).start();
@@ -494,6 +499,8 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         level: "info",
         message: `BalootGameStateChanged: ${events.join(",") || "(none)"}`,
         game: "baloot",
+        gameId: resolveLogGameId(),
+        hubEvents: [...events],
         payload: {
           events,
           machineState: machineStateBefore,

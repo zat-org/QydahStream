@@ -1,11 +1,11 @@
 <template>
   <div class="min-h-screen bg-zinc-950 px-4 py-6 text-zinc-100">
-    <div class="mx-auto max-w-5xl">
+    <div class="mx-auto max-w-6xl">
       <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 class="text-xl font-semibold tracking-tight">Debug logs</h1>
           <p class="mt-1 text-xs text-zinc-400">
-            Firebase RTDB · appEnv filter · password required
+            Grouped by game · numbered events · field diffs · RTDB
           </p>
         </div>
         <p class="font-mono text-[11px] text-zinc-500">
@@ -66,11 +66,21 @@
             <option value="game_event">game_event</option>
           </select>
           <input
+            v-model="filterGameId"
+            type="search"
+            placeholder="game id…"
+            class="min-w-[10rem] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-xs"
+          />
+          <input
             v-model="filterTable"
             type="search"
             placeholder="table id…"
-            class="min-w-[12rem] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-xs"
+            class="min-w-[10rem] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-xs"
           />
+          <label class="flex items-center gap-1.5 text-[11px] text-zinc-400">
+            <input v-model="hubOnly" type="checkbox" class="rounded border-zinc-600" />
+            hub events only
+          </label>
           <button
             type="button"
             class="rounded bg-zinc-700 px-3 py-1.5 text-xs hover:bg-zinc-600"
@@ -78,6 +88,20 @@
             @click="reload"
           >
             {{ loading ? "Loading…" : "Refresh" }}
+          </button>
+          <button
+            type="button"
+            class="rounded bg-zinc-700 px-3 py-1.5 text-xs hover:bg-zinc-600"
+            @click="expandAll"
+          >
+            Expand all
+          </button>
+          <button
+            type="button"
+            class="rounded bg-zinc-700 px-3 py-1.5 text-xs hover:bg-zinc-600"
+            @click="collapseAll"
+          >
+            Collapse all
           </button>
           <button
             type="button"
@@ -96,48 +120,176 @@
         </div>
 
         <p v-if="loadError" class="mb-3 text-sm text-red-400">{{ loadError }}</p>
-        <p class="mb-2 text-xs text-zinc-500">
-          showing {{ filtered.length }} / {{ rows.length }}
+        <p class="mb-3 text-xs text-zinc-500">
+          {{ groups.length }} game group(s) · {{ filtered.length }} event(s) /
+          {{ rows.length }} loaded
         </p>
 
         <div
-          class="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/50"
+          v-if="filtered.length === 0"
+          class="rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-10 text-center text-sm text-zinc-500"
         >
-          <div
-            v-if="filtered.length === 0"
-            class="px-4 py-8 text-center text-sm text-zinc-500"
+          No logs yet. Open a board page so events are written to Firebase.
+        </div>
+
+        <div v-else class="space-y-3">
+          <section
+            v-for="group in groups"
+            :key="group.key"
+            class="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/60"
           >
-            No logs yet. Open a board page so events are written to Firebase.
-          </div>
-          <ul v-else class="divide-y divide-zinc-800 font-mono text-[11px]">
-            <li
-              v-for="row in filtered"
-              :key="row.id"
-              class="px-3 py-2.5 hover:bg-zinc-900"
+            <button
+              type="button"
+              class="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-zinc-900"
+              @click="toggleGroup(group.key)"
             >
-              <div class="flex flex-wrap gap-x-3 gap-y-1">
-                <span class="text-zinc-500">{{ formatTime(row.t) }}</span>
-                <span :class="levelClass(row.level)">{{ row.level }}</span>
-                <span class="text-cyan-300">{{ row.type }}</span>
-                <span class="text-amber-200/90">{{ row.appEnv }}</span>
-                <span class="text-zinc-400">{{ row.game }}</span>
-                <span v-if="row.theme" class="text-zinc-500">
-                  {{ row.theme }}/{{ row.orientation ?? "?" }}
-                </span>
-                <span v-if="row.tableId" class="text-zinc-500">
-                  table={{ row.tableId }}
-                </span>
+              <span class="font-mono text-sm text-zinc-500">
+                {{ collapsed[group.key] ? "▸" : "▾" }}
+              </span>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="rounded bg-emerald-900/50 px-2 py-0.5 font-mono text-[11px] text-emerald-300">
+                    game {{ shortId(group.key) }}
+                  </span>
+                  <span class="text-[11px] text-zinc-500">
+                    {{ group.events.length }} events
+                  </span>
+                  <span v-if="group.tableId" class="text-[11px] text-zinc-500">
+                    table {{ shortId(group.tableId) }}
+                  </span>
+                  <span v-if="group.theme" class="text-[11px] text-zinc-500">
+                    {{ group.theme }}/{{ group.orientation ?? "?" }}
+                  </span>
+                </div>
+                <p class="mt-0.5 truncate font-mono text-[10px] text-zinc-600">
+                  {{ group.key }}
+                </p>
               </div>
-              <div class="mt-0.5 break-words text-zinc-200">{{ row.message }}</div>
-              <div v-if="row.route" class="text-zinc-600">{{ row.route }}</div>
-              <div
-                v-if="row.payload"
-                class="mt-0.5 break-all text-zinc-600"
+              <span class="shrink-0 text-[10px] text-zinc-500">
+                {{ formatTime(group.latestT) }}
+              </span>
+            </button>
+
+            <ol
+              v-show="!collapsed[group.key]"
+              class="divide-y divide-zinc-800/80 border-t border-zinc-800"
+            >
+              <li
+                v-for="(row, idx) in group.events"
+                :key="row.id"
+                class="px-4 py-3 hover:bg-zinc-950/50"
               >
-                {{ JSON.stringify(row.payload) }}
-              </div>
-            </li>
-          </ul>
+                <div class="flex flex-wrap items-start gap-2">
+                  <span
+                    class="mt-0.5 inline-flex h-5 min-w-[2rem] items-center justify-center rounded bg-zinc-800 px-1.5 font-mono text-[10px] font-semibold text-zinc-300"
+                  >
+                    #{{ row.eventSeq ?? idx + 1 }}
+                  </span>
+                  <div class="min-w-0 flex-1 space-y-1.5">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span class="text-[10px] text-zinc-500">{{
+                        formatTime(row.t)
+                      }}</span>
+                      <span
+                        class="rounded px-1.5 py-0.5 text-[10px] uppercase tracking-wide"
+                        :class="levelBadge(row.level)"
+                      >
+                        {{ row.level }}
+                      </span>
+                      <span
+                        class="rounded px-1.5 py-0.5 text-[10px]"
+                        :class="typeBadge(row.type)"
+                      >
+                        {{ row.type }}
+                      </span>
+                    </div>
+
+                    <!-- Hub event names -->
+                    <div
+                      v-if="hubNames(row).length"
+                      class="flex flex-wrap gap-1"
+                    >
+                      <span
+                        v-for="name in hubNames(row)"
+                        :key="name"
+                        class="rounded-full border border-cyan-800/60 bg-cyan-950/40 px-2 py-0.5 text-[10px] font-medium text-cyan-200"
+                      >
+                        {{ name }}
+                      </span>
+                    </div>
+                    <p v-else class="text-[11px] text-zinc-300">
+                      {{ row.message }}
+                    </p>
+
+                    <p
+                      v-if="hubNames(row).length && row.message"
+                      class="text-[10px] text-zinc-500"
+                    >
+                      {{ row.message }}
+                    </p>
+
+                    <!-- Field changes -->
+                    <div
+                      v-if="rowChanges(row).length"
+                      class="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/80"
+                    >
+                      <div
+                        class="border-b border-zinc-800 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-zinc-500"
+                      >
+                        Fields updated ({{ rowChanges(row).length }})
+                      </div>
+                      <ul class="max-h-48 overflow-auto font-mono text-[10px]">
+                        <li
+                          v-for="ch in rowChanges(row)"
+                          :key="ch.field"
+                          class="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 border-b border-zinc-900 px-2 py-1 last:border-0"
+                        >
+                          <span class="truncate text-amber-200/90">{{
+                            ch.field
+                          }}</span>
+                          <span class="truncate text-red-300/80">{{
+                            formatChangeValue(ch.from)
+                          }}</span>
+                          <span class="truncate text-emerald-300/90"
+                            >→ {{ formatChangeValue(ch.to) }}</span
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                    <p
+                      v-else-if="hubNames(row).length"
+                      class="text-[10px] italic text-zinc-600"
+                    >
+                      No field diffs vs previous board snapshot
+                    </p>
+
+                    <!-- Machine state chip -->
+                    <div
+                      v-if="machineLabel(row)"
+                      class="text-[10px] text-zinc-500"
+                    >
+                      machine:
+                      <span class="text-violet-300">{{ machineLabel(row) }}</span>
+                    </div>
+
+                    <button
+                      v-if="row.payload"
+                      type="button"
+                      class="text-[10px] text-zinc-500 underline-offset-2 hover:text-zinc-300 hover:underline"
+                      @click="toggleRaw(row.id)"
+                    >
+                      {{ rawOpen[row.id] ? "Hide raw payload" : "Show raw payload" }}
+                    </button>
+                    <pre
+                      v-if="row.payload && rawOpen[row.id]"
+                      class="max-h-56 overflow-auto rounded border border-zinc-800 bg-black/40 p-2 text-[10px] text-zinc-500"
+                      >{{ JSON.stringify(row.payload, null, 2) }}</pre
+                    >
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </section>
         </div>
       </template>
     </div>
@@ -147,13 +299,27 @@
 <script setup lang="ts">
 import {
   fetchRecentLogs,
+  formatChangeValue,
+  diffFields,
   type DebugLogEntry,
+  type FieldChange,
   type LogEventType,
   type LogLevel,
 } from "~/utils/firebase-logger";
 import { isFirebaseConfigured } from "~/utils/firebase.client";
 
 const UNLOCK_KEY = "qydah:log-unlocked";
+
+type LogRow = DebugLogEntry & { id: string };
+
+type GameGroup = {
+  key: string;
+  tableId?: string;
+  theme?: string;
+  orientation?: string;
+  latestT: number;
+  events: LogRow[];
+};
 
 const config = useRuntimeConfig().public;
 const appEnv = computed(() => String(config.appEnv ?? "development"));
@@ -164,11 +330,16 @@ const authError = ref("");
 const unlocked = ref(false);
 const loading = ref(false);
 const loadError = ref("");
-const rows = ref<Array<DebugLogEntry & { id: string }>>([]);
+const rows = ref<LogRow[]>([]);
 
 const filterEnv = ref("");
 const filterType = ref<"" | LogEventType>("");
 const filterTable = ref("");
+const filterGameId = ref("");
+const hubOnly = ref(false);
+
+const collapsed = reactive<Record<string, boolean>>({});
+const rawOpen = reactive<Record<string, boolean>>({});
 
 onMounted(() => {
   if (
@@ -182,15 +353,101 @@ onMounted(() => {
 
 const filtered = computed(() => {
   const tableQ = filterTable.value.trim().toLowerCase();
+  const gameQ = filterGameId.value.trim().toLowerCase();
   return rows.value.filter((row) => {
     if (filterEnv.value && row.appEnv !== filterEnv.value) return false;
     if (filterType.value && row.type !== filterType.value) return false;
     if (tableQ && !(row.tableId ?? "").toLowerCase().includes(tableQ)) {
       return false;
     }
+    const gid = groupKey(row).toLowerCase();
+    if (gameQ && !gid.includes(gameQ)) return false;
+    if (hubOnly.value && hubNames(row).length === 0) return false;
     return true;
   });
 });
+
+const groups = computed((): GameGroup[] => {
+  const map = new Map<string, GameGroup>();
+  // filtered is newest-first; build chronological within each group
+  for (const row of [...filtered.value].reverse()) {
+    const key = groupKey(row);
+    let g = map.get(key);
+    if (!g) {
+      g = {
+        key,
+        tableId: row.tableId,
+        theme: row.theme,
+        orientation: row.orientation,
+        latestT: row.t,
+        events: [],
+      };
+      map.set(key, g);
+    }
+    g.events.push(row);
+    if (row.t > g.latestT) g.latestT = row.t;
+    if (!g.tableId && row.tableId) g.tableId = row.tableId;
+    if (!g.theme && row.theme) g.theme = row.theme;
+    if (!g.orientation && row.orientation) g.orientation = row.orientation;
+  }
+  return [...map.values()].sort((a, b) => b.latestT - a.latestT);
+});
+
+function groupKey(row: LogRow): string {
+  return row.gameId || row.tableId || row.tourId || "unknown";
+}
+
+function shortId(id: string) {
+  if (id.length <= 12) return id;
+  return `${id.slice(0, 8)}…${id.slice(-4)}`;
+}
+
+function hubNames(row: LogRow): string[] {
+  if (row.hubEvents?.length) return row.hubEvents;
+  const ev = row.payload?.events;
+  if (Array.isArray(ev)) return ev.filter((e) => typeof e === "string") as string[];
+  return [];
+}
+
+function rowChanges(row: LogRow): FieldChange[] {
+  if (row.changes?.length) return row.changes;
+  const p = row.payload;
+  if (!p) return [];
+  const before = p.gameBefore;
+  const after = p.wsGame ?? p.gameAfter ?? p.newGame;
+  if (before === undefined && after === undefined) return [];
+  return diffFields(before, after);
+}
+
+function machineLabel(row: LogRow): string | null {
+  const m = row.payload?.machineState;
+  if (Array.isArray(m)) return m.join(" · ");
+  if (typeof m === "string") return m;
+  if (m && typeof m === "object") {
+    try {
+      return JSON.stringify(m);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function toggleGroup(key: string) {
+  collapsed[key] = !collapsed[key];
+}
+
+function toggleRaw(id: string) {
+  rawOpen[id] = !rawOpen[id];
+}
+
+function expandAll() {
+  for (const g of groups.value) collapsed[g.key] = false;
+}
+
+function collapseAll() {
+  for (const g of groups.value) collapsed[g.key] = true;
+}
 
 function unlock() {
   authError.value = "";
@@ -223,7 +480,7 @@ async function reload() {
       rows.value = [];
       return;
     }
-    rows.value = await fetchRecentLogs(300);
+    rows.value = await fetchRecentLogs(400);
   } catch (e) {
     loadError.value =
       e instanceof Error ? e.message : "Failed to load logs from Firebase";
@@ -250,9 +507,19 @@ function formatTime(t: number) {
   }
 }
 
-function levelClass(level: LogLevel | undefined) {
-  if (level === "error") return "text-red-400";
-  if (level === "warn") return "text-amber-300";
-  return "text-emerald-300/90";
+function levelBadge(level: LogLevel | undefined) {
+  if (level === "error") return "bg-red-950 text-red-300";
+  if (level === "warn") return "bg-amber-950 text-amber-200";
+  return "bg-emerald-950/80 text-emerald-300";
+}
+
+function typeBadge(type: LogEventType | string) {
+  if (type === "score") return "bg-sky-950 text-sky-300";
+  if (type === "error") return "bg-red-950 text-red-300";
+  if (type === "names") return "bg-fuchsia-950 text-fuchsia-300";
+  if (type === "connect" || type === "reconnect" || type === "join") {
+    return "bg-lime-950 text-lime-300";
+  }
+  return "bg-zinc-800 text-zinc-300";
 }
 </script>

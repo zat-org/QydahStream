@@ -16,6 +16,12 @@ export type LogEventType =
 
 export type LogGame = "baloot" | "hand" | "unknown";
 
+export type FieldChange = {
+  field: string;
+  from: unknown;
+  to: unknown;
+};
+
 export type DebugLogEntry = {
   t: number;
   appEnv: string;
@@ -23,6 +29,14 @@ export type DebugLogEntry = {
   type: LogEventType;
   message: string;
   game: LogGame;
+  /** Stable id for grouping (hub game.id or table id). */
+  gameId?: string;
+  /** Monotonic sequence per gameId in this browser session. */
+  eventSeq?: number;
+  /** Hub event names from SignalR (e.g. ScoreIncreased). */
+  hubEvents?: string[];
+  /** Human-readable field diffs (before → after). */
+  changes?: FieldChange[];
   tableId?: string;
   tourId?: string;
   theme?: string;
@@ -34,6 +48,16 @@ export type DebugLogEntry = {
 const RTDB_PATH = "debug_logs";
 /** Allow larger WS game payloads in /log (was 2000 — truncated too aggressively). */
 const MAX_PAYLOAD_CHARS = 12000;
+
+/** Per-tab sequence so /log can number events within a game. */
+const eventSeqByGameId = new Map<string, number>();
+
+export function nextEventSeq(gameId: string): number {
+  const key = gameId || "unknown";
+  const n = (eventSeqByGameId.get(key) ?? 0) + 1;
+  eventSeqByGameId.set(key, n);
+  return n;
+}
 
 function firstQueryValue(value: unknown): string | undefined {
   if (typeof value === "string" && value.length > 0) return value;
@@ -102,11 +126,98 @@ function collectContext(): Pick<
   }
 }
 
+function flattenForDiff(
+  value: unknown,
+  prefix = "",
+  out: Record<string, unknown> = {},
+): Record<string, unknown> {
+  if (value === null || value === undefined) {
+    if (prefix) out[prefix] = value;
+    return out;
+  }
+  if (typeof value !== "object") {
+    out[prefix] = value;
+    return out;
+  }
+  if (Array.isArray(value)) {
+    out[prefix || "[]"] = value;
+    return out;
+  }
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj);
+  if (keys.length === 0 && prefix) {
+    out[prefix] = {};
+    return out;
+  }
+  for (const key of keys) {
+    const path = prefix ? `${prefix}.${key}` : key;
+    const child = obj[key];
+    if (
+      child !== null &&
+      typeof child === "object" &&
+      !Array.isArray(child)
+    ) {
+      flattenForDiff(child, path, out);
+    } else {
+      out[path] = child;
+    }
+  }
+  return out;
+}
+
+function sameValue(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  try {
+    return JSON.stringify(a) === JSON.stringify(b);
+  } catch {
+    return false;
+  }
+}
+
+/** Diff two plain snapshots into field change rows for /log UI. */
+export function diffFields(
+  before: unknown,
+  after: unknown,
+): FieldChange[] {
+  const a = flattenForDiff(before ?? null);
+  const b = flattenForDiff(after ?? null);
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  const changes: FieldChange[] = [];
+  for (const field of [...keys].sort()) {
+    const from = a[field];
+    const to = b[field];
+    if (sameValue(from, to)) continue;
+    changes.push({
+      field,
+      from: from === undefined ? "(missing)" : from,
+      to: to === undefined ? "(missing)" : to,
+    });
+  }
+  return changes;
+}
+
+export function formatChangeValue(value: unknown): string {
+  if (value === null) return "null";
+  if (value === undefined) return "undefined";
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
 export type PushLogInput = {
   type: LogEventType;
   level?: LogLevel;
   message: string;
   game?: LogGame;
+  /** Hub game.id preferred for grouping. */
+  gameId?: string;
+  hubEvents?: string[];
+  /** Explicit changes; otherwise computed from payload.gameBefore + payload.wsGame|gameAfter. */
+  changes?: FieldChange[];
   payload?: Record<string, unknown>;
 };
 
@@ -126,6 +237,19 @@ export function logTypeForGameEvents(events: string[]): LogEventType {
   return "game_event";
 }
 
+function resolveChanges(
+  input: PushLogInput,
+): FieldChange[] | undefined {
+  if (input.changes && input.changes.length > 0) return input.changes;
+  const p = input.payload;
+  if (!p) return undefined;
+  const before = p.gameBefore;
+  const after = p.wsGame ?? p.gameAfter ?? p.newGame;
+  if (before === undefined && after === undefined) return undefined;
+  const changes = diffFields(before, after);
+  return changes.length ? changes : undefined;
+}
+
 /**
  * Best-effort write to Firebase RTDB. Never throws into callers.
  */
@@ -138,6 +262,21 @@ export async function pushLog(input: PushLogInput): Promise<void> {
     if (!ready) return;
 
     const ctx = collectContext();
+    const gameId =
+      input.gameId ||
+      (typeof input.payload?.gameId === "string"
+        ? input.payload.gameId
+        : undefined) ||
+      ctx.tableId ||
+      "unknown";
+    const eventSeq = nextEventSeq(gameId);
+    const hubEvents =
+      input.hubEvents ??
+      (Array.isArray(input.payload?.events)
+        ? (input.payload!.events as string[])
+        : undefined);
+    const changes = resolveChanges(input);
+
     const entry: DebugLogEntry = {
       t: Date.now(),
       appEnv: ctx.appEnv,
@@ -145,6 +284,10 @@ export async function pushLog(input: PushLogInput): Promise<void> {
       type: input.type,
       message: input.message.slice(0, 500),
       game: input.game ?? ctx.game,
+      gameId,
+      eventSeq,
+      hubEvents,
+      changes,
       tableId: ctx.tableId,
       tourId: ctx.tourId,
       theme: ctx.theme,
@@ -167,7 +310,7 @@ export async function pushLog(input: PushLogInput): Promise<void> {
 }
 
 /** Fetch recent logs for /log page (newest first). */
-export async function fetchRecentLogs(limit = 200): Promise<
+export async function fetchRecentLogs(limit = 400): Promise<
   Array<DebugLogEntry & { id: string }>
 > {
   if (!import.meta.client) return [];
