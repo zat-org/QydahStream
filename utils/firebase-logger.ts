@@ -78,6 +78,29 @@ function truncatePayload(
   }
 }
 
+/**
+ * Firebase RTDB rejects `undefined` anywhere in the tree (not only top-level).
+ * JSON round-trip drops undefined keys; keeps null / numbers / strings.
+ */
+function stripUndefinedDeep<T>(value: T): T | undefined {
+  if (value === undefined) return undefined;
+  try {
+    return JSON.parse(JSON.stringify(value)) as T;
+  } catch {
+    return undefined;
+  }
+}
+
+function pickDefined(
+  obj: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) out[k] = v;
+  }
+  return out;
+}
+
 function inferGame(path: string): LogGame {
   const clean = path.split("?")[0] ?? path;
   if (clean.includes("/hand")) return "hand";
@@ -276,9 +299,8 @@ function leanPayload(
     | undefined;
   if (after && typeof after === "object") {
     const teams = Array.isArray(after.teams) ? after.teams : undefined;
-    keep.scorePreview = {
+    const preview = pickDefined({
       state: after.state,
-      // baloot
       usGameScore: after.usGameScore,
       themGameScore: after.themGameScore,
       usName: after.usName,
@@ -286,11 +308,11 @@ function leanPayload(
       sakkaCount: after.sakkaCount,
       lastSakka: after.lastSakka,
       winner: after.winner,
-      // hand
       teams,
       roundCount: after.roundCount,
       winnerTeamIndex: after.winnerTeamIndex,
-    };
+    });
+    if (Object.keys(preview).length) keep.scorePreview = preview;
   }
   return Object.keys(keep).length ? keep : undefined;
 }
@@ -349,10 +371,13 @@ export async function pushLog(input: PushLogInput): Promise<void> {
       payload: truncatePayload(leanPayload(input.payload)),
     };
 
-    // Drop undefined fields — RTDB rejects undefined values
-    const cleaned = Object.fromEntries(
-      Object.entries(entry).filter(([, v]) => v !== undefined),
+    // Deep-strip undefined — RTDB rejects nested undefined (scorePreview used to break score logs)
+    const cleaned = stripUndefinedDeep(
+      Object.fromEntries(
+        Object.entries(entry).filter(([, v]) => v !== undefined),
+      ),
     );
+    if (!cleaned) return;
 
     await push(dbRef(ready.db, RTDB_PATH), cleaned);
   } catch (err) {
