@@ -356,6 +356,40 @@ watch(
   { immediate: true },
 );
 
+/**
+ * Stay on score: when last_sakka totals change (new sakka / decrease / sync),
+ * refresh tweenedScores without forcing outro→detail.
+ */
+watch(
+  () =>
+    [
+      last_sakka.value?.usSakkaScore ?? 0,
+      last_sakka.value?.themSakkaScore ?? 0,
+      scoreStateKey.value,
+    ] as const,
+  ([us, them, state], prev) => {
+    if (state !== "score.main" && state !== "score.intro") return;
+    if (
+      prev &&
+      prev[0] === us &&
+      prev[1] === them &&
+      prev[2] === state
+    ) {
+      return;
+    }
+    // Skip first run when entering a state — applyScoreState handles mount
+    if (!prev || prev[2] !== state) return;
+
+    if (state === "score.main") {
+      mainScoreMount(us, them);
+    } else {
+      gsap.killTweensOf(tweenedScores);
+      tweenedScores.team1 = us;
+      tweenedScores.team2 = them;
+    }
+  },
+);
+
 onBeforeUnmount(() => {
   applyGeneration++;
   mountTimeline?.kill();

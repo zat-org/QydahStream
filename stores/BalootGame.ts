@@ -303,11 +303,16 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       });
       handelStatics();
     } else if (currentState.matches("score")) {
-      if (currentState.matches("score.main")) {
+      const onMain = currentState.matches("score.main");
+      const onIntro = currentState.matches("score.intro");
+      // intro + main: apply data. Only main may start outro→detail (ScoreIncreased).
+      if (onMain || onIntro) {
         void pushLog({
           type: "game_event",
           level: "info",
-          message: "handler: handelScore (score.main)",
+          message: onMain
+            ? "handler: handelScore (score.main)"
+            : "handler: handelScore (score.intro — data only, no TO_OUTRO)",
           game: "baloot",
           payload: {
             machineState,
@@ -316,7 +321,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
             newGame: gameSnapshotForLog(newGame.value),
           },
         });
-        handelScore();
+        handelScore({ allowFlowTransitions: onMain });
         void pushLog({
           type: "game_event",
           level: "info",
@@ -329,22 +334,20 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
           },
         });
       } else {
-        // Likely the bug: new-game / SakkaStarted bundle arrives while not on score.main
+        // score.outro — still refresh data for new game / decrease; never TO_OUTRO
         void pushLog({
           type: "game_event",
-          level: "warn",
-          message:
-            "handler SKIPPED handelScore — on score but NOT score.main (game not applied here)",
+          level: "info",
+          message: "handler: handelScore (score.outro — data only)",
           game: "baloot",
           payload: {
             machineState,
             events: [...events],
-            isIntro: currentState.matches("score.intro"),
-            isOutro: currentState.matches("score.outro"),
             gameBefore: gameSnapshotForLog(game.value),
             newGame: gameSnapshotForLog(newGame.value),
           },
         });
+        handelScore({ allowFlowTransitions: false });
       }
     } else {
       void pushLog({
@@ -373,13 +376,45 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       });
     }
 
-    if (events.includes("SakkaStarted")) {
+    // New game / new sakka while idle on score: always sync store (no TO_OUTRO).
+    const newGameBundle: BalootGameEvent[] = [
+      "GameStarted",
+      "NamesChanged",
+      "MaxSakkaCountChanged",
+      "IsCurrentSakkaMashdodaChanged",
+      "SakkaStarted",
+    ];
+    const isNewGameBundle = newGameBundle.every((e) => events.includes(e));
+    const isSakkaStartOnly =
+      events.includes("SakkaStarted") &&
+      !events.includes("ScoreIncreased") &&
+      !events.includes("SakkaEnded");
+
+    if (
+      newGame.value &&
+      snapshot.value.matches("score") &&
+      (isNewGameBundle || isSakkaStartOnly)
+    ) {
+      game.value = newGame.value;
+      void pushLog({
+        type: "game_event",
+        level: "info",
+        message: isNewGameBundle
+          ? "special: new-game bundle → game=newGame (stay on score)"
+          : "special: SakkaStarted → game=newGame (stay on score)",
+        game: "baloot",
+        payload: {
+          machineState: machineStateValue(snapshot.value),
+          gameAfter: gameSnapshotForLog(game.value),
+        },
+      });
+    } else if (events.includes("SakkaStarted")) {
       console.log("Sakka started");
       void pushLog({
         type: "game_event",
         level: "info",
         message:
-          "special: SakkaStarted (log only — does not assign game by itself)",
+          "special: SakkaStarted (no score assign — not on score or bundled with score flow)",
         game: "baloot",
         payload: {
           machineState: machineStateValue(snapshot.value),
@@ -540,7 +575,9 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
   const handelWinner = () => {};
   const handelStatics = () => {};
 
-  const handelScore = () => {
+  const handelScore = (opts: { allowFlowTransitions?: boolean } = {}) => {
+    const allowFlow = opts.allowFlowTransitions !== false;
+
     if (events.includes("NamesChanged") && events.length == 1) {
       if (!game.value || !newGame.value) return;
       game.value.themName = newGame.value.themName;
@@ -577,7 +614,10 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     }
 
     if (events.includes("ScoreIncreased")) {
-      gameService.send({ type: "TO_OUTRO" });
+      // Keep normal stream flow: only leave score → detail from score.main
+      if (allowFlow) {
+        gameService.send({ type: "TO_OUTRO" });
+      }
       const gameedndedevents: BalootGameEvent[] = ["SakkaEnded", "GameEnded"];
       if (gameedndedevents.every((event) => events.includes(event))) {
         game.value = newGame.value;
@@ -587,7 +627,10 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
           message:
             "handelScore: ScoreIncreased → TO_OUTRO + full game (SakkaEnded+GameEnded)",
           game: "baloot",
-          payload: { gameAfter: gameSnapshotForLog(game.value) },
+          payload: {
+            allowFlow,
+            gameAfter: gameSnapshotForLog(game.value),
+          },
         });
       } else {
         if (!game.value || !newGame.value) return;
@@ -595,9 +638,12 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         void pushLog({
           type: "score",
           level: "info",
-          message: "handelScore: ScoreIncreased → TO_OUTRO + sakkas only",
+          message: allowFlow
+            ? "handelScore: ScoreIncreased → TO_OUTRO + sakkas only"
+            : "handelScore: ScoreIncreased → sakkas only (no TO_OUTRO)",
           game: "baloot",
           payload: {
+            allowFlow,
             gameAfter: gameSnapshotForLog(game.value),
             newGame: gameSnapshotForLog(newGame.value),
           },
@@ -605,13 +651,22 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       }
     }
     if (events.includes("ScoreUpdated") && newGame.value?.winner !== null) {
-      gameService.send({ type: "TO_OUTRO" });
+      if (allowFlow) {
+        gameService.send({ type: "TO_OUTRO" });
+      }
       game.value = newGame.value;
     }
 
     if (events.includes("ScoreUpdated") || events.includes("ScoreDecreased")) {
       if (!game.value || !newGame.value) return;
       game.value.sakkas = newGame.value.sakkas;
+      void pushLog({
+        type: "score",
+        level: "info",
+        message: "handelScore: ScoreUpdated/Decreased → sakkas synced (stay on score)",
+        game: "baloot",
+        payload: { gameAfter: gameSnapshotForLog(game.value) },
+      });
     }
     const contimuefrombackEvents: BalootGameEvent[] = [
       "ScoreDecreased",
