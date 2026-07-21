@@ -59,9 +59,10 @@ Live scores/names stay in Pinia stores (SignalR). Config is **skin only**.
 
 ## Build steps
 
-1. **Done (Step 1):** Local `qydha` baloot landscape score + `ScoreLandscape`
-2. **This step:** RTDB resolve + wire ScoreLandscape + `/config` (score edit for themes that have local score)
-3. **Next:** Harvest zat score → same shell; then detail / statics / winner configs + editors
+1. **Done:** Local `qydha` baloot landscape score + `ScoreLandscape`
+2. **Done:** RTDB resolve + wire ScoreLandscape + `/config` (score edit)
+3. **Done:** Qydha baloot landscape **detail** + **winner** shells + `/config` editors
+4. **Next:** Statics (needs Qydha landscape design — currently portrait-only); then zat harvest / hand
 
 ## Live updates
 

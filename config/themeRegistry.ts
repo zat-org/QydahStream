@@ -3,11 +3,12 @@ import type { ThemeId, Orientation } from "~/composables/useRouteTheme";
 import type { GameType, ScreenId } from "~/config/themes/types";
 import { getThemeConfig } from "~/config/themes";
 import ScoreLandscape from "~/components/landscape/ScoreLandscape.vue";
+import DetailLandscape from "~/components/landscape/DetailLandscape.vue";
+import WinnerLandscape from "~/components/landscape/WinnerLandscape.vue";
 
 /**
- * Resolve a screen component.
- * Step 1: only Qydha baloot landscape score is config-driven.
- * Other combos return null here — pages keep their existing imports as fallback.
+ * Resolve a config-driven landscape screen when theme file has that screen.
+ * Pages keep existing imports as fallback when this returns null.
  */
 export function resolveConfigDrivenScreen(opts: {
   theme: ThemeId | string;
@@ -16,13 +17,16 @@ export function resolveConfigDrivenScreen(opts: {
   screen: ScreenId;
 }): Component | null {
   if (opts.orientation !== "landscape") return null;
-  if (opts.screen !== "score") return null;
 
   const theme = getThemeConfig(opts.theme);
-  const score = theme?.landscape?.[opts.game]?.score;
-  if (!score) return null;
+  const screens = theme?.landscape?.[opts.game];
+  if (!screens) return null;
 
-  return ScoreLandscape;
+  if (opts.screen === "score" && screens.score) return ScoreLandscape;
+  if (opts.screen === "detail" && screens.detail) return DetailLandscape;
+  if (opts.screen === "winner" && screens.winner) return WinnerLandscape;
+
+  return null;
 }
 
 export function hasLandscapeScoreConfig(

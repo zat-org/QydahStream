@@ -115,6 +115,14 @@ const scoreComponent = computed(() => {
 });
 
 const detailComponent = computed(() => {
+  const fromConfig = resolveConfigDrivenScreen({
+    theme: theme.value,
+    orientation: orientation.value,
+    game: "baloot",
+    screen: "detail",
+  });
+  if (fromConfig) return fromConfig;
+
   if (theme.value === "zat" && orientation.value === "landscape") {
     return DetailZatLandscape;
   } else if (theme.value === "qydha" && orientation.value === "landscape") {
@@ -126,6 +134,14 @@ const detailComponent = computed(() => {
 });
 
 const winnerComponent = computed(() => {
+  const fromConfig = resolveConfigDrivenScreen({
+    theme: theme.value,
+    orientation: orientation.value,
+    game: "baloot",
+    screen: "winner",
+  });
+  if (fromConfig) return fromConfig;
+
   if (theme.value === "zat" && orientation.value === "landscape") {
     return WinnerZatLandscape;
   } else if (theme.value === "qydha" && orientation.value === "landscape") {

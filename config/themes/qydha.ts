@@ -1,7 +1,7 @@
 import type { ThemeConfig } from "./types";
 
 /**
- * Harvested from components/Score/Qydha/baloot/landscape.vue
+ * Harvested from Qydha baloot landscape Vue screens.
  * Store still supplies live scores/names — this file is skin only.
  */
 export const qydhaTheme: ThemeConfig = {
@@ -37,6 +37,76 @@ export const qydhaTheme: ThemeConfig = {
           nameLeftPx: 82,
           nameWidthPx: 185,
           scoreRightPx: 2,
+        },
+      },
+      // Harvested from components/Detail/Qydha/baloot/landscape.vue
+      detail: {
+        video: "/videos/qydha/landscape/Full_Score.webm",
+        videoWidth: 1920,
+        videoHeight: 1080,
+        introStartSec: 0,
+        introEndSec: 5,
+        mountDelaySec: 3,
+        mountFadeSec: 0.75,
+        unmountFadeSec: 0.3,
+        outroPlaybackRate: 2,
+        mainHoldMs: 250,
+        team1: {
+          wrapLeftPx: 1062,
+          wrapTopPx: 200,
+          wrapWidthPx: 499,
+          wrapHeightPx: 97,
+          nameLeftPx: 28,
+          nameWidthPx: 300,
+          scoreLeftPx: -80,
+          detailLeftPx: 0,
+          detailTopPx: 175,
+          detailWidthPx: 85,
+        },
+        team2: {
+          wrapLeftPx: 364,
+          wrapTopPx: 200,
+          wrapWidthPx: 499,
+          wrapHeightPx: 97,
+          nameLeftPx: 170,
+          nameWidthPx: 300,
+          scoreRightPx: 73,
+          detailRightPx: 0,
+          detailTopPx: 175,
+          detailWidthPx: 85,
+        },
+      },
+      // Harvested from components/winner/Qydha/baloot/landscape.vue
+      winner: {
+        video: "/videos/qydha/landscape/Winner.webm",
+        videoWidth: 1920,
+        videoHeight: 1080,
+        introStartSec: 0,
+        introEndSec: 6,
+        mountDelaySec: 1,
+        mountFadeSec: 0.75,
+        unmountFadeSec: 0.3,
+        outroPlaybackRate: 1,
+        mainHoldMs: 1000,
+        unmountCompFadeSec: 3,
+        nameTopPx: 160,
+        player1: {
+          leftPx: 34,
+          topPx: -80,
+          widthPx: 178,
+          heightPx: 200,
+          rotateDeg: 15,
+          imgHeightPx: 250,
+          fallbackSrc: "/images/u1.jpg",
+        },
+        player2: {
+          leftPx: -190,
+          topPx: -80,
+          widthPx: 185,
+          heightPx: 400,
+          rotateDeg: -15,
+          imgHeightPx: 250,
+          fallbackSrc: "/images/u2.jpg",
         },
       },
     },

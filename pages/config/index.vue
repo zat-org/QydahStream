@@ -168,18 +168,20 @@
         <p v-if="busy" class="mb-3 text-xs text-zinc-500">Working…</p>
 
         <div
-          v-if="activeScreen !== 'score'"
+          v-if="activeScreen === 'statics'"
           class="rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-8 text-center text-sm text-zinc-500"
         >
-          Screen “{{ activeScreen }}” is not in local config yet. Harvest it in
-          a later step, then edit here.
+          Screen “statics” is not in local config yet (Qydha has no landscape
+          statics). Harvest later, then edit here.
         </div>
 
         <div
-          v-else-if="!scoreDraft"
+          v-else-if="!activeDraft"
           class="rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-8 text-center text-sm text-zinc-500"
         >
-          No landscape baloot score config for theme “{{ activeThemeId }}”.
+          No landscape baloot {{ activeScreen }} config for theme “{{
+            activeThemeId
+          }}”.
         </div>
 
         <form
@@ -188,62 +190,120 @@
           @submit.prevent
         >
           <section>
-            <h2 class="mb-3 text-sm font-semibold text-zinc-200">Video & timing</h2>
+            <h2 class="mb-3 text-sm font-semibold text-zinc-200">
+              Video & timing
+            </h2>
             <div class="grid gap-3 sm:grid-cols-2">
               <label class="block text-xs text-zinc-400 sm:col-span-2">
                 video
                 <input
-                  v-model="scoreDraft.video"
+                  v-model="activeDraft.video"
                   class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                 />
               </label>
               <label
-                v-for="field in timingFields"
-                :key="field.key"
-                class="block text-xs text-zinc-400"
-              >
-                {{ field.key }}
-                <input
-                  v-model.number="scoreDraft[field.key]"
-                  type="number"
-                  step="any"
-                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                />
-              </label>
-            </div>
-          </section>
-
-          <section
-            v-for="side in teamSides"
-            :key="side.key"
-            class="border-t border-zinc-800 pt-4"
-          >
-            <h2 class="mb-3 text-sm font-semibold text-zinc-200">
-              {{ side.label }}
-            </h2>
-            <div class="grid gap-3 sm:grid-cols-3">
-              <label
-                v-for="field in teamFields"
+                v-for="field in timingFieldsForScreen"
                 :key="field"
                 class="block text-xs text-zinc-400"
               >
                 {{ field }}
                 <input
-                  v-model.number="scoreDraft[side.key][field]"
+                  :value="numField(activeDraft, field)"
                   type="number"
                   step="any"
                   class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                />
-              </label>
-              <label class="block text-xs text-zinc-400 sm:col-span-3">
-                sponsorSrc (optional)
-                <input
-                  v-model="scoreDraft[side.key].sponsorSrc"
-                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  @input="setNumField(activeDraft, field, $event)"
                 />
               </label>
             </div>
           </section>
+
+          <!-- Score / Detail team layouts -->
+          <template v-if="activeScreen === 'score' || activeScreen === 'detail'">
+            <section
+              v-for="side in teamSides"
+              :key="side.key"
+              class="border-t border-zinc-800 pt-4"
+            >
+              <h2 class="mb-3 text-sm font-semibold text-zinc-200">
+                {{ side.label }}
+              </h2>
+              <div class="grid gap-3 sm:grid-cols-3">
+                <label
+                  v-for="field in teamFieldsForScreen"
+                  :key="field"
+                  class="block text-xs text-zinc-400"
+                >
+                  {{ field }}
+                  <input
+                    v-model.number="
+                      (activeDraft as any)[side.key][field]
+                    "
+                    type="number"
+                    step="any"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  />
+                </label>
+                <label
+                  v-if="activeScreen === 'score'"
+                  class="block text-xs text-zinc-400 sm:col-span-3"
+                >
+                  sponsorSrc (optional)
+                  <input
+                    v-model="(activeDraft as any)[side.key].sponsorSrc"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  />
+                </label>
+              </div>
+            </section>
+          </template>
+
+          <!-- Winner layout -->
+          <template v-else-if="activeScreen === 'winner' && winnerDraft">
+            <section class="border-t border-zinc-800 pt-4">
+              <h2 class="mb-3 text-sm font-semibold text-zinc-200">Name</h2>
+              <label class="block text-xs text-zinc-400">
+                nameTopPx
+                <input
+                  v-model.number="winnerDraft.nameTopPx"
+                  type="number"
+                  step="any"
+                  class="mt-1 w-full max-w-xs rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                />
+              </label>
+            </section>
+            <section
+              v-for="slot in winnerSlots"
+              :key="slot.key"
+              class="border-t border-zinc-800 pt-4"
+            >
+              <h2 class="mb-3 text-sm font-semibold text-zinc-200">
+                {{ slot.label }}
+              </h2>
+              <div class="grid gap-3 sm:grid-cols-3">
+                <label
+                  v-for="field in winnerSlotFields"
+                  :key="field"
+                  class="block text-xs text-zinc-400"
+                >
+                  {{ field }}
+                  <input
+                    v-model.number="winnerDraft[slot.key][field]"
+                    type="number"
+                    step="any"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  />
+                </label>
+                <label class="block text-xs text-zinc-400 sm:col-span-3">
+                  fallbackSrc
+                  <input
+                    v-model="winnerDraft[slot.key].fallbackSrc"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  />
+                </label>
+              </div>
+            </section>
+          </template>
         </form>
       </template>
     </div>
@@ -252,8 +312,10 @@
 
 <script setup lang="ts">
 import type {
+  LandscapeDetailConfig,
   LandscapeScoreConfig,
-  LandscapeTeamLayout,
+  LandscapeWinnerConfig,
+  LandscapeWinnerPlayerSlot,
   ScreenId,
   ThemeConfig,
 } from "~/config/themes/types";
@@ -269,32 +331,6 @@ import {
 import { isFirebaseConfigured } from "~/utils/firebase.client";
 
 const UNLOCK_KEY = "qydah:log-unlocked";
-
-type TimingKey = keyof Pick<
-  LandscapeScoreConfig,
-  | "videoWidth"
-  | "videoHeight"
-  | "introStartSec"
-  | "introEndSec"
-  | "mountDelaySec"
-  | "mountFadeSec"
-  | "scoreTweenSec"
-  | "unmountFadeSec"
-  | "outroPlaybackRate"
->;
-
-type TeamNumKey = keyof Pick<
-  LandscapeTeamLayout,
-  | "wrapLeftPx"
-  | "wrapTopPx"
-  | "wrapWidthPx"
-  | "wrapHeightPx"
-  | "nameLeftPx"
-  | "nameWidthPx"
-  | "scoreLeftPx"
-  | "scoreRightPx"
-  | "sponsorLeftPx"
->;
 
 const config = useRuntimeConfig().public;
 const expectedPassword = computed(() => String(config.logPassword ?? ""));
@@ -319,19 +355,44 @@ const autoSaveLabel = ref("Auto-save on");
 const AUTOSAVE_MS = 700;
 let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
 
-const timingFields: { key: TimingKey }[] = [
-  { key: "videoWidth" },
-  { key: "videoHeight" },
-  { key: "introStartSec" },
-  { key: "introEndSec" },
-  { key: "mountDelaySec" },
-  { key: "mountFadeSec" },
-  { key: "scoreTweenSec" },
-  { key: "unmountFadeSec" },
-  { key: "outroPlaybackRate" },
-];
+const scoreTimingFields = [
+  "videoWidth",
+  "videoHeight",
+  "introStartSec",
+  "introEndSec",
+  "mountDelaySec",
+  "mountFadeSec",
+  "scoreTweenSec",
+  "unmountFadeSec",
+  "outroPlaybackRate",
+] as const;
 
-const teamFields: TeamNumKey[] = [
+const detailTimingFields = [
+  "videoWidth",
+  "videoHeight",
+  "introStartSec",
+  "introEndSec",
+  "mountDelaySec",
+  "mountFadeSec",
+  "unmountFadeSec",
+  "outroPlaybackRate",
+  "mainHoldMs",
+] as const;
+
+const winnerTimingFields = [
+  "videoWidth",
+  "videoHeight",
+  "introStartSec",
+  "introEndSec",
+  "mountDelaySec",
+  "mountFadeSec",
+  "unmountFadeSec",
+  "outroPlaybackRate",
+  "mainHoldMs",
+  "unmountCompFadeSec",
+] as const;
+
+const scoreTeamFields = [
   "wrapLeftPx",
   "wrapTopPx",
   "wrapWidthPx",
@@ -341,6 +402,30 @@ const teamFields: TeamNumKey[] = [
   "scoreLeftPx",
   "scoreRightPx",
   "sponsorLeftPx",
+] as const;
+
+const detailTeamFields = [
+  "wrapLeftPx",
+  "wrapTopPx",
+  "wrapWidthPx",
+  "wrapHeightPx",
+  "nameLeftPx",
+  "nameWidthPx",
+  "scoreLeftPx",
+  "scoreRightPx",
+  "detailLeftPx",
+  "detailRightPx",
+  "detailTopPx",
+  "detailWidthPx",
+] as const;
+
+const winnerSlotFields: (keyof LandscapeWinnerPlayerSlot)[] = [
+  "leftPx",
+  "topPx",
+  "widthPx",
+  "heightPx",
+  "rotateDeg",
+  "imgHeightPx",
 ];
 
 const teamSides = [
@@ -348,9 +433,54 @@ const teamSides = [
   { key: "team2" as const, label: "Team 2 (them)" },
 ];
 
+const winnerSlots = [
+  { key: "player1" as const, label: "Player 1" },
+  { key: "player2" as const, label: "Player 2" },
+];
+
 const scoreDraft = computed(
   () => draft.value?.landscape?.baloot?.score ?? null,
 );
+const detailDraft = computed(
+  () => draft.value?.landscape?.baloot?.detail ?? null,
+);
+const winnerDraft = computed(
+  () => draft.value?.landscape?.baloot?.winner ?? null,
+);
+
+const activeDraft = computed<
+  LandscapeScoreConfig | LandscapeDetailConfig | LandscapeWinnerConfig | null
+>(() => {
+  if (activeScreen.value === "score") return scoreDraft.value;
+  if (activeScreen.value === "detail") return detailDraft.value;
+  if (activeScreen.value === "winner") return winnerDraft.value;
+  return null;
+});
+
+const timingFieldsForScreen = computed(() => {
+  if (activeScreen.value === "score") return [...scoreTimingFields];
+  if (activeScreen.value === "detail") return [...detailTimingFields];
+  if (activeScreen.value === "winner") return [...winnerTimingFields];
+  return [];
+});
+
+const teamFieldsForScreen = computed(() => {
+  if (activeScreen.value === "score") return [...scoreTeamFields];
+  if (activeScreen.value === "detail") return [...detailTeamFields];
+  return [];
+});
+
+function numField(obj: object | null, key: string): number | "" {
+  if (!obj) return "";
+  const v = (obj as Record<string, unknown>)[key];
+  return typeof v === "number" ? v : "";
+}
+
+function setNumField(obj: object | null, key: string, event: Event) {
+  if (!obj) return;
+  const raw = (event.target as HTMLInputElement).value;
+  (obj as Record<string, unknown>)[key] = Number(raw);
+}
 
 function clearAutosaveTimer() {
   if (autosaveTimer) {

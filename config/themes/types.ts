@@ -21,25 +21,75 @@ export type LandscapeTeamLayout = {
   sponsorLeftPx?: number;
 };
 
-export type LandscapeScoreConfig = {
+/** Shared video + intro/outro timing for landscape screens. */
+export type LandscapeVideoTiming = {
   video: string;
   videoWidth: number;
   videoHeight: number;
   introStartSec: number;
   introEndSec: number;
-  /** Extra delay AFTER video is ready/playing before team text fades in. */
+  /** Delay before overlay text fades in. */
   mountDelaySec: number;
   mountFadeSec: number;
-  scoreTweenSec: number;
   unmountFadeSec: number;
   outroPlaybackRate: number;
+};
+
+export type LandscapeScoreConfig = LandscapeVideoTiming & {
+  scoreTweenSec: number;
   team1: LandscapeTeamLayout;
   team2: LandscapeTeamLayout;
 };
 
+/** Detail board — total score + per-moshtara abnat list. */
+export type LandscapeDetailTeamLayout = {
+  wrapLeftPx: number;
+  wrapTopPx: number;
+  wrapWidthPx: number;
+  wrapHeightPx: number;
+  nameLeftPx: number;
+  nameWidthPx: number;
+  scoreLeftPx?: number;
+  scoreRightPx?: number;
+  /** Column of round scores under the bar. */
+  detailLeftPx?: number;
+  detailRightPx?: number;
+  detailTopPx: number;
+  detailWidthPx: number;
+};
+
+export type LandscapeDetailConfig = LandscapeVideoTiming & {
+  /** Hold on main before auto TO_OUTRO (ms). */
+  mainHoldMs: number;
+  team1: LandscapeDetailTeamLayout;
+  team2: LandscapeDetailTeamLayout;
+};
+
+export type LandscapeWinnerPlayerSlot = {
+  leftPx: number;
+  topPx: number;
+  widthPx: number;
+  heightPx: number;
+  rotateDeg: number;
+  imgHeightPx: number;
+  fallbackSrc: string;
+};
+
+export type LandscapeWinnerConfig = LandscapeVideoTiming & {
+  /** Hold on main before fade-out + NEW_GAME (ms). */
+  mainHoldMs: number;
+  /** Full-comp fade duration on unmount. */
+  unmountCompFadeSec: number;
+  nameTopPx: number;
+  player1: LandscapeWinnerPlayerSlot;
+  player2: LandscapeWinnerPlayerSlot;
+};
+
 export type LandscapeScreenConfig = {
   score?: LandscapeScoreConfig;
-  // detail / winner / statics filled in later steps
+  detail?: LandscapeDetailConfig;
+  winner?: LandscapeWinnerConfig;
+  // statics filled in a later step
 };
 
 export type ThemeConfig = {
