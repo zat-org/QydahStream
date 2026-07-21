@@ -9,6 +9,41 @@ import {
 import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
 import { logTypeForGameEvents, pushLog } from "~/utils/firebase-logger";
 
+/** Compact + useful fields for RTDB debug_logs (full sakkas can be huge). */
+function gameSnapshotForLog(g: GameDataI | null | undefined) {
+  if (!g) return null;
+  const last = g.sakkas?.[g.sakkas.length - 1];
+  return {
+    state: g.state,
+    usName: g.usName,
+    themName: g.themName,
+    usGameScore: g.usGameScore,
+    themGameScore: g.themGameScore,
+    winner: g.winner ?? null,
+    sakkaCount: g.sakkas?.length ?? 0,
+    lastSakka: last
+      ? {
+          usSakkaScore: last.usSakkaScore,
+          themSakkaScore: last.themSakkaScore,
+          isMashdoda: last.isMashdoda,
+          moshtaraCount: last.moshtaras?.length ?? 0,
+          moshtaraStates: last.moshtaras?.map((m) => m.state) ?? [],
+        }
+      : null,
+  };
+}
+
+function machineStateValue(snapshotLike: { value?: unknown; toStrings?: () => string[] }) {
+  try {
+    if (typeof snapshotLike.toStrings === "function") {
+      return snapshotLike.toStrings();
+    }
+  } catch {
+    /* ignore */
+  }
+  return snapshotLike.value ?? null;
+}
+
 type BalootGameEvent =
   | "GameStarted"
   | "GameEnded"
@@ -238,27 +273,120 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
 
   const handleStateSpecificEvents = () => {
     const currentState = snapshot.value;
+    const machineState = machineStateValue(currentState);
 
     if (currentState.matches("detail")) {
+      void pushLog({
+        type: "game_event",
+        level: "info",
+        message: "handler: handelDetail",
+        game: "baloot",
+        payload: { machineState, events: [...events] },
+      });
       handelDetail();
     } else if (currentState.matches("winner")) {
+      void pushLog({
+        type: "game_event",
+        level: "info",
+        message: "handler: handelWinner (noop)",
+        game: "baloot",
+        payload: { machineState, events: [...events] },
+      });
       handelWinner();
     } else if (currentState.matches("statics")) {
+      void pushLog({
+        type: "game_event",
+        level: "info",
+        message: "handler: handelStatics (noop)",
+        game: "baloot",
+        payload: { machineState, events: [...events] },
+      });
       handelStatics();
     } else if (currentState.matches("score")) {
       if (currentState.matches("score.main")) {
+        void pushLog({
+          type: "game_event",
+          level: "info",
+          message: "handler: handelScore (score.main)",
+          game: "baloot",
+          payload: {
+            machineState,
+            events: [...events],
+            gameBefore: gameSnapshotForLog(game.value),
+            newGame: gameSnapshotForLog(newGame.value),
+          },
+        });
         handelScore();
+        void pushLog({
+          type: "game_event",
+          level: "info",
+          message: "handler: handelScore done",
+          game: "baloot",
+          payload: {
+            machineState,
+            events: [...events],
+            gameAfter: gameSnapshotForLog(game.value),
+          },
+        });
+      } else {
+        // Likely the bug: new-game / SakkaStarted bundle arrives while not on score.main
+        void pushLog({
+          type: "game_event",
+          level: "warn",
+          message:
+            "handler SKIPPED handelScore — on score but NOT score.main (game not applied here)",
+          game: "baloot",
+          payload: {
+            machineState,
+            events: [...events],
+            isIntro: currentState.matches("score.intro"),
+            isOutro: currentState.matches("score.outro"),
+            gameBefore: gameSnapshotForLog(game.value),
+            newGame: gameSnapshotForLog(newGame.value),
+          },
+        });
       }
+    } else {
+      void pushLog({
+        type: "game_event",
+        level: "warn",
+        message: "handler SKIPPED — machine not on score/detail/statics/winner",
+        game: "baloot",
+        payload: {
+          machineState,
+          events: [...events],
+          newGame: gameSnapshotForLog(newGame.value),
+        },
+      });
     }
   };
   const handleSpecialEvents = () => {
     if (events.includes("SakkaEnded")) {
       game.value = newGame.value;
       handelSakkaEnded();
+      void pushLog({
+        type: "game_event",
+        level: "info",
+        message: "special: SakkaEnded → game=newGame + handelSakkaEnded",
+        game: "baloot",
+        payload: { gameAfter: gameSnapshotForLog(game.value) },
+      });
     }
 
     if (events.includes("SakkaStarted")) {
       console.log("Sakka started");
+      void pushLog({
+        type: "game_event",
+        level: "info",
+        message:
+          "special: SakkaStarted (log only — does not assign game by itself)",
+        game: "baloot",
+        payload: {
+          machineState: machineStateValue(snapshot.value),
+          newGame: gameSnapshotForLog(newGame.value),
+          game: gameSnapshotForLog(game.value),
+        },
+      });
     }
 
     if (events.includes("GameEnded")) {
@@ -287,13 +415,9 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
 
       events = parseEvents<BalootGameEvent>(_events);
 
-      void pushLog({
-        type: logTypeForGameEvents(events),
-        level: "info",
-        message: `BalootGameStateChanged: ${events.join(",") || "(none)"}`,
-        game: "baloot",
-        payload: { events },
-      });
+      const machineStateBefore = machineStateValue(snapshot.value);
+      let parsedOk = false;
+      let parseError: string | null = null;
 
       if (_statics) {
         try {
@@ -307,16 +431,64 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       try {
         const parsedNewGame = JSON.parse(_gamedata) as GameDataI;
         newGame.value = sakkaIsMashdoda(parsedNewGame) as GameDataI;
+        parsedOk = true;
       } catch (error) {
+        parseError = error instanceof Error ? error.message : String(error);
         console.error("Failed to parse game data:", error);
+        void pushLog({
+          type: "error",
+          level: "error",
+          message: "BalootGameStateChanged: failed to parse _gamedata",
+          game: "baloot",
+          payload: {
+            events,
+            machineState: machineStateBefore,
+            parseError,
+            gamedataPreview:
+              typeof _gamedata === "string"
+                ? _gamedata.slice(0, 500)
+                : String(_gamedata),
+          },
+        });
         return;
       }
+
+      // Hub WS payload + current machine state (for /log RTDB)
+      void pushLog({
+        type: logTypeForGameEvents(events),
+        level: "info",
+        message: `BalootGameStateChanged: ${events.join(",") || "(none)"}`,
+        game: "baloot",
+        payload: {
+          events,
+          machineState: machineStateBefore,
+          parsedOk,
+          gameBefore: gameSnapshotForLog(game.value),
+          /** Data that just arrived from SignalR (after mashdoda normalize). */
+          wsGame: gameSnapshotForLog(newGame.value),
+          /** Raw string length / preview if you need deeper inspect. */
+          wsGamedataChars:
+            typeof _gamedata === "string" ? _gamedata.length : null,
+          wsGamedataPreview:
+            typeof _gamedata === "string" ? _gamedata.slice(0, 1500) : null,
+          hasStatics: Boolean(_statics),
+        },
+      });
 
       handleStateSpecificEvents();
 
       handleSpecialEvents();
     } catch (error) {
       console.error("Error in handleGameStateChanged:", error);
+      void pushLog({
+        type: "error",
+        level: "error",
+        message: "BalootGameStateChanged: uncaught error",
+        game: "baloot",
+        payload: {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
     }
   };
 
@@ -385,9 +557,23 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     ];
     if (eventsToCheck.every((event) => events.includes(event))) {
       game.value = newGame.value;
+      void pushLog({
+        type: "game_event",
+        level: "info",
+        message: "handelScore: applied FULL newGame (5-event new-game bundle)",
+        game: "baloot",
+        payload: { gameAfter: gameSnapshotForLog(game.value) },
+      });
     }
     if (events.includes("IsCurrentSakkaMashdodaChanged")) {
       game.value = newGame.value;
+      void pushLog({
+        type: "game_event",
+        level: "info",
+        message: "handelScore: applied FULL newGame (IsCurrentSakkaMashdodaChanged)",
+        game: "baloot",
+        payload: { gameAfter: gameSnapshotForLog(game.value) },
+      });
     }
 
     if (events.includes("ScoreIncreased")) {
@@ -395,9 +581,27 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
       const gameedndedevents: BalootGameEvent[] = ["SakkaEnded", "GameEnded"];
       if (gameedndedevents.every((event) => events.includes(event))) {
         game.value = newGame.value;
+        void pushLog({
+          type: "score",
+          level: "info",
+          message:
+            "handelScore: ScoreIncreased → TO_OUTRO + full game (SakkaEnded+GameEnded)",
+          game: "baloot",
+          payload: { gameAfter: gameSnapshotForLog(game.value) },
+        });
       } else {
         if (!game.value || !newGame.value) return;
         game.value.sakkas = newGame.value.sakkas;
+        void pushLog({
+          type: "score",
+          level: "info",
+          message: "handelScore: ScoreIncreased → TO_OUTRO + sakkas only",
+          game: "baloot",
+          payload: {
+            gameAfter: gameSnapshotForLog(game.value),
+            newGame: gameSnapshotForLog(newGame.value),
+          },
+        });
       }
     }
     if (events.includes("ScoreUpdated") && newGame.value?.winner !== null) {

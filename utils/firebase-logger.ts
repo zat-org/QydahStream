@@ -32,7 +32,8 @@ export type DebugLogEntry = {
 };
 
 const RTDB_PATH = "debug_logs";
-const MAX_PAYLOAD_CHARS = 2000;
+/** Allow larger WS game payloads in /log (was 2000 — truncated too aggressively). */
+const MAX_PAYLOAD_CHARS = 12000;
 
 function firstQueryValue(value: unknown): string | undefined {
   if (typeof value === "string" && value.length > 0) return value;
