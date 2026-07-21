@@ -46,8 +46,8 @@ export type DebugLogEntry = {
 };
 
 const RTDB_PATH = "debug_logs";
-/** Allow larger WS game payloads in /log (was 2000 — truncated too aggressively). */
-const MAX_PAYLOAD_CHARS = 12000;
+/** Lean logs: event names + diffs only; keep payload small in staging & production. */
+const MAX_PAYLOAD_CHARS = 2500;
 
 /** Per-tab sequence so /log can number events within a game. */
 const eventSeqByGameId = new Map<string, number>();
@@ -250,8 +250,47 @@ function resolveChanges(
   return changes.length ? changes : undefined;
 }
 
+/** Drop heavy snapshot blobs after diffs are computed — keep /log readable & light. */
+function leanPayload(
+  payload?: Record<string, unknown>,
+): Record<string, unknown> | undefined {
+  if (!payload) return undefined;
+  const keep: Record<string, unknown> = {};
+  if (payload.machineState !== undefined) keep.machineState = payload.machineState;
+  if (payload.hasStatics !== undefined) keep.hasStatics = payload.hasStatics;
+  if (payload.allowFlow !== undefined) keep.allowFlow = payload.allowFlow;
+  if (payload.parseError !== undefined) keep.parseError = payload.parseError;
+  if (payload.error !== undefined) keep.error = payload.error;
+  if (payload.hasData !== undefined) keep.hasData = payload.hasData;
+  // Tiny score preview for glance (not full game) — baloot + hand shapes
+  const after = (payload.wsGame ?? payload.gameAfter ?? payload.newGame) as
+    | Record<string, unknown>
+    | null
+    | undefined;
+  if (after && typeof after === "object") {
+    const teams = Array.isArray(after.teams) ? after.teams : undefined;
+    keep.scorePreview = {
+      state: after.state,
+      // baloot
+      usGameScore: after.usGameScore,
+      themGameScore: after.themGameScore,
+      usName: after.usName,
+      themName: after.themName,
+      sakkaCount: after.sakkaCount,
+      lastSakka: after.lastSakka,
+      winner: after.winner,
+      // hand
+      teams,
+      roundCount: after.roundCount,
+      winnerTeamIndex: after.winnerTeamIndex,
+    };
+  }
+  return Object.keys(keep).length ? keep : undefined;
+}
+
 /**
  * Best-effort write to Firebase RTDB. Never throws into callers.
+ * Staging + production: store hubEvents + changes (+ tiny scorePreview), not full WS JSON.
  */
 export async function pushLog(input: PushLogInput): Promise<void> {
   if (!import.meta.client) return;
@@ -293,7 +332,7 @@ export async function pushLog(input: PushLogInput): Promise<void> {
       theme: ctx.theme,
       orientation: ctx.orientation,
       route: ctx.route,
-      payload: truncatePayload(input.payload),
+      payload: truncatePayload(leanPayload(input.payload)),
     };
 
     // Drop undefined fields — RTDB rejects undefined values

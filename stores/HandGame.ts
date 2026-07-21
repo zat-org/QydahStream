@@ -9,6 +9,45 @@ import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
 import { logTypeForGameEvents, pushLog } from "~/utils/firebase-logger";
 import type { HandGameDataI } from "~/models/handGame";
 
+/** Compact fields for RTDB debug_logs (no full rounds/teams blobs). */
+function handSnapshotForLog(g: HandGameDataI | null | undefined) {
+  if (!g) return null;
+  const lastRound = g.rounds?.[g.rounds.length - 1];
+  return {
+    id: g.id,
+    state: g.state,
+    gameMode: g.gameMode,
+    winnerTeamIndex: g.winnerTeamIndex ?? null,
+    roundCount: g.rounds?.length ?? 0,
+    lastRound: lastRound
+      ? {
+          id: lastRound.id,
+          state: lastRound.state,
+        }
+      : null,
+    teams: (g.teams ?? []).map((t) => ({
+      index: t.index,
+      name: t.name,
+      score: t.score,
+      hasZat: t.hasZat,
+    })),
+  };
+}
+
+function machineStateValue(snapshotLike: {
+  value?: unknown;
+  toStrings?: () => string[];
+}) {
+  try {
+    if (typeof snapshotLike.toStrings === "function") {
+      return snapshotLike.toStrings();
+    }
+  } catch {
+    /* ignore */
+  }
+  return snapshotLike.value ?? null;
+}
+
 type HandGameEvent =
   | "GameStarted"
   | "GameEnded"
@@ -36,6 +75,9 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   const newGame = ref<HandGameDataI>()!;
 
   let events: HandGameEvent[] = [];
+
+  const resolveLogGameId = () =>
+    newGame.value?.id || game.value?.id || undefined;
 
   const { gameMachine } = useNashraMachine();
   const gameService = interpret(gameMachine).start();
@@ -80,19 +122,11 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
   ) => {
     try {
       resetState();
-      // console.log("handleGameStateChanged", _events, _gamedata, _statics);
-      // CRITICAL: Update snapshot to get current state machine state
       snapshot.value = gameService.getSnapshot();
+      const machineStateBefore = machineStateValue(snapshot.value);
+      const gameBeforeSnap = handSnapshotForLog(game.value);
 
       events = parseEvents<HandGameEvent>(_events);
-
-      void pushLog({
-        type: logTypeForGameEvents(events),
-        level: "info",
-        message: `handgamestatechanged: ${events.join(",") || "(none)"}`,
-        game: "hand",
-        payload: { events },
-      });
 
       if (_statics) {
         try {
@@ -114,22 +148,63 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
               return a.score - b.score;
             }
             return (b.hasZat ? 1 : 0) - (a.hasZat ? 1 : 0);
-            // Convert booleans to numbers for comparison: true (1) should come first
           });
-        }else{
+        } else {
           newGame.value.teams = parsedNewGame.teams.sort(
             (a, b) => a.score - b.score
           );
         }
-        // newGame.value = sakkaIsMashdoda(parsedNewGame) as GameDataI;
       } catch (error) {
+        const parseError =
+          error instanceof Error ? error.message : String(error);
         console.error("Failed to parse game data:", error);
+        void pushLog({
+          type: "error",
+          level: "error",
+          message: "HandGameStateChanged: failed to parse _gamedata",
+          game: "hand",
+          gameId: resolveLogGameId(),
+          hubEvents: [...events],
+          payload: {
+            events,
+            machineState: machineStateBefore,
+            parseError,
+          },
+        });
         return;
       }
+
+      // One lean log per hub message: event names + field changes (+ tiny score preview)
+      void pushLog({
+        type: logTypeForGameEvents(events),
+        level: "info",
+        message: `WS: ${events.join(", ") || "(none)"}`,
+        game: "hand",
+        gameId: resolveLogGameId(),
+        hubEvents: [...events],
+        payload: {
+          events,
+          machineState: machineStateBefore,
+          gameBefore: gameBeforeSnap,
+          wsGame: handSnapshotForLog(newGame.value),
+          hasStatics: Boolean(_statics),
+        },
+      });
+
       console.log("newGame", newGame.value);
       handleSpecialEvents();
     } catch (error) {
       console.error("Error in handleGameStateChanged:", error);
+      void pushLog({
+        type: "error",
+        level: "error",
+        message: "HandGameStateChanged: uncaught error",
+        game: "hand",
+        gameId: resolveLogGameId(),
+        payload: {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
     }
   };
 
@@ -199,7 +274,8 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
           level: "info",
           message: "Joined hand board group",
           game: "hand",
-          payload: { hasData: true, gameId: parsedGame.id },
+          gameId: parsedGame.id,
+          payload: { hasData: true },
         });
         return parsedGame;
       }
@@ -218,6 +294,7 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       level: "warn",
       message: "Joined hand group but no game data",
       game: "hand",
+      gameId: resolveLogGameId(),
     });
     return null;
   };

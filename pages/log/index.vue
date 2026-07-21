@@ -263,6 +263,15 @@
                       No field diffs vs previous board snapshot
                     </p>
 
+                    <!-- Compact score glance (lean payload) -->
+                    <div
+                      v-if="scorePreviewLabel(row)"
+                      class="rounded border border-zinc-800 bg-zinc-950/50 px-2 py-1 font-mono text-[10px] text-zinc-400"
+                    >
+                      <span class="text-zinc-500">scores </span>
+                      {{ scorePreviewLabel(row) }}
+                    </div>
+
                     <!-- Machine state chip -->
                     <div
                       v-if="machineLabel(row)"
@@ -430,6 +439,42 @@ function machineLabel(row: LogRow): string | null {
       return null;
     }
   }
+  return null;
+}
+
+function scorePreview(row: LogRow): Record<string, unknown> | null {
+  const p = row.payload?.scorePreview;
+  if (p && typeof p === "object") return p as Record<string, unknown>;
+  return null;
+}
+
+function scorePreviewLabel(row: LogRow): string | null {
+  const p = scorePreview(row);
+  if (!p) return null;
+
+  const teams = p.teams as
+    | Array<{ name?: string; score?: number; hasZat?: boolean }>
+    | undefined;
+  if (Array.isArray(teams) && teams.length > 0) {
+    const line = teams
+      .map((t) => `${t.name ?? "?"} ${t.score ?? 0}${t.hasZat ? "★" : ""}`)
+      .join(" · ");
+    const rounds =
+      typeof p.roundCount === "number" ? ` · rounds ${p.roundCount}` : "";
+    return `${line}${rounds}`;
+  }
+
+  if (p.usName != null || p.usGameScore != null) {
+    const sakka = p.lastSakka as
+      | { usSakkaScore?: number; themSakkaScore?: number }
+      | null
+      | undefined;
+    const sakkaPart = sakka
+      ? ` · sakka ${sakka.usSakkaScore ?? "?"}/${sakka.themSakkaScore ?? "?"}`
+      : "";
+    return `${p.usName ?? "?"} ${p.usGameScore ?? "?"} – ${p.themGameScore ?? "?"} ${p.themName ?? "?"}${sakkaPart}`;
+  }
+
   return null;
 }
 
