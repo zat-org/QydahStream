@@ -70,6 +70,7 @@ export const qydhaTheme: ThemeConfig = {
           wrapHeightPx: 97,
           nameLeftPx: 170,
           nameWidthPx: 300,
+          scoreLeftPx: 480,
           scoreRightPx: 73,
           detailRightPx: 0,
           detailTopPx: 175,
