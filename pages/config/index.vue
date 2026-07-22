@@ -548,6 +548,16 @@
                     class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                   />
                 </label>
+                <label class="block text-xs text-zinc-400">
+                  nameHeightPx
+                  <input
+                    :value="numField(winnerDraft, 'nameHeightPx')"
+                    type="number"
+                    step="any"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    @input="setOptionalNumField(winnerDraft, 'nameHeightPx', $event)"
+                  />
+                </label>
                 <label class="block text-xs text-zinc-400 sm:col-span-2">
                   nameColor (optional — solid; empty keeps gold gradient)
                   <input

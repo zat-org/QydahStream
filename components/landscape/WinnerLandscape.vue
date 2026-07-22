@@ -146,6 +146,12 @@ const winnerNameStyle = computed(() => {
   if (!cfg) return {};
   const style: Record<string, string> = {};
   if (cfg.nameFontSizePx != null) style.fontSize = `${cfg.nameFontSizePx}px`;
+  if (cfg.nameHeightPx != null) {
+    style.height = `${cfg.nameHeightPx}px`;
+    style.lineHeight = `${cfg.nameHeightPx}px`;
+    style.display = "flex";
+    style.alignItems = "center";
+  }
   if (cfg.nameColor) {
     style.color = cfg.nameColor;
     style.backgroundImage = "none";

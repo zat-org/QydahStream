@@ -123,6 +123,8 @@ export type LandscapeWinnerConfig = LandscapeVideoTiming & {
   /** Winner team name typography. */
   nameColor?: string;
   nameFontSizePx?: number;
+  /** Line / box height for winner name (px). */
+  nameHeightPx?: number;
   /** CSS @font-face family — see config/themes/fonts.ts */
   nameFontFamily?: ThemeFontId | string;
   player1: LandscapeWinnerPlayerSlot;
