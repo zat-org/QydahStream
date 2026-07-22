@@ -26,10 +26,7 @@
         <p
           :key="usName"
           class="teamName"
-          :style="{
-            left: `${scoreCfg.team1.nameLeftPx}px`,
-            width: `${scoreCfg.team1.nameWidthPx}px`,
-          }"
+          :style="nameStyle(scoreCfg.team1)"
         >
           {{ usName }}
         </p>
@@ -57,10 +54,7 @@
         <p
           :key="themName"
           class="teamName"
-          :style="{
-            left: `${scoreCfg.team2.nameLeftPx}px`,
-            width: `${scoreCfg.team2.nameWidthPx}px`,
-          }"
+          :style="nameStyle(scoreCfg.team2)"
         >
           {{ themName }}
         </p>
@@ -140,10 +134,22 @@ function wrapStyle(team: LandscapeTeamLayout) {
   };
 }
 
+function nameStyle(team: LandscapeTeamLayout) {
+  const style: Record<string, string> = {
+    left: `${team.nameLeftPx}px`,
+    width: `${team.nameWidthPx}px`,
+  };
+  if (team.nameColor) style.color = team.nameColor;
+  if (team.nameFontSizePx != null) style.fontSize = `${team.nameFontSizePx}px`;
+  return style;
+}
+
 function scoreStyle(team: LandscapeTeamLayout) {
   const style: Record<string, string> = {};
   if (team.scoreLeftPx != null) style.left = `${team.scoreLeftPx}px`;
   if (team.scoreRightPx != null) style.right = `${team.scoreRightPx}px`;
+  if (team.scoreColor) style.color = team.scoreColor;
+  if (team.scoreFontSizePx != null) style.fontSize = `${team.scoreFontSizePx}px`;
   return style;
 }
 

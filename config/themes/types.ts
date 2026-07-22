@@ -3,8 +3,16 @@ import type { ThemeId, Orientation } from "~/composables/useRouteTheme";
 export type GameType = "baloot" | "hand";
 export type ScreenId = "score" | "detail" | "winner" | "statics";
 
+/** Optional typography for team name / score overlays. */
+export type LandscapeTeamTextStyle = {
+  nameColor?: string;
+  nameFontSizePx?: number;
+  scoreColor?: string;
+  scoreFontSizePx?: number;
+};
+
 /** One side of the landscape score bar (us = team1, them = team2). */
-export type LandscapeTeamLayout = {
+export type LandscapeTeamLayout = LandscapeTeamTextStyle & {
   /** Absolute left of the team wrap (px). */
   wrapLeftPx: number;
   /** Absolute top of the team wrap (px). */
@@ -42,7 +50,7 @@ export type LandscapeScoreConfig = LandscapeVideoTiming & {
 };
 
 /** Detail board — total score + per-moshtara abnat list. */
-export type LandscapeDetailTeamLayout = {
+export type LandscapeDetailTeamLayout = LandscapeTeamTextStyle & {
   wrapLeftPx: number;
   wrapTopPx: number;
   wrapWidthPx: number;
@@ -85,6 +93,9 @@ export type LandscapeWinnerConfig = LandscapeVideoTiming & {
   /** Full-comp fade duration on unmount. */
   unmountCompFadeSec: number;
   nameTopPx: number;
+  /** Winner team name typography. */
+  nameColor?: string;
+  nameFontSizePx?: number;
   player1: LandscapeWinnerPlayerSlot;
   player2: LandscapeWinnerPlayerSlot;
   /** Optional team frames (Zat Red/Black). */

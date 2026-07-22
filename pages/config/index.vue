@@ -254,6 +254,24 @@
                     class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                   />
                 </label>
+                <label class="block text-xs text-zinc-400">
+                  nameColor
+                  <input
+                    v-model="(activeDraft as any)[side.key].nameColor"
+                    type="text"
+                    placeholder="#ffffff"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  />
+                </label>
+                <label class="block text-xs text-zinc-400">
+                  scoreColor
+                  <input
+                    v-model="(activeDraft as any)[side.key].scoreColor"
+                    type="text"
+                    placeholder="#334155"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  />
+                </label>
               </div>
             </section>
           </template>
@@ -269,6 +287,24 @@
                   type="number"
                   step="any"
                   class="mt-1 w-full max-w-xs rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                />
+              </label>
+              <label class="mt-3 block text-xs text-zinc-400">
+                nameFontSizePx
+                <input
+                  v-model.number="winnerDraft.nameFontSizePx"
+                  type="number"
+                  step="any"
+                  class="mt-1 w-full max-w-xs rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                />
+              </label>
+              <label class="mt-3 block text-xs text-zinc-400">
+                nameColor (optional — solid; empty keeps gold gradient)
+                <input
+                  v-model="winnerDraft.nameColor"
+                  type="text"
+                  placeholder="#f6e27a"
+                  class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                 />
               </label>
               <label class="mt-3 block text-xs text-zinc-400">
@@ -416,6 +452,8 @@ const scoreTeamFields = [
   "scoreLeftPx",
   "scoreRightPx",
   "sponsorLeftPx",
+  "nameFontSizePx",
+  "scoreFontSizePx",
 ] as const;
 
 const detailTeamFields = [
@@ -433,6 +471,8 @@ const detailTeamFields = [
   "detailWidthPx",
   "sponsorLeftPx",
   "sponsorRightPx",
+  "nameFontSizePx",
+  "scoreFontSizePx",
 ] as const;
 
 const winnerSlotFields: (keyof LandscapeWinnerPlayerSlot)[] = [

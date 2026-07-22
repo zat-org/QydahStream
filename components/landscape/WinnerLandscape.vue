@@ -13,7 +13,12 @@
       class="winnerData"
       :style="{ top: `${winnerCfg.nameTopPx}px` }"
     >
-      <p v-if="winner" class="winnerName">
+      <p
+        v-if="winner"
+        class="winnerName"
+        :class="{ winnerNameSolid: !!winnerCfg.nameColor }"
+        :style="winnerNameStyle"
+      >
         {{ winner.name }}
       </p>
     </div>
@@ -115,6 +120,19 @@ const winnerFrameSrc = computed(() => {
   if (winner.value?.type === "Us") return cfg.frameUsSrc ?? null;
   if (winner.value?.type === "Them") return cfg.frameThemSrc ?? null;
   return cfg.frameUsSrc ?? cfg.frameThemSrc ?? null;
+});
+
+const winnerNameStyle = computed(() => {
+  const cfg = winnerCfg.value;
+  if (!cfg) return {};
+  const style: Record<string, string> = {};
+  if (cfg.nameFontSizePx != null) style.fontSize = `${cfg.nameFontSizePx}px`;
+  if (cfg.nameColor) {
+    style.color = cfg.nameColor;
+    style.backgroundImage = "none";
+    style.webkitTextFillColor = cfg.nameColor;
+  }
+  return style;
 });
 
 const mediaElm = ref<HTMLVideoElement>();
@@ -343,6 +361,12 @@ onBeforeUnmount(() => {
     #462523 100%
   );
   -webkit-background-clip: text;
+}
+
+.winnerNameSolid {
+  @apply bg-clip-border;
+  -webkit-background-clip: border-box;
+  background-image: none;
 }
 
 .playersLayer {

@@ -24,10 +24,7 @@
       />
       <p
         class="teamName"
-        :style="{
-          left: `${detailCfg.team1.nameLeftPx}px`,
-          width: `${detailCfg.team1.nameWidthPx}px`,
-        }"
+        :style="nameStyle(detailCfg.team1)"
       >
         {{ usName }}
       </p>
@@ -51,10 +48,7 @@
       </p>
       <p
         class="teamName"
-        :style="{
-          left: `${detailCfg.team2.nameLeftPx}px`,
-          width: `${detailCfg.team2.nameWidthPx}px`,
-        }"
+        :style="nameStyle(detailCfg.team2)"
       >
         {{ themName }}
       </p>
@@ -128,10 +122,22 @@ function wrapStyle(team: LandscapeDetailTeamLayout) {
   };
 }
 
+function nameStyle(team: LandscapeDetailTeamLayout) {
+  const style: Record<string, string> = {
+    left: `${team.nameLeftPx}px`,
+    width: `${team.nameWidthPx}px`,
+  };
+  if (team.nameColor) style.color = team.nameColor;
+  if (team.nameFontSizePx != null) style.fontSize = `${team.nameFontSizePx}px`;
+  return style;
+}
+
 function scoreStyle(team: LandscapeDetailTeamLayout) {
   const style: Record<string, string> = {};
   if (team.scoreLeftPx != null) style.left = `${team.scoreLeftPx}px`;
   if (team.scoreRightPx != null) style.right = `${team.scoreRightPx}px`;
+  if (team.scoreColor) style.color = team.scoreColor;
+  if (team.scoreFontSizePx != null) style.fontSize = `${team.scoreFontSizePx}px`;
   return style;
 }
 

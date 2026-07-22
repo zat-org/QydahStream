@@ -28,6 +28,10 @@ export const qydhaTheme: ThemeConfig = {
           nameLeftPx: 56, // left-14
           nameWidthPx: 185,
           scoreLeftPx: 2,
+          nameColor: "#ffffff",
+          nameFontSizePx: 24,
+          scoreColor: "#334155",
+          scoreFontSizePx: 30,
         },
         team2: {
           wrapLeftPx: 621,
@@ -37,6 +41,10 @@ export const qydhaTheme: ThemeConfig = {
           nameLeftPx: 82,
           nameWidthPx: 185,
           scoreRightPx: 2,
+          nameColor: "#ffffff",
+          nameFontSizePx: 24,
+          scoreColor: "#334155",
+          scoreFontSizePx: 30,
         },
       },
       // Harvested from components/Detail/Qydha/baloot/landscape.vue
@@ -62,6 +70,10 @@ export const qydhaTheme: ThemeConfig = {
           detailLeftPx: 0,
           detailTopPx: 175,
           detailWidthPx: 85,
+          nameColor: "#ffffff",
+          nameFontSizePx: 32,
+          scoreColor: "#334155",
+          scoreFontSizePx: 45,
         },
         team2: {
           wrapLeftPx: 364,
@@ -75,6 +87,10 @@ export const qydhaTheme: ThemeConfig = {
           detailRightPx: 0,
           detailTopPx: 175,
           detailWidthPx: 85,
+          nameColor: "#ffffff",
+          nameFontSizePx: 32,
+          scoreColor: "#334155",
+          scoreFontSizePx: 45,
         },
       },
       // Harvested from components/winner/Qydha/baloot/landscape.vue
@@ -91,6 +107,7 @@ export const qydhaTheme: ThemeConfig = {
         mainHoldMs: 1000,
         unmountCompFadeSec: 3,
         nameTopPx: 160,
+        nameFontSizePx: 36,
         player1: {
           leftPx: 34,
           topPx: -80,

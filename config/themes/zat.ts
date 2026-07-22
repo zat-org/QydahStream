@@ -30,6 +30,10 @@ export const zatTheme: ThemeConfig = {
           scoreLeftPx: 0,
           sponsorSrc: "/images/zat/zat_white.svg",
           sponsorLeftPx: 254,
+          nameColor: "#ffffff",
+          nameFontSizePx: 28,
+          scoreColor: "#ffffff",
+          scoreFontSizePx: 26,
         },
         team2: {
           wrapLeftPx: 621,
@@ -41,6 +45,10 @@ export const zatTheme: ThemeConfig = {
           scoreLeftPx: 269,
           sponsorSrc: "/images/zat/zat_black.svg",
           sponsorLeftPx: 3,
+          nameColor: "#ffffff",
+          nameFontSizePx: 28,
+          scoreColor: "#ffffff",
+          scoreFontSizePx: 26,
         },
       },
       // Harvested from components/Detail/Zat/baloot/landscape.vue
@@ -68,6 +76,10 @@ export const zatTheme: ThemeConfig = {
           detailWidthPx: 85,
           sponsorSrc: "/images/zat/zat_white.svg",
           sponsorRightPx: 0,
+          nameColor: "#ffffff",
+          nameFontSizePx: 32,
+          scoreColor: "#ffffff",
+          scoreFontSizePx: 40,
         },
         team2: {
           wrapLeftPx: 364,
@@ -82,6 +94,10 @@ export const zatTheme: ThemeConfig = {
           detailWidthPx: 85,
           sponsorSrc: "/images/zat/zat_black.svg",
           sponsorLeftPx: 12,
+          nameColor: "#ffffff",
+          nameFontSizePx: 32,
+          scoreColor: "#ffffff",
+          scoreFontSizePx: 40,
         },
       },
       // Harvested from components/winner/Zat/baloot/landscape.vue
@@ -98,6 +114,7 @@ export const zatTheme: ThemeConfig = {
         mainHoldMs: 0,
         unmountCompFadeSec: 1,
         nameTopPx: 0,
+        nameFontSizePx: 36,
         frameUsSrc: "/images/zat/RedFrame.svg",
         frameThemSrc: "/images/zat/BlackFrame.svg",
         player1: {
