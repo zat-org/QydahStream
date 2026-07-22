@@ -13,7 +13,7 @@ export const zatTheme: ThemeConfig = {
         videoWidth: 1920,
         videoHeight: 1080,
         introStartSec: 0,
-        introEndSec: 3.5,
+        introEndSec: 3,
         mountDelaySec: 2.15,
         mountFadeSec: 0.5,
         scoreTweenSec: 0.75,
