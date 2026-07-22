@@ -1,14 +1,13 @@
 import type { ThemeConfig } from "./types";
 
 /**
- * Harvested from Zat baloot landscape Vue screens.
+ * Harvested from Zat baloot landscape Vue screens + /config tuning.
  * Store still supplies live scores/names — this file is skin only.
  */
 export const zatTheme: ThemeConfig = {
   id: "zat",
   landscape: {
     baloot: {
-      // Harvested from components/Score/Zat/baloot/Landscape.vue
       score: {
         video: "/videos/zat/Corner_Score.webm",
         videoWidth: 1920,
@@ -21,11 +20,11 @@ export const zatTheme: ThemeConfig = {
         unmountFadeSec: 0.3,
         outroPlaybackRate: 2,
         team1: {
-          wrapLeftPx: 976,
+          wrapLeftPx: 978,
           wrapTopPx: 20,
           wrapWidthPx: 324,
           wrapHeightPx: 62,
-          nameLeftPx: 56, // left-14
+          nameLeftPx: 56,
           nameWidthPx: 185,
           scoreLeftPx: 0,
           sponsorSrc: "/images/zat/zat_white.svg",
@@ -51,7 +50,6 @@ export const zatTheme: ThemeConfig = {
           scoreFontSizePx: 26,
         },
       },
-      // Harvested from components/Detail/Zat/baloot/landscape.vue
       detail: {
         video: "/videos/zat/Full_Score.webm",
         videoWidth: 1920,
@@ -70,12 +68,11 @@ export const zatTheme: ThemeConfig = {
           wrapHeightPx: 97,
           nameLeftPx: 84,
           nameWidthPx: 300,
-          scoreLeftPx: 0,
+          scoreLeftPx: -10,
           detailLeftPx: 0,
-          detailTopPx: 125,
+          detailTopPx: 400,
           detailWidthPx: 85,
           sponsorSrc: "/images/zat/zat_white.svg",
-          sponsorRightPx: 0,
           nameColor: "#ffffff",
           nameFontSizePx: 32,
           scoreColor: "#ffffff",
@@ -88,9 +85,9 @@ export const zatTheme: ThemeConfig = {
           wrapHeightPx: 97,
           nameLeftPx: 115,
           nameWidthPx: 300,
-          scoreRightPx: 0,
+          scoreRightPx: -7,
           detailRightPx: 0,
-          detailTopPx: 125,
+          detailTopPx: 400,
           detailWidthPx: 85,
           sponsorSrc: "/images/zat/zat_black.svg",
           sponsorLeftPx: 12,
@@ -100,7 +97,6 @@ export const zatTheme: ThemeConfig = {
           scoreFontSizePx: 40,
         },
       },
-      // Harvested from components/winner/Zat/baloot/landscape.vue
       winner: {
         video: "/videos/zat/Winner.webm",
         videoWidth: 1920,

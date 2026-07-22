@@ -157,7 +157,9 @@ const staticsComponent = computed(() => {
   // (same Baloot store stats) so sakka-end flow works instead of Unsupported layout.
   if (
     orientation.value === "landscape" &&
-    (theme.value === "zat" || theme.value === "qydha")
+    (theme.value === "zat" ||
+      theme.value === "newzat" ||
+      theme.value === "qydha")
   ) {
     return StaticsZat;
   } else if (theme.value === "qydha" && orientation.value === "portrait") {

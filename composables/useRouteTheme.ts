@@ -1,4 +1,4 @@
-export type ThemeId = "zat" | "qydha";
+export type ThemeId = "zat" | "qydha" | "newzat";
 export type Orientation = "landscape" | "portrait";
 
 /** Canonical theme-related query keys written to the URL (no typos). */
@@ -18,9 +18,10 @@ export const SUPPORTED_ORIENTATIONS: Record<
 > = {
   zat: ["landscape"],
   qydha: ["landscape", "portrait"],
+  newzat: ["landscape"],
 } as const;
 
-const THEME_IDS = ["zat", "qydha"] as const satisfies readonly ThemeId[];
+const THEME_IDS = ["zat", "qydha", "newzat"] as const satisfies readonly ThemeId[];
 const ORIENTATIONS = [
   "landscape",
   "portrait",
