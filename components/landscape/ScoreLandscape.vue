@@ -72,8 +72,8 @@
 <script lang="ts" setup>
 /**
  * Shared landscape Score shell.
- * Same timing as the old Qydha score Vue: play video immediately,
- * delay text with mountDelaySec, fixed introEndSec clock.
+ * Intro plays until introEndSec via requestVideoFrameCallback (media time),
+ * with seeked + sleep fallback when RVFC is unavailable.
  */
 import gsap from "gsap";
 import type {
@@ -81,6 +81,10 @@ import type {
   LandscapeScoreConfig,
   LandscapeTeamLayout,
 } from "~/config/themes/types";
+import {
+  playVideoUntilMediaTime,
+  type PlayUntilHandle,
+} from "~/utils/video-play-until";
 
 const props = withDefaults(
   defineProps<{
@@ -90,7 +94,6 @@ const props = withDefaults(
 );
 
 const { theme } = useRouteTheme("zat");
-const { sleep } = useSleep();
 
 const store = useMyBalootGameStore();
 const {
@@ -119,12 +122,17 @@ const lastHandledSendState = ref<string | null>(null);
 let mountTimeline: gsap.core.Timeline | null = null;
 let unmountTimeline: gsap.core.Timeline | null = null;
 let mainTimeline: gsap.core.Timeline | null = null;
+let activePlayUntil: PlayUntilHandle | null = null;
 
 const tweenedScores = reactive({
   team1: 0,
   team2: 0,
 });
 
+function cancelActivePlayUntil() {
+  activePlayUntil?.cancel();
+  activePlayUntil = null;
+}
 function wrapStyle(team: LandscapeTeamLayout) {
   return {
     left: `${team.wrapLeftPx}px`,
@@ -294,6 +302,7 @@ async function applyScoreState(newState: string) {
   if (!cfg) return;
 
   const generation = ++applyGeneration;
+  cancelActivePlayUntil();
   currentScoreState.value = newState;
   lastHandledSendState.value = null;
 
@@ -310,9 +319,20 @@ async function applyScoreState(newState: string) {
   const s2 = last_sakka.value?.themSakkaScore ?? 0;
 
   if (newState === "score.intro") {
-    playVideo(cfg.introStartSec, 1);
     scoreMount(s1, s2);
-    await sleep(cfg.introEndSec * 1000);
+    const handle = playVideoUntilMediaTime(
+      mediaElm.value,
+      cfg.introStartSec,
+      cfg.introEndSec,
+      {
+        playbackRate: 1,
+        isCancelled: () => generation !== applyGeneration,
+      },
+    );
+    activePlayUntil = handle;
+    const reached = await handle.done;
+    if (activePlayUntil === handle) activePlayUntil = null;
+    if (!reached) return;
     if (generation !== applyGeneration) return;
     if (currentScoreState.value !== newState) return;
     pauseVideoAt(cfg.introEndSec);
@@ -398,6 +418,7 @@ watch(
 
 onBeforeUnmount(() => {
   applyGeneration++;
+  cancelActivePlayUntil();
   mountTimeline?.kill();
   unmountTimeline?.kill();
   mainTimeline?.kill();

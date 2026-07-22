@@ -82,6 +82,10 @@ import type {
   LandscapeDetailConfig,
   LandscapeDetailTeamLayout,
 } from "~/config/themes/types";
+import {
+  playVideoUntilMediaTime,
+  type PlayUntilHandle,
+} from "~/utils/video-play-until";
 
 const props = withDefaults(
   defineProps<{
@@ -112,6 +116,12 @@ const currentDetailState = ref<string | null>(null);
 const lastHandledSendState = ref<string | null>(null);
 let mountTimeline: gsap.core.Timeline | null = null;
 let unmountTimeline: gsap.core.Timeline | null = null;
+let activePlayUntil: PlayUntilHandle | null = null;
+
+function cancelActivePlayUntil() {
+  activePlayUntil?.cancel();
+  activePlayUntil = null;
+}
 
 function wrapStyle(team: LandscapeDetailTeamLayout) {
   return {
@@ -277,6 +287,7 @@ async function applyDetailState(newState: string) {
   if (!cfg) return;
 
   const generation = ++applyGeneration;
+  cancelActivePlayUntil();
   currentDetailState.value = newState;
   lastHandledSendState.value = null;
 
@@ -288,9 +299,20 @@ async function applyDetailState(newState: string) {
   if (generation !== applyGeneration) return;
 
   if (newState === "detail.intro") {
-    playVideo(cfg.introStartSec, 1);
     detailMount();
-    await sleep(cfg.introEndSec * 1000);
+    const handle = playVideoUntilMediaTime(
+      mediaElm.value,
+      cfg.introStartSec,
+      cfg.introEndSec,
+      {
+        playbackRate: 1,
+        isCancelled: () => generation !== applyGeneration,
+      },
+    );
+    activePlayUntil = handle;
+    const reached = await handle.done;
+    if (activePlayUntil === handle) activePlayUntil = null;
+    if (!reached) return;
     if (generation !== applyGeneration) return;
     if (currentDetailState.value !== newState) return;
     pauseVideoAt(cfg.introEndSec);
@@ -343,6 +365,7 @@ watch(
 
 onBeforeUnmount(() => {
   applyGeneration++;
+  cancelActivePlayUntil();
   mountTimeline?.kill();
   unmountTimeline?.kill();
   mountTimeline = null;
