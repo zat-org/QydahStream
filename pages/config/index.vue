@@ -216,6 +216,10 @@
                 />
               </label>
             </div>
+            <ConfigTimingTimeline
+              :screen="activeScreen"
+              :config="activeDraft"
+            />
           </section>
 
           <!-- Score / Detail team layouts -->
@@ -264,6 +268,24 @@
                   />
                 </label>
                 <label class="block text-xs text-zinc-400">
+                  nameFontFamily
+                  <select
+                    :value="(activeDraft as any)[side.key].nameFontFamily ?? ''"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    @change="setNameFontFamily((activeDraft as any)[side.key], $event)"
+                  >
+                    <option value="">Default (Aref Ruqaa)</option>
+                    <option
+                      v-for="font in themeFontOptions"
+                      :key="font.id"
+                      :value="font.id"
+                      :style="{ fontFamily: `'${font.id}'` }"
+                    >
+                      {{ font.label }}
+                    </option>
+                  </select>
+                </label>
+                <label class="block text-xs text-zinc-400">
                   scoreColor
                   <input
                     v-model="(activeDraft as any)[side.key].scoreColor"
@@ -306,6 +328,24 @@
                   placeholder="#f6e27a"
                   class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                 />
+              </label>
+              <label class="mt-3 block text-xs text-zinc-400">
+                nameFontFamily
+                <select
+                  :value="winnerDraft.nameFontFamily ?? ''"
+                  class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  @change="setNameFontFamily(winnerDraft, $event)"
+                >
+                  <option value="">Default (Aref Ruqaa)</option>
+                  <option
+                    v-for="font in themeFontOptions"
+                    :key="font.id"
+                    :value="font.id"
+                    :style="{ fontFamily: `'${font.id}'` }"
+                  >
+                    {{ font.label }}
+                  </option>
+                </select>
               </label>
               <label class="mt-3 block text-xs text-zinc-400">
                 frameUsSrc (optional)
@@ -369,6 +409,7 @@ import type {
   ScreenId,
   ThemeConfig,
 } from "~/config/themes/types";
+import { THEME_FONT_OPTIONS } from "~/config/themes/fonts";
 import {
   exportThemeConfigJson,
   getFileThemeConfig,
@@ -381,6 +422,7 @@ import {
 import { isFirebaseConfigured } from "~/utils/firebase.client";
 
 const UNLOCK_KEY = "qydah:log-unlocked";
+const themeFontOptions = THEME_FONT_OPTIONS;
 
 const config = useRuntimeConfig().public;
 const expectedPassword = computed(() => String(config.logPassword ?? ""));
@@ -452,6 +494,8 @@ const scoreTeamFields = [
   "scoreLeftPx",
   "scoreRightPx",
   "sponsorLeftPx",
+  "sponsorWidthPx",
+  "sponsorHeightPx",
   "nameFontSizePx",
   "scoreFontSizePx",
 ] as const;
@@ -471,6 +515,8 @@ const detailTeamFields = [
   "detailWidthPx",
   "sponsorLeftPx",
   "sponsorRightPx",
+  "sponsorWidthPx",
+  "sponsorHeightPx",
   "nameFontSizePx",
   "scoreFontSizePx",
 ] as const;
@@ -536,6 +582,17 @@ function setNumField(obj: object | null, key: string, event: Event) {
   if (!obj) return;
   const raw = (event.target as HTMLInputElement).value;
   (obj as Record<string, unknown>)[key] = Number(raw);
+}
+
+function setNameFontFamily(obj: object | null, event: Event) {
+  if (!obj) return;
+  const raw = (event.target as HTMLSelectElement).value;
+  const target = obj as Record<string, unknown>;
+  if (!raw) {
+    delete target.nameFontFamily;
+  } else {
+    target.nameFontFamily = raw;
+  }
 }
 
 function clearAutosaveTimer() {

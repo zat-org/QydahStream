@@ -1,4 +1,5 @@
 import type { ThemeId, Orientation } from "~/composables/useRouteTheme";
+import type { ThemeFontId } from "./fonts";
 
 export type GameType = "baloot" | "hand";
 export type ScreenId = "score" | "detail" | "winner" | "statics";
@@ -7,6 +8,8 @@ export type ScreenId = "score" | "detail" | "winner" | "statics";
 export type LandscapeTeamTextStyle = {
   nameColor?: string;
   nameFontSizePx?: number;
+  /** CSS @font-face family — see config/themes/fonts.ts */
+  nameFontFamily?: ThemeFontId | string;
   scoreColor?: string;
   scoreFontSizePx?: number;
 };
@@ -27,6 +30,9 @@ export type LandscapeTeamLayout = LandscapeTeamTextStyle & {
   /** Optional sponsor mark (Zat). */
   sponsorSrc?: string;
   sponsorLeftPx?: number;
+  /** Sponsor logo size (defaults: score 66×62). */
+  sponsorWidthPx?: number;
+  sponsorHeightPx?: number;
 };
 
 /** Shared video + intro/outro timing for landscape screens. */
@@ -68,6 +74,9 @@ export type LandscapeDetailTeamLayout = LandscapeTeamTextStyle & {
   sponsorSrc?: string;
   sponsorLeftPx?: number;
   sponsorRightPx?: number;
+  /** Sponsor logo size (defaults: detail 110×100). */
+  sponsorWidthPx?: number;
+  sponsorHeightPx?: number;
 };
 
 export type LandscapeDetailConfig = LandscapeVideoTiming & {
@@ -96,6 +105,8 @@ export type LandscapeWinnerConfig = LandscapeVideoTiming & {
   /** Winner team name typography. */
   nameColor?: string;
   nameFontSizePx?: number;
+  /** CSS @font-face family — see config/themes/fonts.ts */
+  nameFontFamily?: ThemeFontId | string;
   player1: LandscapeWinnerPlayerSlot;
   player2: LandscapeWinnerPlayerSlot;
   /** Optional team frames (Zat Red/Black). */

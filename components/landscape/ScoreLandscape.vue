@@ -20,7 +20,7 @@
         v-if="scoreCfg.team1.sponsorSrc"
         :src="scoreCfg.team1.sponsorSrc"
         class="SponsorImage"
-        :style="{ left: `${scoreCfg.team1.sponsorLeftPx ?? 0}px` }"
+        :style="sponsorStyle(scoreCfg.team1)"
       />
       <transition name="fade" mode="out-in">
         <p
@@ -63,7 +63,7 @@
         v-if="scoreCfg.team2.sponsorSrc"
         :src="scoreCfg.team2.sponsorSrc"
         class="SponsorImage"
-        :style="{ left: `${scoreCfg.team2.sponsorLeftPx ?? 0}px` }"
+        :style="sponsorStyle(scoreCfg.team2)"
       />
     </div>
   </div>
@@ -72,8 +72,8 @@
 <script lang="ts" setup>
 /**
  * Shared landscape Score shell.
- * Intro plays until introEndSec via requestVideoFrameCallback (media time),
- * with seeked + sleep fallback when RVFC is unavailable.
+ * Same timing as the old Qydha score Vue: play video immediately,
+ * delay text with mountDelaySec, fixed introEndSec clock.
  */
 import gsap from "gsap";
 import type {
@@ -81,10 +81,7 @@ import type {
   LandscapeScoreConfig,
   LandscapeTeamLayout,
 } from "~/config/themes/types";
-import {
-  playVideoUntilMediaTime,
-  type PlayUntilHandle,
-} from "~/utils/video-play-until";
+import { themeFontCss } from "~/config/themes/fonts";
 
 const props = withDefaults(
   defineProps<{
@@ -94,6 +91,7 @@ const props = withDefaults(
 );
 
 const { theme } = useRouteTheme("zat");
+const { sleep } = useSleep();
 
 const store = useMyBalootGameStore();
 const {
@@ -122,17 +120,11 @@ const lastHandledSendState = ref<string | null>(null);
 let mountTimeline: gsap.core.Timeline | null = null;
 let unmountTimeline: gsap.core.Timeline | null = null;
 let mainTimeline: gsap.core.Timeline | null = null;
-let activePlayUntil: PlayUntilHandle | null = null;
 
 const tweenedScores = reactive({
   team1: 0,
   team2: 0,
 });
-
-function cancelActivePlayUntil() {
-  activePlayUntil?.cancel();
-  activePlayUntil = null;
-}
 function wrapStyle(team: LandscapeTeamLayout) {
   return {
     left: `${team.wrapLeftPx}px`,
@@ -149,6 +141,8 @@ function nameStyle(team: LandscapeTeamLayout) {
   };
   if (team.nameColor) style.color = team.nameColor;
   if (team.nameFontSizePx != null) style.fontSize = `${team.nameFontSizePx}px`;
+  const font = themeFontCss(team.nameFontFamily);
+  if (font) style.fontFamily = `"${font}"`;
   return style;
 }
 
@@ -158,6 +152,14 @@ function scoreStyle(team: LandscapeTeamLayout) {
   if (team.scoreRightPx != null) style.right = `${team.scoreRightPx}px`;
   if (team.scoreColor) style.color = team.scoreColor;
   if (team.scoreFontSizePx != null) style.fontSize = `${team.scoreFontSizePx}px`;
+  return style;
+}
+
+function sponsorStyle(team: LandscapeTeamLayout) {
+  const style: Record<string, string> = {};
+  if (team.sponsorLeftPx != null) style.left = `${team.sponsorLeftPx}px`;
+  if (team.sponsorWidthPx != null) style.width = `${team.sponsorWidthPx}px`;
+  if (team.sponsorHeightPx != null) style.height = `${team.sponsorHeightPx}px`;
   return style;
 }
 
@@ -302,7 +304,6 @@ async function applyScoreState(newState: string) {
   if (!cfg) return;
 
   const generation = ++applyGeneration;
-  cancelActivePlayUntil();
   currentScoreState.value = newState;
   lastHandledSendState.value = null;
 
@@ -319,20 +320,9 @@ async function applyScoreState(newState: string) {
   const s2 = last_sakka.value?.themSakkaScore ?? 0;
 
   if (newState === "score.intro") {
+    playVideo(cfg.introStartSec, 1);
     scoreMount(s1, s2);
-    const handle = playVideoUntilMediaTime(
-      mediaElm.value,
-      cfg.introStartSec,
-      cfg.introEndSec,
-      {
-        playbackRate: 1,
-        isCancelled: () => generation !== applyGeneration,
-      },
-    );
-    activePlayUntil = handle;
-    const reached = await handle.done;
-    if (activePlayUntil === handle) activePlayUntil = null;
-    if (!reached) return;
+    await sleep(cfg.introEndSec * 1000);
     if (generation !== applyGeneration) return;
     if (currentScoreState.value !== newState) return;
     pauseVideoAt(cfg.introEndSec);
@@ -418,7 +408,6 @@ watch(
 
 onBeforeUnmount(() => {
   applyGeneration++;
-  cancelActivePlayUntil();
   mountTimeline?.kill();
   unmountTimeline?.kill();
   mainTimeline?.kill();

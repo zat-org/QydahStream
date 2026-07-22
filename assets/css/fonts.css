@@ -1,12 +1,17 @@
 @font-face {
-    font-family: "CairoSemiBold";
-    src: url("@/assets/fonts/Cairo-SemiBold.ttf") format("truetype");
-
+  font-family: "CairoSemiBold";
+  src: url("@/assets/fonts/Cairo-SemiBold.ttf") format("truetype");
+  font-display: swap;
 }
 
+@font-face {
+  font-family: "arefBold";
+  src: url("@/assets/fonts/ArefRuqaa-Bold.ttf") format("truetype");
+  font-display: swap;
+}
 
 @font-face {
-    font-family: "arefBold";
-    src: url("@/assets/fonts/ArefRuqaa-Bold.ttf") format("truetype");
-
+  font-family: "DinNextRegular";
+  src: url("@/assets/fonts/din-next-lt-w23-regular.ttf") format("truetype");
+  font-display: swap;
 }

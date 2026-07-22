@@ -92,10 +92,7 @@ import type {
   LandscapeWinnerConfig,
   LandscapeWinnerPlayerSlot,
 } from "~/config/themes/types";
-import {
-  playVideoUntilMediaTime,
-  type PlayUntilHandle,
-} from "~/utils/video-play-until";
+import { themeFontCss } from "~/config/themes/fonts";
 
 const props = withDefaults(
   defineProps<{
@@ -136,6 +133,8 @@ const winnerNameStyle = computed(() => {
     style.backgroundImage = "none";
     style.webkitTextFillColor = cfg.nameColor;
   }
+  const font = themeFontCss(cfg.nameFontFamily);
+  if (font) style.fontFamily = `"${font}"`;
   return style;
 });
 
@@ -148,12 +147,6 @@ const currentWinnerState = ref<string | null>(null);
 const lastHandledSendState = ref<string | null>(null);
 let mountTimeline: gsap.core.Timeline | null = null;
 let unmountTimeline: gsap.core.Timeline | null = null;
-let activePlayUntil: PlayUntilHandle | null = null;
-
-function cancelActivePlayUntil() {
-  activePlayUntil?.cancel();
-  activePlayUntil = null;
-}
 
 function playerSlotStyle(slot: LandscapeWinnerPlayerSlot) {
   return {
@@ -281,7 +274,6 @@ async function applyWinnerState(newState: string) {
   if (!cfg) return;
 
   const generation = ++applyGeneration;
-  cancelActivePlayUntil();
   currentWinnerState.value = newState;
   lastHandledSendState.value = null;
 
@@ -293,20 +285,9 @@ async function applyWinnerState(newState: string) {
   if (generation !== applyGeneration) return;
 
   if (newState === "winner.intro") {
+    playVideo(cfg.introStartSec, 1);
     winnerMount();
-    const handle = playVideoUntilMediaTime(
-      mediaElm.value,
-      cfg.introStartSec,
-      cfg.introEndSec,
-      {
-        playbackRate: 1,
-        isCancelled: () => generation !== applyGeneration,
-      },
-    );
-    activePlayUntil = handle;
-    const reached = await handle.done;
-    if (activePlayUntil === handle) activePlayUntil = null;
-    if (!reached) return;
+    await sleep(cfg.introEndSec * 1000);
     if (generation !== applyGeneration) return;
     if (currentWinnerState.value !== newState) return;
     pauseVideoAt(cfg.introEndSec);
@@ -349,7 +330,6 @@ watch(
 
 onBeforeUnmount(() => {
   applyGeneration++;
-  cancelActivePlayUntil();
   mountTimeline?.kill();
   unmountTimeline?.kill();
   mountTimeline = null;

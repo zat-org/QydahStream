@@ -82,10 +82,7 @@ import type {
   LandscapeDetailConfig,
   LandscapeDetailTeamLayout,
 } from "~/config/themes/types";
-import {
-  playVideoUntilMediaTime,
-  type PlayUntilHandle,
-} from "~/utils/video-play-until";
+import { themeFontCss } from "~/config/themes/fonts";
 
 const props = withDefaults(
   defineProps<{
@@ -116,12 +113,6 @@ const currentDetailState = ref<string | null>(null);
 const lastHandledSendState = ref<string | null>(null);
 let mountTimeline: gsap.core.Timeline | null = null;
 let unmountTimeline: gsap.core.Timeline | null = null;
-let activePlayUntil: PlayUntilHandle | null = null;
-
-function cancelActivePlayUntil() {
-  activePlayUntil?.cancel();
-  activePlayUntil = null;
-}
 
 function wrapStyle(team: LandscapeDetailTeamLayout) {
   return {
@@ -139,6 +130,8 @@ function nameStyle(team: LandscapeDetailTeamLayout) {
   };
   if (team.nameColor) style.color = team.nameColor;
   if (team.nameFontSizePx != null) style.fontSize = `${team.nameFontSizePx}px`;
+  const font = themeFontCss(team.nameFontFamily);
+  if (font) style.fontFamily = `"${font}"`;
   return style;
 }
 
@@ -165,6 +158,8 @@ function sponsorStyle(team: LandscapeDetailTeamLayout) {
   const style: Record<string, string> = {};
   if (team.sponsorLeftPx != null) style.left = `${team.sponsorLeftPx}px`;
   if (team.sponsorRightPx != null) style.right = `${team.sponsorRightPx}px`;
+  if (team.sponsorWidthPx != null) style.width = `${team.sponsorWidthPx}px`;
+  if (team.sponsorHeightPx != null) style.height = `${team.sponsorHeightPx}px`;
   return style;
 }
 
@@ -287,7 +282,6 @@ async function applyDetailState(newState: string) {
   if (!cfg) return;
 
   const generation = ++applyGeneration;
-  cancelActivePlayUntil();
   currentDetailState.value = newState;
   lastHandledSendState.value = null;
 
@@ -299,20 +293,9 @@ async function applyDetailState(newState: string) {
   if (generation !== applyGeneration) return;
 
   if (newState === "detail.intro") {
+    playVideo(cfg.introStartSec, 1);
     detailMount();
-    const handle = playVideoUntilMediaTime(
-      mediaElm.value,
-      cfg.introStartSec,
-      cfg.introEndSec,
-      {
-        playbackRate: 1,
-        isCancelled: () => generation !== applyGeneration,
-      },
-    );
-    activePlayUntil = handle;
-    const reached = await handle.done;
-    if (activePlayUntil === handle) activePlayUntil = null;
-    if (!reached) return;
+    await sleep(cfg.introEndSec * 1000);
     if (generation !== applyGeneration) return;
     if (currentDetailState.value !== newState) return;
     pauseVideoAt(cfg.introEndSec);
@@ -365,7 +348,6 @@ watch(
 
 onBeforeUnmount(() => {
   applyGeneration++;
-  cancelActivePlayUntil();
   mountTimeline?.kill();
   unmountTimeline?.kill();
   mountTimeline = null;
