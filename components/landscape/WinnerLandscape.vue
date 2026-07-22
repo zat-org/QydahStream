@@ -11,7 +11,7 @@
     <div
       ref="winnerData"
       class="winnerData"
-      :style="{ top: `${winnerCfg.nameTopPx}px` }"
+      :style="winnerDataStyle"
     >
       <p
         v-if="winner"
@@ -126,6 +126,19 @@ const winnerFrameSrc = computed(() => {
   if (winner.value?.type === "Us") return cfg.frameUsSrc ?? null;
   if (winner.value?.type === "Them") return cfg.frameThemSrc ?? null;
   return cfg.frameUsSrc ?? cfg.frameThemSrc ?? null;
+});
+
+const winnerDataStyle = computed(() => {
+  const cfg = winnerCfg.value;
+  if (!cfg) return {};
+  const style: Record<string, string> = {
+    top: `${cfg.nameTopPx}px`,
+  };
+  if (cfg.nameLeftPx != null) {
+    style.justifyContent = "flex-start";
+    style.paddingLeft = `${cfg.nameLeftPx}px`;
+  }
+  return style;
 });
 
 const winnerNameStyle = computed(() => {

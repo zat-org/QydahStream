@@ -60,7 +60,7 @@ export const zatTheme: ThemeConfig = {
         mountFadeSec: 0.75,
         unmountFadeSec: 1,
         outroPlaybackRate: 2,
-        mainHoldMs: 250,
+        mainHoldMs: 251,
         team1: {
           wrapLeftPx: 1062,
           wrapTopPx: 62,
@@ -73,6 +73,7 @@ export const zatTheme: ThemeConfig = {
           detailTopPx: 400,
           detailWidthPx: 85,
           sponsorSrc: "/images/zat/zat_white.svg",
+          sponsorLeftPx: 386,
           nameColor: "#ffffff",
           nameFontSizePx: 32,
           scoreColor: "#ffffff",

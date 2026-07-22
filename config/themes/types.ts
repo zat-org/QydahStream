@@ -118,6 +118,8 @@ export type LandscapeWinnerConfig = LandscapeVideoTiming & {
   /** Full-comp fade duration on unmount. */
   unmountCompFadeSec: number;
   nameTopPx: number;
+  /** Horizontal offset for winner name (px). Omit to keep centered. */
+  nameLeftPx?: number;
   /** Winner team name typography. */
   nameColor?: string;
   nameFontSizePx?: number;

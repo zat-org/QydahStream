@@ -530,6 +530,16 @@
                   />
                 </label>
                 <label class="block text-xs text-zinc-400">
+                  nameLeftPx (empty = centered)
+                  <input
+                    :value="numField(winnerDraft, 'nameLeftPx')"
+                    type="number"
+                    step="any"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    @input="setOptionalNumField(winnerDraft, 'nameLeftPx', $event)"
+                  />
+                </label>
+                <label class="block text-xs text-zinc-400">
                   nameFontSizePx
                   <input
                     v-model.number="winnerDraft.nameFontSizePx"
@@ -886,6 +896,17 @@ function setNumField(obj: object | null, key: string, event: Event) {
   if (!obj) return;
   const raw = (event.target as HTMLInputElement).value;
   (obj as Record<string, unknown>)[key] = Number(raw);
+}
+
+function setOptionalNumField(obj: object | null, key: string, event: Event) {
+  if (!obj) return;
+  const raw = (event.target as HTMLSelectElement | HTMLInputElement).value;
+  const target = obj as Record<string, unknown>;
+  if (raw === "" || raw == null) {
+    delete target[key];
+  } else {
+    target[key] = Number(raw);
+  }
 }
 
 function setNameFontFamily(obj: object | null, event: Event) {
