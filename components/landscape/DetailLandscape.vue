@@ -16,6 +16,12 @@
       class="teamWrap"
       :style="wrapStyle(detailCfg.team1)"
     >
+      <img
+        v-if="detailCfg.team1.sponsorSrc"
+        :src="detailCfg.team1.sponsorSrc"
+        class="teamSponsor"
+        :style="sponsorStyle(detailCfg.team1)"
+      />
       <p
         class="teamName"
         :style="{
@@ -52,6 +58,12 @@
       >
         {{ themName }}
       </p>
+      <img
+        v-if="detailCfg.team2.sponsorSrc"
+        :src="detailCfg.team2.sponsorSrc"
+        class="teamSponsor"
+        :style="sponsorStyle(detailCfg.team2)"
+      />
       <div class="teamDetailedScore" :style="detailListStyle(detailCfg.team2)">
         <p
           v-for="(e_m, i) in ended_moshtras"
@@ -130,6 +142,13 @@ function detailListStyle(team: LandscapeDetailTeamLayout) {
   };
   if (team.detailLeftPx != null) style.left = `${team.detailLeftPx}px`;
   if (team.detailRightPx != null) style.right = `${team.detailRightPx}px`;
+  return style;
+}
+
+function sponsorStyle(team: LandscapeDetailTeamLayout) {
+  const style: Record<string, string> = {};
+  if (team.sponsorLeftPx != null) style.left = `${team.sponsorLeftPx}px`;
+  if (team.sponsorRightPx != null) style.right = `${team.sponsorRightPx}px`;
   return style;
 }
 
@@ -350,6 +369,10 @@ onBeforeUnmount(() => {
 .teamDetailedScore {
   @apply text-[white] absolute text-[1.8rem];
   font-family: "CairoSemiBold";
+}
+
+.teamSponsor {
+  @apply absolute w-[110px] h-[100px] top-[-5px];
 }
 
 .roundScore {

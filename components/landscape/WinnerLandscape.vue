@@ -25,6 +25,15 @@
           :style="playerSlotStyle(winnerCfg.player1)"
         >
           <img
+            v-if="winnerFrameSrc"
+            class="playerFrame"
+            :src="winnerFrameSrc"
+            :style="{
+              width: `${winnerCfg.player1.widthPx}px`,
+              height: `${winnerCfg.player1.heightPx}px`,
+            }"
+          />
+          <img
             ref="winnerImage1"
             class="playerImg"
             :style="{ height: `${winnerCfg.player1.imgHeightPx}px` }"
@@ -35,6 +44,15 @@
           class="playerSlot"
           :style="playerSlotStyle(winnerCfg.player2)"
         >
+          <img
+            v-if="winnerFrameSrc"
+            class="playerFrame"
+            :src="winnerFrameSrc"
+            :style="{
+              width: `${winnerCfg.player2.widthPx}px`,
+              height: `${winnerCfg.player2.heightPx}px`,
+            }"
+          />
           <img
             ref="winnerImage2"
             class="playerImg"
@@ -89,6 +107,14 @@ const { config: resolvedTheme } = useResolvedThemeConfig(themeId);
 
 const winnerCfg = computed<LandscapeWinnerConfig | null>(() => {
   return resolvedTheme.value?.landscape?.[props.game]?.winner ?? null;
+});
+
+const winnerFrameSrc = computed(() => {
+  const cfg = winnerCfg.value;
+  if (!cfg) return null;
+  if (winner.value?.type === "Us") return cfg.frameUsSrc ?? null;
+  if (winner.value?.type === "Them") return cfg.frameThemSrc ?? null;
+  return cfg.frameUsSrc ?? cfg.frameThemSrc ?? null;
 });
 
 const mediaElm = ref<HTMLVideoElement>();
@@ -331,7 +357,11 @@ onBeforeUnmount(() => {
   @apply absolute z-[-2];
 }
 
+.playerFrame {
+  @apply absolute z-[10] left-0 top-0 pointer-events-none;
+}
+
 .playerImg {
-  @apply opacity-0;
+  @apply opacity-0 relative;
 }
 </style>

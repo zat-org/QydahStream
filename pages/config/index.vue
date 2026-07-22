@@ -245,7 +245,7 @@
                   />
                 </label>
                 <label
-                  v-if="activeScreen === 'score'"
+                  v-if="activeScreen === 'score' || activeScreen === 'detail'"
                   class="block text-xs text-zinc-400 sm:col-span-3"
                 >
                   sponsorSrc (optional)
@@ -269,6 +269,20 @@
                   type="number"
                   step="any"
                   class="mt-1 w-full max-w-xs rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                />
+              </label>
+              <label class="mt-3 block text-xs text-zinc-400">
+                frameUsSrc (optional)
+                <input
+                  v-model="winnerDraft.frameUsSrc"
+                  class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                />
+              </label>
+              <label class="mt-3 block text-xs text-zinc-400">
+                frameThemSrc (optional)
+                <input
+                  v-model="winnerDraft.frameThemSrc"
+                  class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                 />
               </label>
             </section>
@@ -417,6 +431,8 @@ const detailTeamFields = [
   "detailRightPx",
   "detailTopPx",
   "detailWidthPx",
+  "sponsorLeftPx",
+  "sponsorRightPx",
 ] as const;
 
 const winnerSlotFields: (keyof LandscapeWinnerPlayerSlot)[] = [

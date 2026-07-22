@@ -1,7 +1,9 @@
 import type { ThemeConfig } from "./types";
 import { qydhaTheme } from "./qydha";
+import { zatTheme } from "./zat";
 
 const themes: Record<string, ThemeConfig> = {
+  zat: zatTheme,
   qydha: qydhaTheme,
 };
 
@@ -13,4 +15,4 @@ export function listThemeIds(): string[] {
   return Object.keys(themes);
 }
 
-export { qydhaTheme };
+export { qydhaTheme, zatTheme };

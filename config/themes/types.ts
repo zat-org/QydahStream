@@ -56,6 +56,10 @@ export type LandscapeDetailTeamLayout = {
   detailRightPx?: number;
   detailTopPx: number;
   detailWidthPx: number;
+  /** Optional sponsor mark (Zat). */
+  sponsorSrc?: string;
+  sponsorLeftPx?: number;
+  sponsorRightPx?: number;
 };
 
 export type LandscapeDetailConfig = LandscapeVideoTiming & {
@@ -83,6 +87,9 @@ export type LandscapeWinnerConfig = LandscapeVideoTiming & {
   nameTopPx: number;
   player1: LandscapeWinnerPlayerSlot;
   player2: LandscapeWinnerPlayerSlot;
+  /** Optional team frames (Zat Red/Black). */
+  frameUsSrc?: string;
+  frameThemSrc?: string;
 };
 
 export type LandscapeScreenConfig = {
