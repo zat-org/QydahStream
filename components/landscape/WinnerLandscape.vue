@@ -93,6 +93,11 @@ import type {
   LandscapeWinnerPlayerSlot,
 } from "~/config/themes/types";
 import { themeFontCss } from "~/config/themes/fonts";
+import {
+  pauseVideoOnly,
+  playVideoFrom,
+  waitForVideoMediaTime,
+} from "~/utils/video-media-time";
 
 const props = withDefaults(
   defineProps<{
@@ -215,26 +220,11 @@ function sendOnce(stateKey: string, type: string, payload?: Record<string, unkno
 function playVideo(atSec: number, playbackRate = 1) {
   const video = mediaElm.value;
   if (!video) return;
-  video.playbackRate = playbackRate;
-  try {
-    video.currentTime = atSec;
-  } catch {
-    /* ignore */
-  }
-  void video.play().catch(() => {
-    /* autoplay / load race */
-  });
+  void playVideoFrom(video, atSec, playbackRate);
 }
 
-function pauseVideoAt(atSec: number) {
-  const video = mediaElm.value;
-  if (!video) return;
-  video.pause();
-  try {
-    video.currentTime = atSec;
-  } catch {
-    /* ignore */
-  }
+function pauseVideo() {
+  pauseVideoOnly(mediaElm.value);
 }
 
 const winnerMount = () => {
@@ -285,17 +275,27 @@ async function applyWinnerState(newState: string) {
   if (generation !== applyGeneration) return;
 
   if (newState === "winner.intro") {
-    playVideo(cfg.introStartSec, 1);
+    const video = mediaElm.value;
+    if (!video) return;
+    await playVideoFrom(video, cfg.introStartSec, 1, {
+      isCancelled: () => generation !== applyGeneration,
+    });
+    if (generation !== applyGeneration) return;
     winnerMount();
-    await sleep(cfg.introEndSec * 1000);
+    const reached = await waitForVideoMediaTime(video, cfg.introEndSec, {
+      isCancelled: () =>
+        generation !== applyGeneration ||
+        currentWinnerState.value !== newState,
+    });
+    if (!reached) return;
     if (generation !== applyGeneration) return;
     if (currentWinnerState.value !== newState) return;
-    pauseVideoAt(cfg.introEndSec);
+    pauseVideo();
     sendOnce(newState, "NEXT");
   }
 
   if (newState === "winner.main") {
-    pauseVideoAt(cfg.introEndSec);
+    pauseVideo();
     await sleep(cfg.mainHoldMs);
     if (generation !== applyGeneration) return;
     if (currentWinnerState.value !== newState) return;

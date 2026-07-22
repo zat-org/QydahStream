@@ -83,6 +83,11 @@ import type {
   LandscapeDetailTeamLayout,
 } from "~/config/themes/types";
 import { themeFontCss } from "~/config/themes/fonts";
+import {
+  pauseVideoOnly,
+  playVideoFrom,
+  waitForVideoMediaTime,
+} from "~/utils/video-media-time";
 
 const props = withDefaults(
   defineProps<{
@@ -128,6 +133,7 @@ function nameStyle(team: LandscapeDetailTeamLayout) {
     left: `${team.nameLeftPx}px`,
     width: `${team.nameWidthPx}px`,
   };
+  if (team.nameTopPx != null) style.top = `${team.nameTopPx}px`;
   if (team.nameColor) style.color = team.nameColor;
   if (team.nameFontSizePx != null) style.fontSize = `${team.nameFontSizePx}px`;
   const font = themeFontCss(team.nameFontFamily);
@@ -139,6 +145,7 @@ function scoreStyle(team: LandscapeDetailTeamLayout) {
   const style: Record<string, string> = {};
   if (team.scoreLeftPx != null) style.left = `${team.scoreLeftPx}px`;
   if (team.scoreRightPx != null) style.right = `${team.scoreRightPx}px`;
+  if (team.scoreTopPx != null) style.top = `${team.scoreTopPx}px`;
   if (team.scoreColor) style.color = team.scoreColor;
   if (team.scoreFontSizePx != null) style.fontSize = `${team.scoreFontSizePx}px`;
   return style;
@@ -222,26 +229,11 @@ function sendOnce(stateKey: string, type: "NEXT" | "TO_OUTRO" | "CHECK_END") {
 function playVideo(atSec: number, playbackRate = 1) {
   const video = mediaElm.value;
   if (!video) return;
-  video.playbackRate = playbackRate;
-  try {
-    video.currentTime = atSec;
-  } catch {
-    /* ignore */
-  }
-  void video.play().catch(() => {
-    /* autoplay / load race */
-  });
+  void playVideoFrom(video, atSec, playbackRate);
 }
 
-function pauseVideoAt(atSec: number) {
-  const video = mediaElm.value;
-  if (!video) return;
-  video.pause();
-  try {
-    video.currentTime = atSec;
-  } catch {
-    /* ignore */
-  }
+function pauseVideo() {
+  pauseVideoOnly(mediaElm.value);
 }
 
 const detailMount = () => {
@@ -293,17 +285,27 @@ async function applyDetailState(newState: string) {
   if (generation !== applyGeneration) return;
 
   if (newState === "detail.intro") {
-    playVideo(cfg.introStartSec, 1);
+    const video = mediaElm.value;
+    if (!video) return;
+    await playVideoFrom(video, cfg.introStartSec, 1, {
+      isCancelled: () => generation !== applyGeneration,
+    });
+    if (generation !== applyGeneration) return;
     detailMount();
-    await sleep(cfg.introEndSec * 1000);
+    const reached = await waitForVideoMediaTime(video, cfg.introEndSec, {
+      isCancelled: () =>
+        generation !== applyGeneration ||
+        currentDetailState.value !== newState,
+    });
+    if (!reached) return;
     if (generation !== applyGeneration) return;
     if (currentDetailState.value !== newState) return;
-    pauseVideoAt(cfg.introEndSec);
+    pauseVideo();
     sendOnce(newState, "NEXT");
   }
 
   if (newState === "detail.main") {
-    pauseVideoAt(cfg.introEndSec);
+    pauseVideo();
     await sleep(cfg.mainHoldMs);
     if (generation !== applyGeneration) return;
     if (currentDetailState.value !== newState) return;

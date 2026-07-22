@@ -132,6 +132,14 @@ export const zatTheme: ThemeConfig = {
           fallbackSrc: "/images/u2.jpg",
         },
       },
+      cam: {
+        usFrameSrc: "/images/zat/usframe.svg",
+        themFrameSrc: "/images/zat/themframe.svg",
+        frameWidthPx: 140,
+        frameHeightPx: 195,
+        imageHeightPx: 187,
+        imageTopPx: 5,
+      },
     },
   },
 };

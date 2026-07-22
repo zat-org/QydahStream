@@ -17,6 +17,8 @@ const router = useRouter();
 const table_id =
   (route.params.id as string) ?? "983365b7-c1dc-4c60-8131-8450ceb934db";
 
+const { themeQuery, themeQueryNeedsNormalize } = useRouteTheme("zat");
+
 const allowedPositions = ["top", "left", "right", "bottom"] as const;
 
 const gameStore = useMyBalootGameStore();
@@ -44,7 +46,10 @@ watch(
   (pos) => {
     const p = String(pos ?? "").toLowerCase();
     if (!(allowedPositions as readonly string[]).includes(p)) {
-      void router.replace(`/baloot/${table_id}/Cam/top`);
+      void router.replace({
+        path: `/baloot/${table_id}/Cam/top`,
+        query: themeQuery(),
+      });
     }
   },
   { immediate: true },
@@ -64,6 +69,12 @@ const camComponent = computed(() => {
       return CamTop;
   }
 });
-</script>
 
-<style></style>
+onMounted(() => {
+  if (!themeQueryNeedsNormalize()) return;
+  void router.replace({
+    path: `/baloot/${table_id}/Cam/${positionKey.value}`,
+    query: themeQuery(),
+  });
+});
+</script>

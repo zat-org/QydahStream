@@ -149,7 +149,15 @@
             :disabled="!draft"
             @click="copyExport"
           >
-            Copy JSON
+            Copy full theme JSON
+          </button>
+          <button
+            type="button"
+            class="rounded bg-zinc-700 px-3 py-1.5 hover:bg-zinc-600"
+            :disabled="!canCopyActiveScreen"
+            @click="copyScreenJson(activeScreen)"
+          >
+            Copy {{ activeScreen }} JSON
           </button>
           <button
             type="button"
@@ -176,6 +184,96 @@
         </div>
 
         <div
+          v-else-if="activeScreen === 'cam' && !camDraft"
+          class="rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-8 text-center text-sm text-zinc-500"
+        >
+          <p class="mb-3">
+            No cam config for theme “{{ activeThemeId }}”.
+          </p>
+          <button
+            type="button"
+            class="rounded bg-emerald-700 px-3 py-1.5 text-xs text-white hover:bg-emerald-600"
+            @click="ensureCamDraft"
+          >
+            Add cam defaults
+          </button>
+        </div>
+
+        <form
+          v-else-if="activeScreen === 'cam' && camDraft"
+          class="space-y-6 rounded-lg border border-zinc-800 bg-zinc-900/40 p-4"
+          @submit.prevent
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="text-sm font-semibold text-zinc-200">Cam player frames</h2>
+            <button
+              type="button"
+              class="rounded bg-zinc-700 px-3 py-1.5 text-xs hover:bg-zinc-600"
+              @click="copyScreenJson('cam')"
+            >
+              Copy cam JSON
+            </button>
+          </div>
+          <section>
+            <p class="mb-3 text-[11px] text-zinc-500">
+              Used by Cam overlays. Pass
+              <code class="text-emerald-300/90">?theme={{ activeThemeId }}</code>
+              on Cam URLs.
+            </p>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="block text-xs text-zinc-400 sm:col-span-2">
+                usFrameSrc (top/bottom seats)
+                <input
+                  v-model="camDraft.usFrameSrc"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                />
+              </label>
+              <label class="block text-xs text-zinc-400 sm:col-span-2">
+                themFrameSrc (left/right seats)
+                <input
+                  v-model="camDraft.themFrameSrc"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                />
+              </label>
+              <label
+                v-for="field in camSizeFields"
+                :key="field"
+                class="block text-xs text-zinc-400"
+              >
+                {{ field }}
+                <input
+                  :value="numField(camDraft, field)"
+                  type="number"
+                  step="any"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  @input="setNumField(camDraft, field, $event)"
+                />
+              </label>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-6">
+              <div class="text-center">
+                <p class="mb-2 text-[10px] text-zinc-500">us frame</p>
+                <img
+                  v-if="camDraft.usFrameSrc"
+                  :src="camDraft.usFrameSrc"
+                  class="h-[120px] w-auto rounded border border-zinc-700 bg-zinc-950"
+                  alt="us frame preview"
+                />
+              </div>
+              <div class="text-center">
+                <p class="mb-2 text-[10px] text-zinc-500">them frame</p>
+                <img
+                  v-if="camDraft.themFrameSrc"
+                  :src="camDraft.themFrameSrc"
+                  class="h-[120px] w-auto rounded border border-zinc-700 bg-zinc-950"
+                  alt="them frame preview"
+                />
+              </div>
+            </div>
+          </section>
+        </form>
+
+        <div
           v-else-if="!activeDraft"
           class="rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-8 text-center text-sm text-zinc-500"
         >
@@ -185,14 +283,27 @@
         </div>
 
         <form
-          v-else
+          v-else-if="activeDraft"
           class="space-y-6 rounded-lg border border-zinc-800 bg-zinc-900/40 p-4"
           @submit.prevent
         >
-          <section>
-            <h2 class="mb-3 text-sm font-semibold text-zinc-200">
-              Video & timing
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="text-sm font-semibold capitalize text-zinc-200">
+              {{ activeScreen }} config
             </h2>
+            <button
+              type="button"
+              class="rounded bg-zinc-700 px-3 py-1.5 text-xs hover:bg-zinc-600"
+              @click="copyScreenJson(activeScreen)"
+            >
+              Copy {{ activeScreen }} JSON
+            </button>
+          </div>
+
+          <section>
+            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-400">
+              Video & timing
+            </h3>
             <div class="grid gap-3 sm:grid-cols-2">
               <label class="block text-xs text-zinc-400 sm:col-span-2">
                 video
@@ -227,52 +338,221 @@
             <section
               v-for="side in teamSides"
               :key="side.key"
-              class="border-t border-zinc-800 pt-4"
+              class="space-y-3 border-t border-zinc-800 pt-4"
             >
-              <h2 class="mb-3 text-sm font-semibold text-zinc-200">
-                {{ side.label }}
-              </h2>
-              <div class="grid gap-3 sm:grid-cols-3">
-                <label
-                  v-for="field in teamFieldsForScreen"
-                  :key="field"
-                  class="block text-xs text-zinc-400"
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="text-sm font-semibold text-zinc-200">
+                  {{ side.label }}
+                </h3>
+                <button
+                  type="button"
+                  class="rounded bg-zinc-800 px-2.5 py-1 text-[10px] text-zinc-300 hover:bg-zinc-700"
+                  @click="copyTeamJson(side.key)"
                 >
-                  {{ field }}
+                  Copy team JSON
+                </button>
+              </div>
+
+              <!-- Wrap -->
+              <div class="rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-3">
+                <p class="mb-2 text-[10px] font-semibold uppercase tracking-wide text-emerald-400/90">
+                  Wrap
+                </p>
+                <div class="grid gap-3 sm:grid-cols-4">
+                  <label
+                    v-for="field in wrapFields"
+                    :key="field"
+                    class="block text-xs text-zinc-400"
+                  >
+                    {{ field }}
+                    <input
+                      v-model.number="(activeDraft as any)[side.key][field]"
+                      type="number"
+                      step="any"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <!-- Name -->
+              <div class="rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-3">
+                <p class="mb-2 text-[10px] font-semibold uppercase tracking-wide text-sky-400/90">
+                  Name
+                </p>
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <label
+                    v-for="field in nameNumFields"
+                    :key="field"
+                    class="block text-xs text-zinc-400"
+                  >
+                    {{ field }}
+                    <input
+                      v-model.number="(activeDraft as any)[side.key][field]"
+                      type="number"
+                      step="any"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                  <label class="block text-xs text-zinc-400">
+                    nameColor
+                    <input
+                      v-model="(activeDraft as any)[side.key].nameColor"
+                      type="text"
+                      placeholder="#ffffff"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                  <label class="block text-xs text-zinc-400 sm:col-span-2">
+                    nameFontFamily
+                    <select
+                      :value="(activeDraft as any)[side.key].nameFontFamily ?? ''"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                      @change="
+                        setNameFontFamily((activeDraft as any)[side.key], $event)
+                      "
+                    >
+                      <option value="">Default (Aref Ruqaa)</option>
+                      <option
+                        v-for="font in themeFontOptions"
+                        :key="font.id"
+                        :value="font.id"
+                        :style="{ fontFamily: `'${font.id}'` }"
+                      >
+                        {{ font.label }}
+                      </option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Score -->
+              <div class="rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-3">
+                <p class="mb-2 text-[10px] font-semibold uppercase tracking-wide text-amber-400/90">
+                  Score
+                </p>
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <label
+                    v-for="field in scoreNumFields"
+                    :key="field"
+                    class="block text-xs text-zinc-400"
+                  >
+                    {{ field }}
+                    <input
+                      v-model.number="(activeDraft as any)[side.key][field]"
+                      type="number"
+                      step="any"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                  <label class="block text-xs text-zinc-400">
+                    scoreColor
+                    <input
+                      v-model="(activeDraft as any)[side.key].scoreColor"
+                      type="text"
+                      placeholder="#334155"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <!-- Detail list (detail screen only) -->
+              <div
+                v-if="activeScreen === 'detail'"
+                class="rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-3"
+              >
+                <p class="mb-2 text-[10px] font-semibold uppercase tracking-wide text-violet-400/90">
+                  Detail list
+                </p>
+                <div class="grid gap-3 sm:grid-cols-4">
+                  <label
+                    v-for="field in detailListFields"
+                    :key="field"
+                    class="block text-xs text-zinc-400"
+                  >
+                    {{ field }}
+                    <input
+                      v-model.number="(activeDraft as any)[side.key][field]"
+                      type="number"
+                      step="any"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <!-- Sponsor -->
+              <div class="rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-3">
+                <p class="mb-2 text-[10px] font-semibold uppercase tracking-wide text-pink-400/90">
+                  Sponsor
+                </p>
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <label class="block text-xs text-zinc-400 sm:col-span-3">
+                    sponsorSrc
+                    <input
+                      v-model="(activeDraft as any)[side.key].sponsorSrc"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                  <label
+                    v-for="field in sponsorNumFieldsForScreen"
+                    :key="field"
+                    class="block text-xs text-zinc-400"
+                  >
+                    {{ field }}
+                    <input
+                      v-model.number="(activeDraft as any)[side.key][field]"
+                      type="number"
+                      step="any"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                </div>
+              </div>
+            </section>
+          </template>
+
+          <!-- Winner layout -->
+          <template v-else-if="activeScreen === 'winner' && winnerDraft">
+            <section class="space-y-3 border-t border-zinc-800 pt-4">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-sky-400/90">
+                Name
+              </h3>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <label class="block text-xs text-zinc-400">
+                  nameTopPx
                   <input
-                    v-model.number="
-                      (activeDraft as any)[side.key][field]
-                    "
+                    v-model.number="winnerDraft.nameTopPx"
                     type="number"
                     step="any"
                     class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                   />
                 </label>
-                <label
-                  v-if="activeScreen === 'score' || activeScreen === 'detail'"
-                  class="block text-xs text-zinc-400 sm:col-span-3"
-                >
-                  sponsorSrc (optional)
+                <label class="block text-xs text-zinc-400">
+                  nameFontSizePx
                   <input
-                    v-model="(activeDraft as any)[side.key].sponsorSrc"
+                    v-model.number="winnerDraft.nameFontSizePx"
+                    type="number"
+                    step="any"
                     class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                   />
                 </label>
-                <label class="block text-xs text-zinc-400">
-                  nameColor
+                <label class="block text-xs text-zinc-400 sm:col-span-2">
+                  nameColor (optional — solid; empty keeps gold gradient)
                   <input
-                    v-model="(activeDraft as any)[side.key].nameColor"
+                    v-model="winnerDraft.nameColor"
                     type="text"
-                    placeholder="#ffffff"
+                    placeholder="#f6e27a"
                     class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                   />
                 </label>
-                <label class="block text-xs text-zinc-400">
+                <label class="block text-xs text-zinc-400 sm:col-span-2">
                   nameFontFamily
                   <select
-                    :value="(activeDraft as any)[side.key].nameFontFamily ?? ''"
+                    :value="winnerDraft.nameFontFamily ?? ''"
                     class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                    @change="setNameFontFamily((activeDraft as any)[side.key], $event)"
+                    @change="setNameFontFamily(winnerDraft, $event)"
                   >
                     <option value="">Default (Aref Ruqaa)</option>
                     <option
@@ -285,112 +565,60 @@
                     </option>
                   </select>
                 </label>
-                <label class="block text-xs text-zinc-400">
-                  scoreColor
-                  <input
-                    v-model="(activeDraft as any)[side.key].scoreColor"
-                    type="text"
-                    placeholder="#334155"
-                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                  />
-                </label>
               </div>
             </section>
-          </template>
 
-          <!-- Winner layout -->
-          <template v-else-if="activeScreen === 'winner' && winnerDraft">
-            <section class="border-t border-zinc-800 pt-4">
-              <h2 class="mb-3 text-sm font-semibold text-zinc-200">Name</h2>
+            <section class="space-y-3 border-t border-zinc-800 pt-4">
+              <h3 class="text-xs font-semibold uppercase tracking-wide text-pink-400/90">
+                Frames
+              </h3>
               <label class="block text-xs text-zinc-400">
-                nameTopPx
-                <input
-                  v-model.number="winnerDraft.nameTopPx"
-                  type="number"
-                  step="any"
-                  class="mt-1 w-full max-w-xs rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                />
-              </label>
-              <label class="mt-3 block text-xs text-zinc-400">
-                nameFontSizePx
-                <input
-                  v-model.number="winnerDraft.nameFontSizePx"
-                  type="number"
-                  step="any"
-                  class="mt-1 w-full max-w-xs rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                />
-              </label>
-              <label class="mt-3 block text-xs text-zinc-400">
-                nameColor (optional — solid; empty keeps gold gradient)
-                <input
-                  v-model="winnerDraft.nameColor"
-                  type="text"
-                  placeholder="#f6e27a"
-                  class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                />
-              </label>
-              <label class="mt-3 block text-xs text-zinc-400">
-                nameFontFamily
-                <select
-                  :value="winnerDraft.nameFontFamily ?? ''"
-                  class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                  @change="setNameFontFamily(winnerDraft, $event)"
-                >
-                  <option value="">Default (Aref Ruqaa)</option>
-                  <option
-                    v-for="font in themeFontOptions"
-                    :key="font.id"
-                    :value="font.id"
-                    :style="{ fontFamily: `'${font.id}'` }"
-                  >
-                    {{ font.label }}
-                  </option>
-                </select>
-              </label>
-              <label class="mt-3 block text-xs text-zinc-400">
-                frameUsSrc (optional)
+                frameUsSrc
                 <input
                   v-model="winnerDraft.frameUsSrc"
-                  class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                 />
               </label>
               <label class="mt-3 block text-xs text-zinc-400">
-                frameThemSrc (optional)
+                frameThemSrc
                 <input
                   v-model="winnerDraft.frameThemSrc"
-                  class="mt-1 w-full max-w-xl rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                 />
               </label>
             </section>
+
             <section
               v-for="slot in winnerSlots"
               :key="slot.key"
-              class="border-t border-zinc-800 pt-4"
+              class="space-y-3 border-t border-zinc-800 pt-4"
             >
-              <h2 class="mb-3 text-sm font-semibold text-zinc-200">
+              <h3 class="text-sm font-semibold text-zinc-200">
                 {{ slot.label }}
-              </h2>
-              <div class="grid gap-3 sm:grid-cols-3">
-                <label
-                  v-for="field in winnerSlotFields"
-                  :key="field"
-                  class="block text-xs text-zinc-400"
-                >
-                  {{ field }}
-                  <input
-                    v-model.number="winnerDraft[slot.key][field]"
-                    type="number"
-                    step="any"
-                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                  />
-                </label>
-                <label class="block text-xs text-zinc-400 sm:col-span-3">
-                  fallbackSrc
-                  <input
-                    v-model="winnerDraft[slot.key].fallbackSrc"
-                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                  />
-                </label>
+              </h3>
+              <div class="rounded-lg border border-zinc-800/80 bg-zinc-950/40 p-3">
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <label
+                    v-for="field in winnerSlotFields"
+                    :key="field"
+                    class="block text-xs text-zinc-400"
+                  >
+                    {{ field }}
+                    <input
+                      v-model.number="winnerDraft[slot.key][field]"
+                      type="number"
+                      step="any"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                  <label class="block text-xs text-zinc-400 sm:col-span-3">
+                    fallbackSrc
+                    <input
+                      v-model="winnerDraft[slot.key].fallbackSrc"
+                      class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    />
+                  </label>
+                </div>
               </div>
             </section>
           </template>
@@ -402,6 +630,7 @@
 
 <script setup lang="ts">
 import type {
+  LandscapeCamConfig,
   LandscapeDetailConfig,
   LandscapeScoreConfig,
   LandscapeWinnerConfig,
@@ -433,7 +662,7 @@ const unlocked = ref(false);
 
 const themeIds = listConfigurableThemeIds();
 const activeThemeId = ref(themeIds[0] ?? "qydha");
-const screens: ScreenId[] = ["score", "detail", "statics", "winner"];
+const screens: ScreenId[] = ["score", "detail", "statics", "winner", "cam"];
 const activeScreen = ref<ScreenId>("score");
 
 const draft = ref<ThemeConfig | null>(null);
@@ -484,41 +713,45 @@ const winnerTimingFields = [
   "unmountCompFadeSec",
 ] as const;
 
-const scoreTeamFields = [
+const wrapFields = [
   "wrapLeftPx",
   "wrapTopPx",
   "wrapWidthPx",
   "wrapHeightPx",
+] as const;
+
+const nameNumFields = [
   "nameLeftPx",
+  "nameTopPx",
   "nameWidthPx",
+  "nameFontSizePx",
+] as const;
+
+const scoreNumFields = [
   "scoreLeftPx",
   "scoreRightPx",
-  "sponsorLeftPx",
-  "sponsorWidthPx",
-  "sponsorHeightPx",
-  "nameFontSizePx",
+  "scoreTopPx",
   "scoreFontSizePx",
 ] as const;
 
-const detailTeamFields = [
-  "wrapLeftPx",
-  "wrapTopPx",
-  "wrapWidthPx",
-  "wrapHeightPx",
-  "nameLeftPx",
-  "nameWidthPx",
-  "scoreLeftPx",
-  "scoreRightPx",
+const detailListFields = [
   "detailLeftPx",
   "detailRightPx",
   "detailTopPx",
   "detailWidthPx",
+] as const;
+
+const scoreSponsorFields = [
+  "sponsorLeftPx",
+  "sponsorWidthPx",
+  "sponsorHeightPx",
+] as const;
+
+const detailSponsorFields = [
   "sponsorLeftPx",
   "sponsorRightPx",
   "sponsorWidthPx",
   "sponsorHeightPx",
-  "nameFontSizePx",
-  "scoreFontSizePx",
 ] as const;
 
 const winnerSlotFields: (keyof LandscapeWinnerPlayerSlot)[] = [
@@ -549,6 +782,16 @@ const detailDraft = computed(
 const winnerDraft = computed(
   () => draft.value?.landscape?.baloot?.winner ?? null,
 );
+const camDraft = computed(
+  () => draft.value?.landscape?.baloot?.cam ?? null,
+);
+
+const camSizeFields = [
+  "frameWidthPx",
+  "frameHeightPx",
+  "imageHeightPx",
+  "imageTopPx",
+] as const;
 
 const activeDraft = computed<
   LandscapeScoreConfig | LandscapeDetailConfig | LandscapeWinnerConfig | null
@@ -559,6 +802,34 @@ const activeDraft = computed<
   return null;
 });
 
+const sponsorNumFieldsForScreen = computed(() => {
+  if (activeScreen.value === "detail") return [...detailSponsorFields];
+  return [...scoreSponsorFields];
+});
+
+const canCopyActiveScreen = computed(() => {
+  if (!draft.value) return false;
+  if (activeScreen.value === "statics") return false;
+  return screenPayload(activeScreen.value) != null;
+});
+
+function ensureCamDraft() {
+  if (!draft.value) return;
+  const landscape = draft.value.landscape ?? (draft.value.landscape = {});
+  const baloot = landscape.baloot ?? (landscape.baloot = {});
+  if (baloot.cam) return;
+  const id = activeThemeId.value || "zat";
+  const folder = id === "newzat" ? "newzat" : "zat";
+  baloot.cam = {
+    usFrameSrc: `/images/${folder}/usframe.svg`,
+    themFrameSrc: `/images/${folder}/themframe.svg`,
+    frameWidthPx: 140,
+    frameHeightPx: 195,
+    imageHeightPx: 187,
+    imageTopPx: 5,
+  } satisfies LandscapeCamConfig;
+}
+
 const timingFieldsForScreen = computed(() => {
   if (activeScreen.value === "score") return [...scoreTimingFields];
   if (activeScreen.value === "detail") return [...detailTimingFields];
@@ -566,12 +837,45 @@ const timingFieldsForScreen = computed(() => {
   return [];
 });
 
-const teamFieldsForScreen = computed(() => {
-  if (activeScreen.value === "score") return [...scoreTeamFields];
-  if (activeScreen.value === "detail") return [...detailTeamFields];
-  return [];
-});
+function screenPayload(screen: ScreenId): unknown {
+  const baloot = draft.value?.landscape?.baloot;
+  if (!baloot) return null;
+  if (screen === "score") return baloot.score ?? null;
+  if (screen === "detail") return baloot.detail ?? null;
+  if (screen === "winner") return baloot.winner ?? null;
+  if (screen === "cam") return baloot.cam ?? null;
+  return null;
+}
 
+async function copyJson(label: string, data: unknown) {
+  if (data == null) {
+    errorMsg.value = `Nothing to copy for ${label}`;
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    statusMsg.value = `Copied ${label} JSON`;
+    errorMsg.value = "";
+  } catch {
+    errorMsg.value = "Clipboard failed";
+  }
+}
+
+async function copyScreenJson(screen: ScreenId) {
+  await copyJson(`${activeThemeId.value}/${screen}`, screenPayload(screen));
+}
+
+async function copyTeamJson(side: "team1" | "team2") {
+  const draftScreen = activeDraft.value as
+    | LandscapeScoreConfig
+    | LandscapeDetailConfig
+    | null;
+  const team = draftScreen?.[side] ?? null;
+  await copyJson(
+    `${activeThemeId.value}/${activeScreen.value}/${side}`,
+    team,
+  );
+}
 function numField(obj: object | null, key: string): number | "" {
   if (!obj) return "";
   const v = (obj as Record<string, unknown>)[key];

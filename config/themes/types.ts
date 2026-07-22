@@ -2,16 +2,20 @@ import type { ThemeId, Orientation } from "~/composables/useRouteTheme";
 import type { ThemeFontId } from "./fonts";
 
 export type GameType = "baloot" | "hand";
-export type ScreenId = "score" | "detail" | "winner" | "statics";
+export type ScreenId = "score" | "detail" | "winner" | "statics" | "cam";
 
 /** Optional typography for team name / score overlays. */
 export type LandscapeTeamTextStyle = {
   nameColor?: string;
   nameFontSizePx?: number;
+  /** Vertical offset for team name (px). */
+  nameTopPx?: number;
   /** CSS @font-face family — see config/themes/fonts.ts */
   nameFontFamily?: ThemeFontId | string;
   scoreColor?: string;
   scoreFontSizePx?: number;
+  /** Vertical offset for score (px). */
+  scoreTopPx?: number;
 };
 
 /** One side of the landscape score bar (us = team1, them = team2). */
@@ -96,6 +100,18 @@ export type LandscapeWinnerPlayerSlot = {
   fallbackSrc: string;
 };
 
+/** Cam overlay — player photo frames (SVG borders). */
+export type LandscapeCamConfig = {
+  /** Us seats (top/bottom) border SVG. */
+  usFrameSrc: string;
+  /** Them seats (left/right) border SVG. */
+  themFrameSrc: string;
+  frameWidthPx?: number;
+  frameHeightPx?: number;
+  imageHeightPx?: number;
+  imageTopPx?: number;
+};
+
 export type LandscapeWinnerConfig = LandscapeVideoTiming & {
   /** Hold on main before fade-out + NEW_GAME (ms). */
   mainHoldMs: number;
@@ -118,6 +134,7 @@ export type LandscapeScreenConfig = {
   score?: LandscapeScoreConfig;
   detail?: LandscapeDetailConfig;
   winner?: LandscapeWinnerConfig;
+  cam?: LandscapeCamConfig;
   // statics filled in a later step
 };
 

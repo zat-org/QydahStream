@@ -132,6 +132,14 @@ export const newzatTheme: ThemeConfig = {
           fallbackSrc: "/images/u2.jpg",
         },
       },
+      cam: {
+        usFrameSrc: "/images/newzat/usframe.svg",
+        themFrameSrc: "/images/newzat/themframe.svg",
+        frameWidthPx: 140,
+        frameHeightPx: 195,
+        imageHeightPx: 187,
+        imageTopPx: 5,
+      },
     },
   },
 };

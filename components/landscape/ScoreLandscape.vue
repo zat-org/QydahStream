@@ -73,7 +73,7 @@
 /**
  * Shared landscape Score shell.
  * Same timing as the old Qydha score Vue: play video immediately,
- * delay text with mountDelaySec, fixed introEndSec clock.
+ * delay text with mountDelaySec, pause when media reaches introEndSec.
  */
 import gsap from "gsap";
 import type {
@@ -82,6 +82,11 @@ import type {
   LandscapeTeamLayout,
 } from "~/config/themes/types";
 import { themeFontCss } from "~/config/themes/fonts";
+import {
+  pauseVideoOnly,
+  playVideoFrom,
+  waitForVideoMediaTime,
+} from "~/utils/video-media-time";
 
 const props = withDefaults(
   defineProps<{
@@ -91,7 +96,6 @@ const props = withDefaults(
 );
 
 const { theme } = useRouteTheme("zat");
-const { sleep } = useSleep();
 
 const store = useMyBalootGameStore();
 const {
@@ -139,6 +143,7 @@ function nameStyle(team: LandscapeTeamLayout) {
     left: `${team.nameLeftPx}px`,
     width: `${team.nameWidthPx}px`,
   };
+  if (team.nameTopPx != null) style.top = `${team.nameTopPx}px`;
   if (team.nameColor) style.color = team.nameColor;
   if (team.nameFontSizePx != null) style.fontSize = `${team.nameFontSizePx}px`;
   const font = themeFontCss(team.nameFontFamily);
@@ -150,6 +155,7 @@ function scoreStyle(team: LandscapeTeamLayout) {
   const style: Record<string, string> = {};
   if (team.scoreLeftPx != null) style.left = `${team.scoreLeftPx}px`;
   if (team.scoreRightPx != null) style.right = `${team.scoreRightPx}px`;
+  if (team.scoreTopPx != null) style.top = `${team.scoreTopPx}px`;
   if (team.scoreColor) style.color = team.scoreColor;
   if (team.scoreFontSizePx != null) style.fontSize = `${team.scoreFontSizePx}px`;
   return style;
@@ -224,26 +230,11 @@ const sendNextOnceForState = (stateKey: string) => {
 function playVideo(atSec: number, playbackRate = 1) {
   const video = mediaElm.value;
   if (!video) return;
-  video.playbackRate = playbackRate;
-  try {
-    video.currentTime = atSec;
-  } catch {
-    /* ignore */
-  }
-  void video.play().catch(() => {
-    /* autoplay / load race */
-  });
+  void playVideoFrom(video, atSec, playbackRate);
 }
 
-function pauseVideoAt(atSec: number) {
-  const video = mediaElm.value;
-  if (!video) return;
-  video.pause();
-  try {
-    video.currentTime = atSec;
-  } catch {
-    /* ignore */
-  }
+function pauseVideo() {
+  pauseVideoOnly(mediaElm.value);
 }
 
 const scoreMount = (score1: number, score2: number) => {
@@ -320,17 +311,27 @@ async function applyScoreState(newState: string) {
   const s2 = last_sakka.value?.themSakkaScore ?? 0;
 
   if (newState === "score.intro") {
-    playVideo(cfg.introStartSec, 1);
+    const video = mediaElm.value;
+    if (!video) return;
+    await playVideoFrom(video, cfg.introStartSec, 1, {
+      isCancelled: () => generation !== applyGeneration,
+    });
+    if (generation !== applyGeneration) return;
     scoreMount(s1, s2);
-    await sleep(cfg.introEndSec * 1000);
+    const reached = await waitForVideoMediaTime(video, cfg.introEndSec, {
+      isCancelled: () =>
+        generation !== applyGeneration ||
+        currentScoreState.value !== newState,
+    });
+    if (!reached) return;
     if (generation !== applyGeneration) return;
     if (currentScoreState.value !== newState) return;
-    pauseVideoAt(cfg.introEndSec);
+    pauseVideo();
     sendNextOnceForState(newState);
   }
 
   if (newState === "score.main") {
-    pauseVideoAt(cfg.introEndSec);
+    pauseVideo();
     mainScoreMount(s1, s2);
   }
 
