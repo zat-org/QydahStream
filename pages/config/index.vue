@@ -274,24 +274,52 @@
                 </label>
               </div>
             </div>
-            <div class="mt-4 flex flex-wrap gap-6">
+            <div class="mt-4 flex flex-wrap gap-8">
               <div class="text-center">
-                <p class="mb-2 text-[10px] text-zinc-500">us frame</p>
-                <img
-                  v-if="camDraft.usFrameSrc"
-                  :src="camDraft.usFrameSrc"
-                  class="h-[120px] w-auto rounded border border-zinc-700 bg-zinc-950"
-                  alt="us frame preview"
-                />
+                <p class="mb-2 text-[10px] text-zinc-500">us preview</p>
+                <div
+                  class="inline-block rounded border border-dashed border-zinc-700 bg-zinc-950/80 p-3"
+                >
+                  <div class="relative overflow-visible" :style="camPreviewSlotStyle">
+                    <img
+                      v-if="camDraft.usFrameSrc"
+                      class="pointer-events-none absolute z-10"
+                      :src="camDraft.usFrameSrc"
+                      :style="camPreviewFrameStyle"
+                      alt="us frame"
+                    />
+                    <div
+                      class="absolute rounded-2xl bg-zinc-700/80"
+                      :style="camPreviewImageStyle"
+                    />
+                  </div>
+                </div>
+                <p class="mt-2 text-[10px] text-zinc-600">
+                  {{ camPreviewFrameW }}×{{ camPreviewFrameH }} frame
+                </p>
               </div>
               <div class="text-center">
-                <p class="mb-2 text-[10px] text-zinc-500">them frame</p>
-                <img
-                  v-if="camDraft.themFrameSrc"
-                  :src="camDraft.themFrameSrc"
-                  class="h-[120px] w-auto rounded border border-zinc-700 bg-zinc-950"
-                  alt="them frame preview"
-                />
+                <p class="mb-2 text-[10px] text-zinc-500">them preview</p>
+                <div
+                  class="inline-block rounded border border-dashed border-zinc-700 bg-zinc-950/80 p-3"
+                >
+                  <div class="relative overflow-visible" :style="camPreviewSlotStyle">
+                    <img
+                      v-if="camDraft.themFrameSrc"
+                      class="pointer-events-none absolute z-10"
+                      :src="camDraft.themFrameSrc"
+                      :style="camPreviewFrameStyle"
+                      alt="them frame"
+                    />
+                    <div
+                      class="absolute rounded-2xl bg-zinc-700/80"
+                      :style="camPreviewImageStyle"
+                    />
+                  </div>
+                </div>
+                <p class="mt-2 text-[10px] text-zinc-600">
+                  {{ camPreviewFrameW }}×{{ camPreviewFrameH }} frame
+                </p>
               </div>
             </div>
           </section>
@@ -845,6 +873,49 @@ const camImageFields = [
   "imageLeftPx",
   "imageTopPx",
 ] as const;
+
+const CAM_PREVIEW_DEFAULTS = {
+  frameWidthPx: 140,
+  frameHeightPx: 195,
+  frameLeftPx: 0,
+  frameTopPx: 0,
+  imageWidthPx: 140,
+  imageHeightPx: 187,
+  imageLeftPx: 0,
+  imageTopPx: 5,
+} as const;
+
+function camNum(
+  key: keyof typeof CAM_PREVIEW_DEFAULTS,
+  fallback?: number,
+): number {
+  const v = camDraft.value?.[key];
+  return typeof v === "number" && !Number.isNaN(v)
+    ? v
+    : (fallback ?? CAM_PREVIEW_DEFAULTS[key]);
+}
+
+const camPreviewFrameW = computed(() => camNum("frameWidthPx"));
+const camPreviewFrameH = computed(() => camNum("frameHeightPx"));
+
+const camPreviewSlotStyle = computed(() => ({
+  width: `${camPreviewFrameW.value}px`,
+  height: `${camPreviewFrameH.value}px`,
+}));
+
+const camPreviewFrameStyle = computed(() => ({
+  width: `${camPreviewFrameW.value}px`,
+  height: `${camPreviewFrameH.value}px`,
+  left: `${camNum("frameLeftPx")}px`,
+  top: `${camNum("frameTopPx")}px`,
+}));
+
+const camPreviewImageStyle = computed(() => ({
+  width: `${camNum("imageWidthPx", camPreviewFrameW.value)}px`,
+  height: `${camNum("imageHeightPx")}px`,
+  left: `${camNum("imageLeftPx")}px`,
+  top: `${camNum("imageTopPx")}px`,
+}));
 
 const activeDraft = computed<
   LandscapeScoreConfig | LandscapeDetailConfig | LandscapeWinnerConfig | null
