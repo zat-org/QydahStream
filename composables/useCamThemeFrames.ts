@@ -53,10 +53,7 @@ export function useCamThemeFrames(game: GameType = "baloot") {
   );
 
   const imageWidthPx = computed(
-    () =>
-      camCfg.value?.imageWidthPx ??
-      camCfg.value?.frameWidthPx ??
-      DEFAULTS.imageWidthPx,
+    () => camCfg.value?.imageWidthPx ?? DEFAULTS.imageWidthPx,
   );
   const imageHeightPx = computed(
     () => camCfg.value?.imageHeightPx ?? DEFAULTS.imageHeightPx,

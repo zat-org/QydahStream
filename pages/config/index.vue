@@ -218,7 +218,8 @@
             <p class="mb-3 text-[11px] text-zinc-500">
               Used by Cam overlays. Pass
               <code class="text-emerald-300/90">?theme={{ activeThemeId }}</code>
-              on Cam URLs.
+              on Cam URLs. Frame and image sizes are independent — resize each
+              separately.
             </p>
             <div class="grid gap-3 sm:grid-cols-2">
               <label class="block text-xs text-zinc-400 sm:col-span-2">
@@ -295,7 +296,8 @@
                   </div>
                 </div>
                 <p class="mt-2 text-[10px] text-zinc-600">
-                  {{ camPreviewFrameW }}×{{ camPreviewFrameH }} frame
+                  frame {{ camPreviewFrameW }}×{{ camPreviewFrameH }} · image
+                  {{ camPreviewImageW }}×{{ camPreviewImageH }}
                 </p>
               </div>
               <div class="text-center">
@@ -318,7 +320,8 @@
                   </div>
                 </div>
                 <p class="mt-2 text-[10px] text-zinc-600">
-                  {{ camPreviewFrameW }}×{{ camPreviewFrameH }} frame
+                  frame {{ camPreviewFrameW }}×{{ camPreviewFrameH }} · image
+                  {{ camPreviewImageW }}×{{ camPreviewImageH }}
                 </p>
               </div>
             </div>
@@ -885,22 +888,29 @@ const CAM_PREVIEW_DEFAULTS = {
   imageTopPx: 5,
 } as const;
 
-function camNum(
-  key: keyof typeof CAM_PREVIEW_DEFAULTS,
-  fallback?: number,
-): number {
+function camNum(key: keyof typeof CAM_PREVIEW_DEFAULTS): number {
   const v = camDraft.value?.[key];
   return typeof v === "number" && !Number.isNaN(v)
     ? v
-    : (fallback ?? CAM_PREVIEW_DEFAULTS[key]);
+    : CAM_PREVIEW_DEFAULTS[key];
 }
 
 const camPreviewFrameW = computed(() => camNum("frameWidthPx"));
 const camPreviewFrameH = computed(() => camNum("frameHeightPx"));
+const camPreviewImageW = computed(() => camNum("imageWidthPx"));
+const camPreviewImageH = computed(() => camNum("imageHeightPx"));
 
 const camPreviewSlotStyle = computed(() => ({
-  width: `${camPreviewFrameW.value}px`,
-  height: `${camPreviewFrameH.value}px`,
+  width: `${Math.max(
+    camNum("frameLeftPx") + camPreviewFrameW.value,
+    camNum("imageLeftPx") + camPreviewImageW.value,
+    1,
+  )}px`,
+  height: `${Math.max(
+    camNum("frameTopPx") + camPreviewFrameH.value,
+    camNum("imageTopPx") + camPreviewImageH.value,
+    1,
+  )}px`,
 }));
 
 const camPreviewFrameStyle = computed(() => ({
@@ -911,8 +921,8 @@ const camPreviewFrameStyle = computed(() => ({
 }));
 
 const camPreviewImageStyle = computed(() => ({
-  width: `${camNum("imageWidthPx", camPreviewFrameW.value)}px`,
-  height: `${camNum("imageHeightPx")}px`,
+  width: `${camPreviewImageW.value}px`,
+  height: `${camPreviewImageH.value}px`,
   left: `${camNum("imageLeftPx")}px`,
   top: `${camNum("imageTopPx")}px`,
 }));

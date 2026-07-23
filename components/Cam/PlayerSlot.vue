@@ -3,8 +3,8 @@
     v-if="imageUrl"
     class="camSlot"
     :style="{
-      width: `${frameWidthPx}px`,
-      height: `${frameHeightPx}px`,
+      width: `${slotWidthPx}px`,
+      height: `${slotHeightPx}px`,
     }"
   >
     <img
@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts" setup>
-defineProps<{
+const props = defineProps<{
   frameSrc: string;
   imageUrl?: string | null;
   frameWidthPx: number;
@@ -43,6 +43,23 @@ defineProps<{
   imageLeftPx: number;
   imageTopPx: number;
 }>();
+
+/** Slot fits both layers so resizing frame or image only affects that layer. */
+const slotWidthPx = computed(() =>
+  Math.max(
+    props.frameLeftPx + props.frameWidthPx,
+    props.imageLeftPx + props.imageWidthPx,
+    1,
+  ),
+);
+
+const slotHeightPx = computed(() =>
+  Math.max(
+    props.frameTopPx + props.frameHeightPx,
+    props.imageTopPx + props.imageHeightPx,
+    1,
+  ),
+);
 </script>
 
 <style scoped>
