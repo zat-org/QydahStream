@@ -13,7 +13,7 @@ export const newzatTheme: ThemeConfig = {
         videoHeight: 1080,
         introStartSec: 0,
         introEndSec: 3.5,
-        mountDelaySec: 2.15,
+        mountDelaySec: 1.15,
         mountFadeSec: 0.5,
         scoreTweenSec: 0.75,
         unmountFadeSec: 0.5,
@@ -44,7 +44,8 @@ export const newzatTheme: ThemeConfig = {
           nameTopPx: 4,
           nameWidthPx: 200,
           scoreLeftPx: 269,
-          sponsorSrc: "/images/newzat/kfc.png",
+          sponsorSrc:
+            "https://sam-baloot-admin.online/uploads/KF_Cx_Baloot_Logo_Approved_2475a36e3d.png",
           sponsorLeftPx: -52,
           sponsorTopPx: -13,
           sponsorWidthPx: 70,
