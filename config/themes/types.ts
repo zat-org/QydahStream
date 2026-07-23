@@ -34,6 +34,7 @@ export type LandscapeTeamLayout = LandscapeTeamTextStyle & {
   /** Optional sponsor mark (Zat). */
   sponsorSrc?: string;
   sponsorLeftPx?: number;
+  sponsorTopPx?: number;
   /** Sponsor logo size (defaults: score 66×62). */
   sponsorWidthPx?: number;
   sponsorHeightPx?: number;
@@ -78,6 +79,7 @@ export type LandscapeDetailTeamLayout = LandscapeTeamTextStyle & {
   sponsorSrc?: string;
   sponsorLeftPx?: number;
   sponsorRightPx?: number;
+  sponsorTopPx?: number;
   /** Sponsor logo size (defaults: detail 110×100). */
   sponsorWidthPx?: number;
   sponsorHeightPx?: number;

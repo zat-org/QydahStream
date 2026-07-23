@@ -763,6 +763,7 @@ const detailListFields = [
 
 const scoreSponsorFields = [
   "sponsorLeftPx",
+  "sponsorTopPx",
   "sponsorWidthPx",
   "sponsorHeightPx",
 ] as const;
@@ -770,6 +771,7 @@ const scoreSponsorFields = [
 const detailSponsorFields = [
   "sponsorLeftPx",
   "sponsorRightPx",
+  "sponsorTopPx",
   "sponsorWidthPx",
   "sponsorHeightPx",
 ] as const;

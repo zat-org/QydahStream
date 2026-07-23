@@ -165,6 +165,7 @@ function sponsorStyle(team: LandscapeDetailTeamLayout) {
   const style: Record<string, string> = {};
   if (team.sponsorLeftPx != null) style.left = `${team.sponsorLeftPx}px`;
   if (team.sponsorRightPx != null) style.right = `${team.sponsorRightPx}px`;
+  if (team.sponsorTopPx != null) style.top = `${team.sponsorTopPx}px`;
   if (team.sponsorWidthPx != null) style.width = `${team.sponsorWidthPx}px`;
   if (team.sponsorHeightPx != null) style.height = `${team.sponsorHeightPx}px`;
   return style;
