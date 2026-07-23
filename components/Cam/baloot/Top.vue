@@ -5,18 +5,26 @@
         :key="`bottom-${bottom?.id}-${bottom?.url}`"
         :frame-src="usFrameSrc"
         :image-url="bottom?.url"
-        :width-px="frameWidthPx"
-        :height-px="frameHeightPx"
+        :frame-width-px="frameWidthPx"
+        :frame-height-px="frameHeightPx"
+        :frame-left-px="frameLeftPx"
+        :frame-top-px="frameTopPx"
+        :image-width-px="imageWidthPx"
         :image-height-px="imageHeightPx"
+        :image-left-px="imageLeftPx"
         :image-top-px="imageTopPx"
       />
       <CamPlayerSlot
         :key="`left-${left?.id}-${left?.url}`"
         :frame-src="themFrameSrc"
         :image-url="left?.url"
-        :width-px="frameWidthPx"
-        :height-px="frameHeightPx"
+        :frame-width-px="frameWidthPx"
+        :frame-height-px="frameHeightPx"
+        :frame-left-px="frameLeftPx"
+        :frame-top-px="frameTopPx"
+        :image-width-px="imageWidthPx"
         :image-height-px="imageHeightPx"
+        :image-left-px="imageLeftPx"
         :image-top-px="imageTopPx"
       />
     </div>
@@ -25,18 +33,26 @@
         :key="`right-${right?.id}-${right?.url}`"
         :frame-src="themFrameSrc"
         :image-url="right?.url"
-        :width-px="frameWidthPx"
-        :height-px="frameHeightPx"
+        :frame-width-px="frameWidthPx"
+        :frame-height-px="frameHeightPx"
+        :frame-left-px="frameLeftPx"
+        :frame-top-px="frameTopPx"
+        :image-width-px="imageWidthPx"
         :image-height-px="imageHeightPx"
+        :image-left-px="imageLeftPx"
         :image-top-px="imageTopPx"
       />
       <CamPlayerSlot
         :key="`top-${top?.id}-${top?.url}`"
         :frame-src="usFrameSrc"
         :image-url="top?.url"
-        :width-px="frameWidthPx"
-        :height-px="frameHeightPx"
+        :frame-width-px="frameWidthPx"
+        :frame-height-px="frameHeightPx"
+        :frame-left-px="frameLeftPx"
+        :frame-top-px="frameTopPx"
+        :image-width-px="imageWidthPx"
         :image-height-px="imageHeightPx"
+        :image-left-px="imageLeftPx"
         :image-top-px="imageTopPx"
       />
     </div>
@@ -51,7 +67,11 @@ const {
   themFrameSrc,
   frameWidthPx,
   frameHeightPx,
+  frameLeftPx,
+  frameTopPx,
+  imageWidthPx,
   imageHeightPx,
+  imageLeftPx,
   imageTopPx,
 } = useCamThemeFrames("baloot");
 </script>

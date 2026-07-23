@@ -235,20 +235,44 @@
                   class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
                 />
               </label>
-              <label
-                v-for="field in camSizeFields"
-                :key="field"
-                class="block text-xs text-zinc-400"
-              >
-                {{ field }}
-                <input
-                  :value="numField(camDraft, field)"
-                  type="number"
-                  step="any"
-                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                  @input="setNumField(camDraft, field, $event)"
-                />
-              </label>
+            </div>
+            <div class="mt-4">
+              <p class="mb-2 text-[11px] font-medium text-zinc-300">Frame</p>
+              <div class="grid gap-3 sm:grid-cols-4">
+                <label
+                  v-for="field in camFrameFields"
+                  :key="field"
+                  class="block text-xs text-zinc-400"
+                >
+                  {{ field }}
+                  <input
+                    :value="numField(camDraft, field)"
+                    type="number"
+                    step="any"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    @input="setNumField(camDraft, field, $event)"
+                  />
+                </label>
+              </div>
+            </div>
+            <div class="mt-4">
+              <p class="mb-2 text-[11px] font-medium text-zinc-300">Image</p>
+              <div class="grid gap-3 sm:grid-cols-4">
+                <label
+                  v-for="field in camImageFields"
+                  :key="field"
+                  class="block text-xs text-zinc-400"
+                >
+                  {{ field }}
+                  <input
+                    :value="numField(camDraft, field)"
+                    type="number"
+                    step="any"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    @input="setNumField(camDraft, field, $event)"
+                  />
+                </label>
+              </div>
             </div>
             <div class="mt-4 flex flex-wrap gap-6">
               <div class="text-center">
@@ -808,10 +832,17 @@ const camDraft = computed(
   () => draft.value?.landscape?.baloot?.cam ?? null,
 );
 
-const camSizeFields = [
+const camFrameFields = [
   "frameWidthPx",
   "frameHeightPx",
+  "frameLeftPx",
+  "frameTopPx",
+] as const;
+
+const camImageFields = [
+  "imageWidthPx",
   "imageHeightPx",
+  "imageLeftPx",
   "imageTopPx",
 ] as const;
 
@@ -847,7 +878,11 @@ function ensureCamDraft() {
     themFrameSrc: `/images/${folder}/themframe.svg`,
     frameWidthPx: 140,
     frameHeightPx: 195,
+    frameLeftPx: 0,
+    frameTopPx: 0,
+    imageWidthPx: 140,
     imageHeightPx: 187,
+    imageLeftPx: 0,
     imageTopPx: 5,
   } satisfies LandscapeCamConfig;
 }

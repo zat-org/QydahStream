@@ -4,17 +4,25 @@
       <CamPlayerSlot
         :frame-src="usFrameSrc"
         :image-url="top?.imageUrl"
-        :width-px="frameWidthPx"
-        :height-px="frameHeightPx"
+        :frame-width-px="frameWidthPx"
+        :frame-height-px="frameHeightPx"
+        :frame-left-px="frameLeftPx"
+        :frame-top-px="frameTopPx"
+        :image-width-px="imageWidthPx"
         :image-height-px="imageHeightPx"
+        :image-left-px="imageLeftPx"
         :image-top-px="imageTopPx"
       />
       <CamPlayerSlot
         :frame-src="themFrameSrc"
         :image-url="right?.imageUrl"
-        :width-px="frameWidthPx"
-        :height-px="frameHeightPx"
+        :frame-width-px="frameWidthPx"
+        :frame-height-px="frameHeightPx"
+        :frame-left-px="frameLeftPx"
+        :frame-top-px="frameTopPx"
+        :image-width-px="imageWidthPx"
         :image-height-px="imageHeightPx"
+        :image-left-px="imageLeftPx"
         :image-top-px="imageTopPx"
       />
     </div>
@@ -22,17 +30,25 @@
       <CamPlayerSlot
         :frame-src="themFrameSrc"
         :image-url="left?.imageUrl"
-        :width-px="frameWidthPx"
-        :height-px="frameHeightPx"
+        :frame-width-px="frameWidthPx"
+        :frame-height-px="frameHeightPx"
+        :frame-left-px="frameLeftPx"
+        :frame-top-px="frameTopPx"
+        :image-width-px="imageWidthPx"
         :image-height-px="imageHeightPx"
+        :image-left-px="imageLeftPx"
         :image-top-px="imageTopPx"
       />
       <CamPlayerSlot
         :frame-src="usFrameSrc"
         :image-url="bottom?.imageUrl"
-        :width-px="frameWidthPx"
-        :height-px="frameHeightPx"
+        :frame-width-px="frameWidthPx"
+        :frame-height-px="frameHeightPx"
+        :frame-left-px="frameLeftPx"
+        :frame-top-px="frameTopPx"
+        :image-width-px="imageWidthPx"
         :image-height-px="imageHeightPx"
+        :image-left-px="imageLeftPx"
         :image-top-px="imageTopPx"
       />
     </div>
@@ -47,7 +63,11 @@ const {
   themFrameSrc,
   frameWidthPx,
   frameHeightPx,
+  frameLeftPx,
+  frameTopPx,
+  imageWidthPx,
   imageHeightPx,
+  imageLeftPx,
   imageTopPx,
 } = useCamThemeFrames("hand");
 </script>

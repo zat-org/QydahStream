@@ -108,9 +108,15 @@ export type LandscapeCamConfig = {
   usFrameSrc: string;
   /** Them seats (left/right) border SVG. */
   themFrameSrc: string;
+  /** Frame SVG size & offset inside the slot. */
   frameWidthPx?: number;
   frameHeightPx?: number;
+  frameLeftPx?: number;
+  frameTopPx?: number;
+  /** Player photo size & offset inside the slot. */
+  imageWidthPx?: number;
   imageHeightPx?: number;
+  imageLeftPx?: number;
   imageTopPx?: number;
 };
 

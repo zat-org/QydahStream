@@ -3,24 +3,27 @@
     v-if="imageUrl"
     class="camSlot"
     :style="{
-      width: `${widthPx}px`,
-      height: `${heightPx}px`,
+      width: `${frameWidthPx}px`,
+      height: `${frameHeightPx}px`,
     }"
   >
     <img
       class="camFrame"
       :src="frameSrc"
       :style="{
-        width: `${widthPx}px`,
-        height: `${heightPx}px`,
+        width: `${frameWidthPx}px`,
+        height: `${frameHeightPx}px`,
+        left: `${frameLeftPx}px`,
+        top: `${frameTopPx}px`,
       }"
     />
     <img
       class="camPhoto"
       :src="imageUrl"
       :style="{
-        width: `${widthPx}px`,
+        width: `${imageWidthPx}px`,
         height: `${imageHeightPx}px`,
+        left: `${imageLeftPx}px`,
         top: `${imageTopPx}px`,
       }"
     />
@@ -31,23 +34,27 @@
 defineProps<{
   frameSrc: string;
   imageUrl?: string | null;
-  widthPx: number;
-  heightPx: number;
+  frameWidthPx: number;
+  frameHeightPx: number;
+  frameLeftPx: number;
+  frameTopPx: number;
+  imageWidthPx: number;
   imageHeightPx: number;
+  imageLeftPx: number;
   imageTopPx: number;
 }>();
 </script>
 
 <style scoped>
 .camSlot {
-  @apply relative;
+  @apply relative overflow-visible;
 }
 
 .camFrame {
-  @apply absolute z-[10] left-0 top-0 pointer-events-none;
+  @apply absolute z-[10] pointer-events-none;
 }
 
 .camPhoto {
-  @apply absolute left-0 object-cover object-center rounded-2xl;
+  @apply absolute object-cover object-center rounded-2xl;
 }
 </style>

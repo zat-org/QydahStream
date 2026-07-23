@@ -3,7 +3,11 @@ import type { GameType, LandscapeCamConfig } from "~/config/themes/types";
 const DEFAULTS = {
   frameWidthPx: 140,
   frameHeightPx: 195,
+  frameLeftPx: 0,
+  frameTopPx: 0,
+  imageWidthPx: 140,
   imageHeightPx: 187,
+  imageLeftPx: 0,
   imageTopPx: 5,
 } as const;
 
@@ -41,8 +45,24 @@ export function useCamThemeFrames(game: GameType = "baloot") {
   const frameHeightPx = computed(
     () => camCfg.value?.frameHeightPx ?? DEFAULTS.frameHeightPx,
   );
+  const frameLeftPx = computed(
+    () => camCfg.value?.frameLeftPx ?? DEFAULTS.frameLeftPx,
+  );
+  const frameTopPx = computed(
+    () => camCfg.value?.frameTopPx ?? DEFAULTS.frameTopPx,
+  );
+
+  const imageWidthPx = computed(
+    () =>
+      camCfg.value?.imageWidthPx ??
+      camCfg.value?.frameWidthPx ??
+      DEFAULTS.imageWidthPx,
+  );
   const imageHeightPx = computed(
     () => camCfg.value?.imageHeightPx ?? DEFAULTS.imageHeightPx,
+  );
+  const imageLeftPx = computed(
+    () => camCfg.value?.imageLeftPx ?? DEFAULTS.imageLeftPx,
   );
   const imageTopPx = computed(
     () => camCfg.value?.imageTopPx ?? DEFAULTS.imageTopPx,
@@ -55,7 +75,11 @@ export function useCamThemeFrames(game: GameType = "baloot") {
     themFrameSrc,
     frameWidthPx,
     frameHeightPx,
+    frameLeftPx,
+    frameTopPx,
+    imageWidthPx,
     imageHeightPx,
+    imageLeftPx,
     imageTopPx,
   };
 }
