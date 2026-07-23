@@ -3,57 +3,25 @@
     <div class="flex items-center justify-between p-5">
       <CamPlayerSlot
         :key="`bottom-${bottom?.id}-${bottom?.url}`"
-        :frame-src="usFrameSrc"
+        :side="us"
         :image-url="bottom?.url"
-        :frame-width-px="frameWidthPx"
-        :frame-height-px="frameHeightPx"
-        :frame-left-px="frameLeftPx"
-        :frame-top-px="frameTopPx"
-        :image-width-px="imageWidthPx"
-        :image-height-px="imageHeightPx"
-        :image-left-px="imageLeftPx"
-        :image-top-px="imageTopPx"
       />
       <CamPlayerSlot
         :key="`left-${left?.id}-${left?.url}`"
-        :frame-src="themFrameSrc"
+        :side="them"
         :image-url="left?.url"
-        :frame-width-px="frameWidthPx"
-        :frame-height-px="frameHeightPx"
-        :frame-left-px="frameLeftPx"
-        :frame-top-px="frameTopPx"
-        :image-width-px="imageWidthPx"
-        :image-height-px="imageHeightPx"
-        :image-left-px="imageLeftPx"
-        :image-top-px="imageTopPx"
       />
     </div>
     <div class="flex items-center justify-between p-5">
       <CamPlayerSlot
         :key="`right-${right?.id}-${right?.url}`"
-        :frame-src="themFrameSrc"
+        :side="them"
         :image-url="right?.url"
-        :frame-width-px="frameWidthPx"
-        :frame-height-px="frameHeightPx"
-        :frame-left-px="frameLeftPx"
-        :frame-top-px="frameTopPx"
-        :image-width-px="imageWidthPx"
-        :image-height-px="imageHeightPx"
-        :image-left-px="imageLeftPx"
-        :image-top-px="imageTopPx"
       />
       <CamPlayerSlot
         :key="`top-${top?.id}-${top?.url}`"
-        :frame-src="usFrameSrc"
+        :side="us"
         :image-url="top?.url"
-        :frame-width-px="frameWidthPx"
-        :frame-height-px="frameHeightPx"
-        :frame-left-px="frameLeftPx"
-        :frame-top-px="frameTopPx"
-        :image-width-px="imageWidthPx"
-        :image-height-px="imageHeightPx"
-        :image-left-px="imageLeftPx"
-        :image-top-px="imageTopPx"
       />
     </div>
   </div>
@@ -62,16 +30,5 @@
 <script lang="ts" setup>
 const store = useMyBalootGameStore();
 const { top, bottom, left, right } = storeToRefs(store);
-const {
-  usFrameSrc,
-  themFrameSrc,
-  frameWidthPx,
-  frameHeightPx,
-  frameLeftPx,
-  frameTopPx,
-  imageWidthPx,
-  imageHeightPx,
-  imageLeftPx,
-  imageTopPx,
-} = useCamThemeFrames("baloot");
+const { us, them } = useCamThemeFrames("baloot");
 </script>

@@ -214,116 +214,108 @@
               Copy cam JSON
             </button>
           </div>
-          <section>
-            <p class="mb-3 text-[11px] text-zinc-500">
-              Used by Cam overlays. Pass
-              <code class="text-emerald-300/90">?theme={{ activeThemeId }}</code>
-              on Cam URLs. Frame and image sizes are independent — resize each
-              separately.
-            </p>
-            <div class="grid gap-3 sm:grid-cols-2">
-              <label class="block text-xs text-zinc-400 sm:col-span-2">
-                usFrameSrc (top/bottom seats)
-                <input
-                  v-model="camDraft.usFrameSrc"
-                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                />
-              </label>
-              <label class="block text-xs text-zinc-400 sm:col-span-2">
-                themFrameSrc (left/right seats)
-                <input
-                  v-model="camDraft.themFrameSrc"
-                  class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                />
-              </label>
+          <p class="text-[11px] text-zinc-500">
+            Used by Cam overlays. Pass
+            <code class="text-emerald-300/90">?theme={{ activeThemeId }}</code>
+            on Cam URLs. Us and them each have separate frame + image settings.
+          </p>
+
+          <section
+            v-for="sideKey in camSideKeys"
+            :key="sideKey"
+            class="space-y-4 rounded-lg border border-zinc-800 bg-zinc-950/40 p-4"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="text-sm font-semibold text-zinc-200">
+                {{ sideKey === "us" ? "Us (top / bottom)" : "Them (left / right)" }}
+              </h3>
+              <button
+                type="button"
+                class="rounded bg-zinc-800 px-2 py-1 text-[10px] text-zinc-300 hover:bg-zinc-700"
+                @click="copyCamSideJson(sideKey)"
+              >
+                Copy {{ sideKey }} JSON
+              </button>
             </div>
-            <div class="mt-4">
+
+            <label class="block text-xs text-zinc-400">
+              frameSrc
+              <input
+                v-model="camDraft[sideKey].frameSrc"
+                class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+              />
+            </label>
+
+            <div>
               <p class="mb-2 text-[11px] font-medium text-zinc-300">Frame</p>
               <div class="grid gap-3 sm:grid-cols-4">
                 <label
                   v-for="field in camFrameFields"
-                  :key="field"
+                  :key="`${sideKey}-${field}`"
                   class="block text-xs text-zinc-400"
                 >
                   {{ field }}
                   <input
-                    :value="numField(camDraft, field)"
+                    :value="numField(camDraft[sideKey], field)"
                     type="number"
                     step="any"
                     class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                    @input="setNumField(camDraft, field, $event)"
+                    @input="setNumField(camDraft[sideKey], field, $event)"
                   />
                 </label>
               </div>
             </div>
-            <div class="mt-4">
+
+            <div>
               <p class="mb-2 text-[11px] font-medium text-zinc-300">Image</p>
               <div class="grid gap-3 sm:grid-cols-4">
                 <label
                   v-for="field in camImageFields"
-                  :key="field"
+                  :key="`${sideKey}-${field}`"
                   class="block text-xs text-zinc-400"
                 >
                   {{ field }}
                   <input
-                    :value="numField(camDraft, field)"
+                    :value="numField(camDraft[sideKey], field)"
                     type="number"
                     step="any"
                     class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
-                    @input="setNumField(camDraft, field, $event)"
+                    @input="setNumField(camDraft[sideKey], field, $event)"
                   />
                 </label>
               </div>
             </div>
-            <div class="mt-4 flex flex-wrap gap-8">
-              <div class="text-center">
-                <p class="mb-2 text-[10px] text-zinc-500">us preview</p>
+
+            <div class="text-center">
+              <p class="mb-2 text-[10px] text-zinc-500">{{ sideKey }} preview</p>
+              <div
+                class="inline-block rounded border border-dashed border-zinc-700 bg-zinc-950/80 p-3"
+              >
                 <div
-                  class="inline-block rounded border border-dashed border-zinc-700 bg-zinc-950/80 p-3"
+                  class="relative overflow-visible"
+                  :style="camSidePreviewSlotStyle(sideKey)"
                 >
-                  <div class="relative overflow-visible" :style="camPreviewSlotStyle">
-                    <img
-                      v-if="camDraft.usFrameSrc"
-                      class="pointer-events-none absolute z-10"
-                      :src="camDraft.usFrameSrc"
-                      :style="camPreviewFrameStyle"
-                      alt="us frame"
-                    />
-                    <div
-                      class="absolute rounded-2xl bg-zinc-700/80"
-                      :style="camPreviewImageStyle"
-                    />
-                  </div>
+                  <img
+                    v-if="camDraft[sideKey].frameSrc"
+                    class="pointer-events-none absolute z-10"
+                    :src="camDraft[sideKey].frameSrc"
+                    :style="camSidePreviewFrameStyle(sideKey)"
+                    :alt="`${sideKey} frame`"
+                  />
+                  <div
+                    class="absolute rounded-2xl bg-zinc-700/80"
+                    :style="camSidePreviewImageStyle(sideKey)"
+                  />
                 </div>
-                <p class="mt-2 text-[10px] text-zinc-600">
-                  frame {{ camPreviewFrameW }}×{{ camPreviewFrameH }} · image
-                  {{ camPreviewImageW }}×{{ camPreviewImageH }}
-                </p>
               </div>
-              <div class="text-center">
-                <p class="mb-2 text-[10px] text-zinc-500">them preview</p>
-                <div
-                  class="inline-block rounded border border-dashed border-zinc-700 bg-zinc-950/80 p-3"
-                >
-                  <div class="relative overflow-visible" :style="camPreviewSlotStyle">
-                    <img
-                      v-if="camDraft.themFrameSrc"
-                      class="pointer-events-none absolute z-10"
-                      :src="camDraft.themFrameSrc"
-                      :style="camPreviewFrameStyle"
-                      alt="them frame"
-                    />
-                    <div
-                      class="absolute rounded-2xl bg-zinc-700/80"
-                      :style="camPreviewImageStyle"
-                    />
-                  </div>
-                </div>
-                <p class="mt-2 text-[10px] text-zinc-600">
-                  frame {{ camPreviewFrameW }}×{{ camPreviewFrameH }} · image
-                  {{ camPreviewImageW }}×{{ camPreviewImageH }}
-                </p>
-              </div>
+              <p class="mt-2 text-[10px] text-zinc-600">
+                frame {{ camSideNum(sideKey, "frameWidthPx") }}×{{
+                  camSideNum(sideKey, "frameHeightPx")
+                }}
+                · image {{ camSideNum(sideKey, "imageWidthPx") }}×{{
+                  camSideNum(sideKey, "imageHeightPx")
+                }}
+              </p>
             </div>
           </section>
         </form>
@@ -705,7 +697,6 @@
 
 <script setup lang="ts">
 import type {
-  LandscapeCamConfig,
   LandscapeDetailConfig,
   LandscapeScoreConfig,
   LandscapeWinnerConfig,
@@ -714,6 +705,11 @@ import type {
   ThemeConfig,
 } from "~/config/themes/types";
 import { THEME_FONT_OPTIONS } from "~/config/themes/fonts";
+import {
+  CAM_SIDE_DEFAULTS,
+  defaultCamConfig,
+  normalizeCamConfig,
+} from "~/utils/cam-theme";
 import {
   exportThemeConfigJson,
   getFileThemeConfig,
@@ -863,6 +859,9 @@ const camDraft = computed(
   () => draft.value?.landscape?.baloot?.cam ?? null,
 );
 
+const camSideKeys = ["us", "them"] as const;
+type CamSideKey = (typeof camSideKeys)[number];
+
 const camFrameFields = [
   "frameWidthPx",
   "frameHeightPx",
@@ -877,55 +876,67 @@ const camImageFields = [
   "imageTopPx",
 ] as const;
 
-const CAM_PREVIEW_DEFAULTS = {
-  frameWidthPx: 140,
-  frameHeightPx: 195,
-  frameLeftPx: 0,
-  frameTopPx: 0,
-  imageWidthPx: 140,
-  imageHeightPx: 187,
-  imageLeftPx: 0,
-  imageTopPx: 5,
-} as const;
-
-function camNum(key: keyof typeof CAM_PREVIEW_DEFAULTS): number {
-  const v = camDraft.value?.[key];
+function camSideNum(
+  sideKey: CamSideKey,
+  key: keyof typeof CAM_SIDE_DEFAULTS,
+): number {
+  const v = camDraft.value?.[sideKey]?.[key];
   return typeof v === "number" && !Number.isNaN(v)
     ? v
-    : CAM_PREVIEW_DEFAULTS[key];
+    : CAM_SIDE_DEFAULTS[key];
 }
 
-const camPreviewFrameW = computed(() => camNum("frameWidthPx"));
-const camPreviewFrameH = computed(() => camNum("frameHeightPx"));
-const camPreviewImageW = computed(() => camNum("imageWidthPx"));
-const camPreviewImageH = computed(() => camNum("imageHeightPx"));
+function camSidePreviewSlotStyle(sideKey: CamSideKey) {
+  return {
+    width: `${Math.max(
+      camSideNum(sideKey, "frameLeftPx") +
+        camSideNum(sideKey, "frameWidthPx"),
+      camSideNum(sideKey, "imageLeftPx") +
+        camSideNum(sideKey, "imageWidthPx"),
+      1,
+    )}px`,
+    height: `${Math.max(
+      camSideNum(sideKey, "frameTopPx") +
+        camSideNum(sideKey, "frameHeightPx"),
+      camSideNum(sideKey, "imageTopPx") +
+        camSideNum(sideKey, "imageHeightPx"),
+      1,
+    )}px`,
+  };
+}
 
-const camPreviewSlotStyle = computed(() => ({
-  width: `${Math.max(
-    camNum("frameLeftPx") + camPreviewFrameW.value,
-    camNum("imageLeftPx") + camPreviewImageW.value,
-    1,
-  )}px`,
-  height: `${Math.max(
-    camNum("frameTopPx") + camPreviewFrameH.value,
-    camNum("imageTopPx") + camPreviewImageH.value,
-    1,
-  )}px`,
-}));
+function camSidePreviewFrameStyle(sideKey: CamSideKey) {
+  return {
+    width: `${camSideNum(sideKey, "frameWidthPx")}px`,
+    height: `${camSideNum(sideKey, "frameHeightPx")}px`,
+    left: `${camSideNum(sideKey, "frameLeftPx")}px`,
+    top: `${camSideNum(sideKey, "frameTopPx")}px`,
+  };
+}
 
-const camPreviewFrameStyle = computed(() => ({
-  width: `${camPreviewFrameW.value}px`,
-  height: `${camPreviewFrameH.value}px`,
-  left: `${camNum("frameLeftPx")}px`,
-  top: `${camNum("frameTopPx")}px`,
-}));
+function camSidePreviewImageStyle(sideKey: CamSideKey) {
+  return {
+    width: `${camSideNum(sideKey, "imageWidthPx")}px`,
+    height: `${camSideNum(sideKey, "imageHeightPx")}px`,
+    left: `${camSideNum(sideKey, "imageLeftPx")}px`,
+    top: `${camSideNum(sideKey, "imageTopPx")}px`,
+  };
+}
 
-const camPreviewImageStyle = computed(() => ({
-  width: `${camPreviewImageW.value}px`,
-  height: `${camPreviewImageH.value}px`,
-  left: `${camNum("imageLeftPx")}px`,
-  top: `${camNum("imageTopPx")}px`,
-}));
+function normalizeDraftCam() {
+  if (!draft.value?.landscape?.baloot) return;
+  const baloot = draft.value.landscape.baloot;
+  if (!baloot.cam) return;
+  const normalized = normalizeCamConfig(baloot.cam, activeThemeId.value);
+  if (normalized) baloot.cam = normalized;
+}
+
+async function copyCamSideJson(sideKey: CamSideKey) {
+  await copyJson(
+    `${activeThemeId.value}/cam/${sideKey}`,
+    camDraft.value?.[sideKey] ?? null,
+  );
+}
 
 const activeDraft = computed<
   LandscapeScoreConfig | LandscapeDetailConfig | LandscapeWinnerConfig | null
@@ -951,21 +962,11 @@ function ensureCamDraft() {
   if (!draft.value) return;
   const landscape = draft.value.landscape ?? (draft.value.landscape = {});
   const baloot = landscape.baloot ?? (landscape.baloot = {});
-  if (baloot.cam) return;
-  const id = activeThemeId.value || "zat";
-  const folder = id === "newzat" ? "newzat" : "zat";
-  baloot.cam = {
-    usFrameSrc: `/images/${folder}/usframe.svg`,
-    themFrameSrc: `/images/${folder}/themframe.svg`,
-    frameWidthPx: 140,
-    frameHeightPx: 195,
-    frameLeftPx: 0,
-    frameTopPx: 0,
-    imageWidthPx: 140,
-    imageHeightPx: 187,
-    imageLeftPx: 0,
-    imageTopPx: 5,
-  } satisfies LandscapeCamConfig;
+  if (baloot.cam) {
+    normalizeDraftCam();
+    return;
+  }
+  baloot.cam = defaultCamConfig(activeThemeId.value || "zat");
 }
 
 const timingFieldsForScreen = computed(() => {
@@ -1141,6 +1142,7 @@ async function reloadDraft() {
     }
     const result = await resolveThemeConfig(activeThemeId.value);
     draft.value = result.config;
+    normalizeDraftCam();
     draftSource.value = result.source;
     autoSaveLabel.value = "Auto-save on";
   } catch (e) {
@@ -1165,6 +1167,7 @@ async function resetToFile() {
       return;
     }
     draft.value = file;
+    normalizeDraftCam();
     draftSource.value = "file";
     statusMsg.value = "Draft reset to local file — will auto-save shortly";
   } finally {

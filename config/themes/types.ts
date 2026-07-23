@@ -102,22 +102,26 @@ export type LandscapeWinnerPlayerSlot = {
   fallbackSrc: string;
 };
 
-/** Cam overlay — player photo frames (SVG borders). */
-export type LandscapeCamConfig = {
-  /** Us seats (top/bottom) border SVG. */
-  usFrameSrc: string;
-  /** Them seats (left/right) border SVG. */
-  themFrameSrc: string;
-  /** Frame SVG size & offset inside the slot. */
+/** One Cam seat side — frame SVG + player photo layout. */
+export type LandscapeCamSideLayout = {
+  frameSrc: string;
   frameWidthPx?: number;
   frameHeightPx?: number;
   frameLeftPx?: number;
   frameTopPx?: number;
-  /** Player photo size & offset inside the slot. */
   imageWidthPx?: number;
   imageHeightPx?: number;
   imageLeftPx?: number;
   imageTopPx?: number;
+};
+
+/**
+ * Cam overlay — separate us / them frame + image configs.
+ * Legacy flat keys (usFrameSrc, frameWidthPx, …) are normalized at read time.
+ */
+export type LandscapeCamConfig = {
+  us: LandscapeCamSideLayout;
+  them: LandscapeCamSideLayout;
 };
 
 export type LandscapeWinnerConfig = LandscapeVideoTiming & {
