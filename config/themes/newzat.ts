@@ -142,7 +142,7 @@ export const newzatTheme: ThemeConfig = {
         },
       },
       cam: {
-        us: {
+        top: {
           frameSrc: "/images/newzat/usframe.svg",
           frameWidthPx: 140,
           frameHeightPx: 195,
@@ -153,7 +153,29 @@ export const newzatTheme: ThemeConfig = {
           imageLeftPx: 0,
           imageTopPx: 5,
         },
-        them: {
+        bottom: {
+          frameSrc: "/images/newzat/usframe.svg",
+          frameWidthPx: 140,
+          frameHeightPx: 195,
+          frameLeftPx: 0,
+          frameTopPx: 0,
+          imageWidthPx: 140,
+          imageHeightPx: 187,
+          imageLeftPx: 0,
+          imageTopPx: 5,
+        },
+        left: {
+          frameSrc: "/images/newzat/themframe.svg",
+          frameWidthPx: 140,
+          frameHeightPx: 195,
+          frameLeftPx: 0,
+          frameTopPx: 0,
+          imageWidthPx: 140,
+          imageHeightPx: 187,
+          imageLeftPx: 0,
+          imageTopPx: 5,
+        },
+        right: {
           frameSrc: "/images/newzat/themframe.svg",
           frameWidthPx: 140,
           frameHeightPx: 195,

@@ -1,7 +1,10 @@
 import type {
+  CamSeatId,
   LandscapeCamConfig,
   LandscapeCamSideLayout,
 } from "~/config/themes/types";
+
+export const CAM_SEAT_IDS: CamSeatId[] = ["top", "bottom", "left", "right"];
 
 export const CAM_SIDE_DEFAULTS = {
   frameWidthPx: 140,
@@ -26,7 +29,7 @@ export type ResolvedCamSide = {
   imageTopPx: number;
 };
 
-/** Legacy flat cam shape from older RTDB / file configs. */
+/** Legacy shapes from older RTDB / file configs. */
 type LegacyCamConfig = {
   usFrameSrc?: string;
   themFrameSrc?: string;
@@ -40,7 +43,15 @@ type LegacyCamConfig = {
   imageTopPx?: number;
   us?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
   them?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  top?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  bottom?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  left?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  right?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
 };
+
+function isUsSeat(seat: CamSeatId): boolean {
+  return seat === "top" || seat === "bottom";
+}
 
 function sideFromPartial(
   partial: Partial<LandscapeCamSideLayout> | undefined,
@@ -60,7 +71,38 @@ function sideFromPartial(
   };
 }
 
-/** Normalize nested or legacy flat cam config into `{ us, them }`. */
+function seatFallbackSrc(
+  seat: CamSeatId,
+  c: LegacyCamConfig,
+  folder: string,
+): string {
+  const seatPartial = c[seat];
+  if (seatPartial?.frameSrc) return seatPartial.frameSrc;
+
+  if (isUsSeat(seat)) {
+    return (
+      c.us?.frameSrc ||
+      c.usFrameSrc ||
+      `/images/${folder}/usframe.svg`
+    );
+  }
+  return (
+    c.them?.frameSrc ||
+    c.themFrameSrc ||
+    `/images/${folder}/themframe.svg`
+  );
+}
+
+function seatPartial(
+  seat: CamSeatId,
+  c: LegacyCamConfig,
+): Partial<LandscapeCamSideLayout> | undefined {
+  if (c[seat]) return c[seat];
+  if (isUsSeat(seat)) return c.us;
+  return c.them;
+}
+
+/** Normalize per-seat, `{ us, them }`, or flat cam config into 4 seats. */
 export function normalizeCamConfig(
   raw: unknown,
   themeId: string,
@@ -68,15 +110,16 @@ export function normalizeCamConfig(
   if (!raw || typeof raw !== "object") return null;
   const c = raw as LegacyCamConfig;
   const folder = themeId === "newzat" ? "newzat" : "zat";
-  const usFallback =
-    c.us?.frameSrc || c.usFrameSrc || `/images/${folder}/usframe.svg`;
-  const themFallback =
-    c.them?.frameSrc || c.themFrameSrc || `/images/${folder}/themframe.svg`;
 
-  return {
-    us: sideFromPartial(c.us, usFallback, c),
-    them: sideFromPartial(c.them, themFallback, c),
-  };
+  const out = {} as LandscapeCamConfig;
+  for (const seat of CAM_SEAT_IDS) {
+    out[seat] = sideFromPartial(
+      seatPartial(seat, c),
+      seatFallbackSrc(seat, c, folder),
+      c,
+    );
+  }
+  return out;
 }
 
 export function resolveCamSide(
@@ -96,16 +139,22 @@ export function resolveCamSide(
   };
 }
 
+function defaultSeat(
+  folder: string,
+  kind: "us" | "them",
+): LandscapeCamSideLayout {
+  return {
+    frameSrc: `/images/${folder}/${kind === "us" ? "usframe" : "themframe"}.svg`,
+    ...CAM_SIDE_DEFAULTS,
+  };
+}
+
 export function defaultCamConfig(themeId: string): LandscapeCamConfig {
   const folder = themeId === "newzat" ? "newzat" : "zat";
   return {
-    us: {
-      frameSrc: `/images/${folder}/usframe.svg`,
-      ...CAM_SIDE_DEFAULTS,
-    },
-    them: {
-      frameSrc: `/images/${folder}/themframe.svg`,
-      ...CAM_SIDE_DEFAULTS,
-    },
+    top: defaultSeat(folder, "us"),
+    bottom: defaultSeat(folder, "us"),
+    left: defaultSeat(folder, "them"),
+    right: defaultSeat(folder, "them"),
   };
 }

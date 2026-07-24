@@ -217,7 +217,8 @@
           <p class="text-[11px] text-zinc-500">
             Used by Cam overlays. Pass
             <code class="text-emerald-300/90">?theme={{ activeThemeId }}</code>
-            on Cam URLs. Us and them each have separate frame + image settings.
+            on Cam URLs. Each seat (top / bottom / left / right) has its own
+            frame + image settings.
           </p>
 
           <section
@@ -226,8 +227,8 @@
             class="space-y-4 rounded-lg border border-zinc-800 bg-zinc-950/40 p-4"
           >
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <h3 class="text-sm font-semibold text-zinc-200">
-                {{ sideKey === "us" ? "Us (top / bottom)" : "Them (left / right)" }}
+              <h3 class="text-sm font-semibold capitalize text-zinc-200">
+                {{ sideKey }} seat
               </h3>
               <button
                 type="button"
@@ -289,7 +290,7 @@
             <div class="text-center">
               <p class="mb-2 text-[10px] text-zinc-500">{{ sideKey }} preview</p>
               <div
-                class="inline-block rounded border border-dashed border-zinc-700 bg-zinc-950/80 p-3"
+                class="inline-block rounded border border-dashed border-zinc-700 bg-zinc-950/80"
               >
                 <div
                   class="relative overflow-visible"
@@ -706,10 +707,12 @@ import type {
 } from "~/config/themes/types";
 import { THEME_FONT_OPTIONS } from "~/config/themes/fonts";
 import {
+  CAM_SEAT_IDS,
   CAM_SIDE_DEFAULTS,
   defaultCamConfig,
   normalizeCamConfig,
 } from "~/utils/cam-theme";
+import type { CamSeatId } from "~/config/themes/types";
 import {
   exportThemeConfigJson,
   getFileThemeConfig,
@@ -859,8 +862,8 @@ const camDraft = computed(
   () => draft.value?.landscape?.baloot?.cam ?? null,
 );
 
-const camSideKeys = ["us", "them"] as const;
-type CamSideKey = (typeof camSideKeys)[number];
+const camSideKeys = CAM_SEAT_IDS;
+type CamSideKey = CamSeatId;
 
 const camFrameFields = [
   "frameWidthPx",

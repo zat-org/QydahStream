@@ -136,7 +136,7 @@ export const zatTheme: ThemeConfig = {
         },
       },
       cam: {
-        us: {
+        top: {
           frameSrc: "/images/zat/usframe.svg",
           frameWidthPx: 140,
           frameHeightPx: 195,
@@ -147,7 +147,29 @@ export const zatTheme: ThemeConfig = {
           imageLeftPx: 0,
           imageTopPx: 5,
         },
-        them: {
+        bottom: {
+          frameSrc: "/images/zat/usframe.svg",
+          frameWidthPx: 140,
+          frameHeightPx: 195,
+          frameLeftPx: 0,
+          frameTopPx: 0,
+          imageWidthPx: 140,
+          imageHeightPx: 187,
+          imageLeftPx: 0,
+          imageTopPx: 5,
+        },
+        left: {
+          frameSrc: "/images/zat/themframe.svg",
+          frameWidthPx: 140,
+          frameHeightPx: 195,
+          frameLeftPx: 0,
+          frameTopPx: 0,
+          imageWidthPx: 140,
+          imageHeightPx: 187,
+          imageLeftPx: 0,
+          imageTopPx: 5,
+        },
+        right: {
           frameSrc: "/images/zat/themframe.svg",
           frameWidthPx: 140,
           frameHeightPx: 195,

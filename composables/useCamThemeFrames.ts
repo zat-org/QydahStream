@@ -7,8 +7,8 @@ import {
 } from "~/utils/cam-theme";
 
 /**
- * Cam player-border SVGs from theme config (?theme=…) with file fallbacks.
- * Us / them each have independent frame + image layout.
+ * Cam player-border SVGs from theme config (?theme=…).
+ * Each seat (top / bottom / left / right) has isolated frame + image layout.
  */
 export function useCamThemeFrames(game: GameType = "baloot") {
   const { theme } = useRouteTheme("zat");
@@ -24,24 +24,18 @@ export function useCamThemeFrames(game: GameType = "baloot") {
 
   const defaults = computed(() => defaultCamConfig(themeId.value));
 
-  const us = computed<ResolvedCamSide>(() =>
-    resolveCamSide(
-      camCfg.value?.us,
-      defaults.value.us.frameSrc,
-    ),
-  );
-
-  const them = computed<ResolvedCamSide>(() =>
-    resolveCamSide(
-      camCfg.value?.them,
-      defaults.value.them.frameSrc,
-    ),
-  );
+  function seat(id: "top" | "bottom" | "left" | "right") {
+    return computed<ResolvedCamSide>(() =>
+      resolveCamSide(camCfg.value?.[id], defaults.value[id].frameSrc),
+    );
+  }
 
   return {
     themeId,
     camCfg,
-    us,
-    them,
+    topCam: seat("top"),
+    bottomCam: seat("bottom"),
+    leftCam: seat("left"),
+    rightCam: seat("right"),
   };
 }
