@@ -3,8 +3,10 @@
     v-if="imageUrl"
     class="camSlot"
     :style="{
-      width: `${slotWidthPx}px`,
-      height: `${slotHeightPx}px`,
+      width: `${side.wrapWidthPx}px`,
+      height: `${side.wrapHeightPx}px`,
+      left: `${side.wrapLeftPx}px`,
+      top: `${side.wrapTopPx}px`,
     }"
   >
     <img
@@ -33,32 +35,15 @@
 <script lang="ts" setup>
 import type { ResolvedCamSide } from "~/utils/cam-theme";
 
-const props = defineProps<{
+defineProps<{
   side: ResolvedCamSide;
   imageUrl?: string | null;
 }>();
-
-/** Slot fits both layers so resizing frame or image only affects that layer. */
-const slotWidthPx = computed(() =>
-  Math.max(
-    props.side.frameLeftPx + props.side.frameWidthPx,
-    props.side.imageLeftPx + props.side.imageWidthPx,
-    1,
-  ),
-);
-
-const slotHeightPx = computed(() =>
-  Math.max(
-    props.side.frameTopPx + props.side.frameHeightPx,
-    props.side.imageTopPx + props.side.imageHeightPx,
-    1,
-  ),
-);
 </script>
 
 <style scoped>
 .camSlot {
-  @apply relative overflow-visible;
+  @apply relative overflow-hidden;
 }
 
 .camFrame {

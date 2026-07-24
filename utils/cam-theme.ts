@@ -7,6 +7,10 @@ import type {
 export const CAM_SEAT_IDS: CamSeatId[] = ["top", "bottom", "left", "right"];
 
 export const CAM_SIDE_DEFAULTS = {
+  wrapWidthPx: 140,
+  wrapHeightPx: 195,
+  wrapLeftPx: 0,
+  wrapTopPx: 0,
   frameWidthPx: 140,
   frameHeightPx: 195,
   frameLeftPx: 0,
@@ -19,6 +23,10 @@ export const CAM_SIDE_DEFAULTS = {
 
 export type ResolvedCamSide = {
   frameSrc: string;
+  wrapWidthPx: number;
+  wrapHeightPx: number;
+  wrapLeftPx: number;
+  wrapTopPx: number;
   frameWidthPx: number;
   frameHeightPx: number;
   frameLeftPx: number;
@@ -33,6 +41,10 @@ export type ResolvedCamSide = {
 type LegacyCamConfig = {
   usFrameSrc?: string;
   themFrameSrc?: string;
+  wrapWidthPx?: number;
+  wrapHeightPx?: number;
+  wrapLeftPx?: number;
+  wrapTopPx?: number;
   frameWidthPx?: number;
   frameHeightPx?: number;
   frameLeftPx?: number;
@@ -60,6 +72,10 @@ function sideFromPartial(
 ): LandscapeCamSideLayout {
   return {
     frameSrc: partial?.frameSrc || frameSrcFallback,
+    wrapWidthPx: partial?.wrapWidthPx ?? shared?.wrapWidthPx,
+    wrapHeightPx: partial?.wrapHeightPx ?? shared?.wrapHeightPx,
+    wrapLeftPx: partial?.wrapLeftPx ?? shared?.wrapLeftPx,
+    wrapTopPx: partial?.wrapTopPx ?? shared?.wrapTopPx,
     frameWidthPx: partial?.frameWidthPx ?? shared?.frameWidthPx,
     frameHeightPx: partial?.frameHeightPx ?? shared?.frameHeightPx,
     frameLeftPx: partial?.frameLeftPx ?? shared?.frameLeftPx,
@@ -76,20 +92,16 @@ function seatFallbackSrc(
   c: LegacyCamConfig,
   folder: string,
 ): string {
-  const seatPartial = c[seat];
-  if (seatPartial?.frameSrc) return seatPartial.frameSrc;
+  const partial = c[seat];
+  if (partial?.frameSrc) return partial.frameSrc;
 
   if (isUsSeat(seat)) {
     return (
-      c.us?.frameSrc ||
-      c.usFrameSrc ||
-      `/images/${folder}/usframe.svg`
+      c.us?.frameSrc || c.usFrameSrc || `/images/${folder}/usframe.svg`
     );
   }
   return (
-    c.them?.frameSrc ||
-    c.themFrameSrc ||
-    `/images/${folder}/themframe.svg`
+    c.them?.frameSrc || c.themFrameSrc || `/images/${folder}/themframe.svg`
   );
 }
 
@@ -126,10 +138,18 @@ export function resolveCamSide(
   side: LandscapeCamSideLayout | null | undefined,
   frameSrcFallback: string,
 ): ResolvedCamSide {
+  const frameWidthPx = side?.frameWidthPx ?? CAM_SIDE_DEFAULTS.frameWidthPx;
+  const frameHeightPx = side?.frameHeightPx ?? CAM_SIDE_DEFAULTS.frameHeightPx;
+
   return {
     frameSrc: side?.frameSrc || frameSrcFallback,
-    frameWidthPx: side?.frameWidthPx ?? CAM_SIDE_DEFAULTS.frameWidthPx,
-    frameHeightPx: side?.frameHeightPx ?? CAM_SIDE_DEFAULTS.frameHeightPx,
+    // Container defaults to frame size so legacy configs keep the old look
+    wrapWidthPx: side?.wrapWidthPx ?? frameWidthPx,
+    wrapHeightPx: side?.wrapHeightPx ?? frameHeightPx,
+    wrapLeftPx: side?.wrapLeftPx ?? CAM_SIDE_DEFAULTS.wrapLeftPx,
+    wrapTopPx: side?.wrapTopPx ?? CAM_SIDE_DEFAULTS.wrapTopPx,
+    frameWidthPx,
+    frameHeightPx,
     frameLeftPx: side?.frameLeftPx ?? CAM_SIDE_DEFAULTS.frameLeftPx,
     frameTopPx: side?.frameTopPx ?? CAM_SIDE_DEFAULTS.frameTopPx,
     imageWidthPx: side?.imageWidthPx ?? CAM_SIDE_DEFAULTS.imageWidthPx,

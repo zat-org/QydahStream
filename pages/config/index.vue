@@ -217,8 +217,8 @@
           <p class="text-[11px] text-zinc-500">
             Used by Cam overlays. Pass
             <code class="text-emerald-300/90">?theme={{ activeThemeId }}</code>
-            on Cam URLs. Each seat (top / bottom / left / right) has its own
-            frame + image settings.
+            on Cam URLs. Each seat has a container (clips frame + image), then
+            independent frame and image offsets inside that box.
           </p>
 
           <section
@@ -246,6 +246,28 @@
                 class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
               />
             </label>
+
+            <div>
+              <p class="mb-2 text-[11px] font-medium text-zinc-300">
+                Container
+              </p>
+              <div class="grid gap-3 sm:grid-cols-4">
+                <label
+                  v-for="field in camWrapFields"
+                  :key="`${sideKey}-${field}`"
+                  class="block text-xs text-zinc-400"
+                >
+                  {{ field }}
+                  <input
+                    :value="numField(camDraft[sideKey], field)"
+                    type="number"
+                    step="any"
+                    class="mt-1 w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100"
+                    @input="setNumField(camDraft[sideKey], field, $event)"
+                  />
+                </label>
+              </div>
+            </div>
 
             <div>
               <p class="mb-2 text-[11px] font-medium text-zinc-300">Frame</p>
@@ -290,27 +312,26 @@
             <div class="text-center">
               <p class="mb-2 text-[10px] text-zinc-500">{{ sideKey }} preview</p>
               <div
-                class="inline-block rounded border border-dashed border-zinc-700 bg-zinc-950/80"
+                class="relative inline-block overflow-hidden rounded border border-dashed border-emerald-700/80 bg-zinc-950/80"
+                :style="camSidePreviewSlotStyle(sideKey)"
               >
+                <img
+                  v-if="camDraft[sideKey].frameSrc"
+                  class="pointer-events-none absolute z-10"
+                  :src="camDraft[sideKey].frameSrc"
+                  :style="camSidePreviewFrameStyle(sideKey)"
+                  :alt="`${sideKey} frame`"
+                />
                 <div
-                  class="relative overflow-visible"
-                  :style="camSidePreviewSlotStyle(sideKey)"
-                >
-                  <img
-                    v-if="camDraft[sideKey].frameSrc"
-                    class="pointer-events-none absolute z-10"
-                    :src="camDraft[sideKey].frameSrc"
-                    :style="camSidePreviewFrameStyle(sideKey)"
-                    :alt="`${sideKey} frame`"
-                  />
-                  <div
-                    class="absolute rounded-2xl bg-zinc-700/80"
-                    :style="camSidePreviewImageStyle(sideKey)"
-                  />
-                </div>
+                  class="absolute rounded-2xl bg-zinc-700/80"
+                  :style="camSidePreviewImageStyle(sideKey)"
+                />
               </div>
               <p class="mt-2 text-[10px] text-zinc-600">
-                frame {{ camSideNum(sideKey, "frameWidthPx") }}×{{
+                container {{ camSideNum(sideKey, "wrapWidthPx") }}×{{
+                  camSideNum(sideKey, "wrapHeightPx")
+                }}
+                · frame {{ camSideNum(sideKey, "frameWidthPx") }}×{{
                   camSideNum(sideKey, "frameHeightPx")
                 }}
                 · image {{ camSideNum(sideKey, "imageWidthPx") }}×{{
@@ -865,6 +886,13 @@ const camDraft = computed(
 const camSideKeys = CAM_SEAT_IDS;
 type CamSideKey = CamSeatId;
 
+const camWrapFields = [
+  "wrapWidthPx",
+  "wrapHeightPx",
+  "wrapLeftPx",
+  "wrapTopPx",
+] as const;
+
 const camFrameFields = [
   "frameWidthPx",
   "frameHeightPx",
@@ -884,27 +912,19 @@ function camSideNum(
   key: keyof typeof CAM_SIDE_DEFAULTS,
 ): number {
   const v = camDraft.value?.[sideKey]?.[key];
-  return typeof v === "number" && !Number.isNaN(v)
-    ? v
-    : CAM_SIDE_DEFAULTS[key];
+  if (typeof v === "number" && !Number.isNaN(v)) return v;
+  // Legacy: container defaults to frame size when wrap* missing
+  if (key === "wrapWidthPx") return camSideNum(sideKey, "frameWidthPx");
+  if (key === "wrapHeightPx") return camSideNum(sideKey, "frameHeightPx");
+  return CAM_SIDE_DEFAULTS[key];
 }
 
 function camSidePreviewSlotStyle(sideKey: CamSideKey) {
   return {
-    width: `${Math.max(
-      camSideNum(sideKey, "frameLeftPx") +
-        camSideNum(sideKey, "frameWidthPx"),
-      camSideNum(sideKey, "imageLeftPx") +
-        camSideNum(sideKey, "imageWidthPx"),
-      1,
-    )}px`,
-    height: `${Math.max(
-      camSideNum(sideKey, "frameTopPx") +
-        camSideNum(sideKey, "frameHeightPx"),
-      camSideNum(sideKey, "imageTopPx") +
-        camSideNum(sideKey, "imageHeightPx"),
-      1,
-    )}px`,
+    width: `${camSideNum(sideKey, "wrapWidthPx")}px`,
+    height: `${camSideNum(sideKey, "wrapHeightPx")}px`,
+    marginLeft: `${camSideNum(sideKey, "wrapLeftPx")}px`,
+    marginTop: `${camSideNum(sideKey, "wrapTopPx")}px`,
   };
 }
 

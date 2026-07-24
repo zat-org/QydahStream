@@ -102,9 +102,14 @@ export type LandscapeWinnerPlayerSlot = {
   fallbackSrc: string;
 };
 
-/** One Cam seat — frame SVG + player photo layout. */
+/** One Cam seat — container holds frame SVG + player photo. */
 export type LandscapeCamSideLayout = {
   frameSrc: string;
+  /** Outer box that clips frame + image (relative positioning context). */
+  wrapWidthPx?: number;
+  wrapHeightPx?: number;
+  wrapLeftPx?: number;
+  wrapTopPx?: number;
   frameWidthPx?: number;
   frameHeightPx?: number;
   frameLeftPx?: number;
