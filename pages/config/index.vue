@@ -312,7 +312,7 @@
             <div class="text-center">
               <p class="mb-2 text-[10px] text-zinc-500">{{ sideKey }} preview</p>
               <div
-                class="relative inline-block overflow-hidden rounded border border-dashed border-emerald-700/80 bg-zinc-950/80"
+                class="relative inline-block overflow-visible rounded border border-dashed border-emerald-700/80 bg-zinc-950/80"
                 :style="camSidePreviewSlotStyle(sideKey)"
               >
                 <img
@@ -934,6 +934,9 @@ function camSidePreviewFrameStyle(sideKey: CamSideKey) {
     height: `${camSideNum(sideKey, "frameHeightPx")}px`,
     left: `${camSideNum(sideKey, "frameLeftPx")}px`,
     top: `${camSideNum(sideKey, "frameTopPx")}px`,
+    maxWidth: "none",
+    maxHeight: "none",
+    objectFit: "fill" as const,
   };
 }
 
@@ -943,6 +946,8 @@ function camSidePreviewImageStyle(sideKey: CamSideKey) {
     height: `${camSideNum(sideKey, "imageHeightPx")}px`,
     left: `${camSideNum(sideKey, "imageLeftPx")}px`,
     top: `${camSideNum(sideKey, "imageTopPx")}px`,
+    maxWidth: "none",
+    maxHeight: "none",
   };
 }
 

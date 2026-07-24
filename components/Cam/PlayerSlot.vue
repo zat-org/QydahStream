@@ -43,14 +43,20 @@ defineProps<{
 
 <style scoped>
 .camSlot {
-  @apply relative overflow-hidden;
+  @apply relative overflow-visible;
 }
 
+/* Beat Tailwind preflight img { max-width:100%; height:auto } so config sizes win */
 .camFrame {
   @apply absolute z-[10] pointer-events-none;
+  max-width: none;
+  max-height: none;
+  object-fit: fill;
 }
 
 .camPhoto {
   @apply absolute object-cover object-center rounded-2xl;
+  max-width: none;
+  max-height: none;
 }
 </style>
