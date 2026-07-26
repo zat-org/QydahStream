@@ -2,7 +2,7 @@
   <component
     :is="camComponent"
     id="camtest"
-    class="h-[1080px] w-[1920px]"
+    class="h-[1080px] w-[1920px] overflow-visible"
   />
 </template>
 

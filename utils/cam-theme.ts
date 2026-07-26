@@ -1,10 +1,26 @@
 import type {
-  CamSeatId,
+  CamCornerId,
   LandscapeCamConfig,
   LandscapeCamSideLayout,
 } from "~/config/themes/types";
 
-export const CAM_SEAT_IDS: CamSeatId[] = ["top", "bottom", "left", "right"];
+/** Screen-corner keys — layout is tied to place on the 1920×1080 frame. */
+export const CAM_CORNER_IDS: CamCornerId[] = [
+  "topLeft",
+  "topRight",
+  "bottomLeft",
+  "bottomRight",
+];
+
+/** @deprecated use CAM_CORNER_IDS */
+export const CAM_SEAT_IDS = CAM_CORNER_IDS;
+
+export const CAM_CORNER_LABELS: Record<CamCornerId, string> = {
+  topLeft: "Top left",
+  topRight: "Top right",
+  bottomLeft: "Bottom left",
+  bottomRight: "Bottom right",
+};
 
 export const CAM_SIDE_DEFAULTS = {
   wrapWidthPx: 140,
@@ -55,15 +71,17 @@ type LegacyCamConfig = {
   imageTopPx?: number;
   us?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
   them?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  /** Old player-seat keys */
   top?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
   bottom?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
   left?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
   right?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  /** New corner keys */
+  topLeft?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  topRight?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  bottomLeft?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
+  bottomRight?: Partial<LandscapeCamSideLayout> & { frameSrc?: string };
 };
-
-function isUsSeat(seat: CamSeatId): boolean {
-  return seat === "top" || seat === "bottom";
-}
 
 function sideFromPartial(
   partial: Partial<LandscapeCamSideLayout> | undefined,
@@ -87,15 +105,38 @@ function sideFromPartial(
   };
 }
 
-function seatFallbackSrc(
-  seat: CamSeatId,
+/**
+ * Map old player-seat configs onto screen corners using Top.vue layout:
+ * topLeft←bottom, topRight←left, bottomLeft←right, bottomRight←top
+ * (preserves RTDB tuning done while previewing the Top cam screen).
+ */
+function legacySeatForCorner(
+  corner: CamCornerId,
+  c: LegacyCamConfig,
+): Partial<LandscapeCamSideLayout> | undefined {
+  if (c[corner]) return c[corner];
+  switch (corner) {
+    case "topLeft":
+      return c.bottom || c.us;
+    case "topRight":
+      return c.left || c.them;
+    case "bottomLeft":
+      return c.right || c.them;
+    case "bottomRight":
+      return c.top || c.us;
+  }
+}
+
+function cornerFallbackSrc(
+  corner: CamCornerId,
   c: LegacyCamConfig,
   folder: string,
 ): string {
-  const partial = c[seat];
+  const partial = legacySeatForCorner(corner, c);
   if (partial?.frameSrc) return partial.frameSrc;
 
-  if (isUsSeat(seat)) {
+  const usSide = corner === "topLeft" || corner === "bottomRight";
+  if (usSide) {
     return (
       c.us?.frameSrc || c.usFrameSrc || `/images/${folder}/usframe.svg`
     );
@@ -105,16 +146,7 @@ function seatFallbackSrc(
   );
 }
 
-function seatPartial(
-  seat: CamSeatId,
-  c: LegacyCamConfig,
-): Partial<LandscapeCamSideLayout> | undefined {
-  if (c[seat]) return c[seat];
-  if (isUsSeat(seat)) return c.us;
-  return c.them;
-}
-
-/** Normalize per-seat, `{ us, them }`, or flat cam config into 4 seats. */
+/** Normalize any legacy cam shape into screen-corner config. */
 export function normalizeCamConfig(
   raw: unknown,
   themeId: string,
@@ -124,10 +156,10 @@ export function normalizeCamConfig(
   const folder = themeId === "newzat" ? "newzat" : "zat";
 
   const out = {} as LandscapeCamConfig;
-  for (const seat of CAM_SEAT_IDS) {
-    out[seat] = sideFromPartial(
-      seatPartial(seat, c),
-      seatFallbackSrc(seat, c, folder),
+  for (const corner of CAM_CORNER_IDS) {
+    out[corner] = sideFromPartial(
+      legacySeatForCorner(corner, c),
+      cornerFallbackSrc(corner, c, folder),
       c,
     );
   }
@@ -143,7 +175,6 @@ export function resolveCamSide(
 
   return {
     frameSrc: side?.frameSrc || frameSrcFallback,
-    // Container defaults to frame size so legacy configs keep the old look
     wrapWidthPx: side?.wrapWidthPx ?? frameWidthPx,
     wrapHeightPx: side?.wrapHeightPx ?? frameHeightPx,
     wrapLeftPx: side?.wrapLeftPx ?? CAM_SIDE_DEFAULTS.wrapLeftPx,
@@ -159,7 +190,7 @@ export function resolveCamSide(
   };
 }
 
-function defaultSeat(
+function defaultCorner(
   folder: string,
   kind: "us" | "them",
 ): LandscapeCamSideLayout {
@@ -172,9 +203,9 @@ function defaultSeat(
 export function defaultCamConfig(themeId: string): LandscapeCamConfig {
   const folder = themeId === "newzat" ? "newzat" : "zat";
   return {
-    top: defaultSeat(folder, "us"),
-    bottom: defaultSeat(folder, "us"),
-    left: defaultSeat(folder, "them"),
-    right: defaultSeat(folder, "them"),
+    topLeft: defaultCorner(folder, "us"),
+    topRight: defaultCorner(folder, "them"),
+    bottomLeft: defaultCorner(folder, "them"),
+    bottomRight: defaultCorner(folder, "us"),
   };
 }

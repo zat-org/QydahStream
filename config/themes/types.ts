@@ -120,13 +120,21 @@ export type LandscapeCamSideLayout = {
   imageTopPx?: number;
 };
 
-export type CamSeatId = "top" | "bottom" | "left" | "right";
+export type CamCornerId =
+  | "topLeft"
+  | "topRight"
+  | "bottomLeft"
+  | "bottomRight";
 
 /**
- * Cam overlay — isolated config per seat (top / bottom / left / right).
- * Legacy `{ us, them }` and flat keys are normalized at read time.
+ * Cam overlay — layout by screen corner (not player seat name).
+ * Same corner config is used on every Cam view; only the player photo rotates.
+ * Legacy `{ top, bottom, left, right }` / `{ us, them }` normalized at read time.
  */
-export type LandscapeCamConfig = Record<CamSeatId, LandscapeCamSideLayout>;
+export type LandscapeCamConfig = Record<CamCornerId, LandscapeCamSideLayout>;
+
+/** @deprecated use CamCornerId */
+export type CamSeatId = CamCornerId;
 
 export type LandscapeWinnerConfig = LandscapeVideoTiming & {
   /** Hold on main before fade-out + NEW_GAME (ms). */

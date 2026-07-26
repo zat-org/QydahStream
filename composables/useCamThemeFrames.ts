@@ -7,8 +7,8 @@ import {
 } from "~/utils/cam-theme";
 
 /**
- * Cam player-border SVGs from theme config (?theme=…).
- * Each seat (top / bottom / left / right) has isolated frame + image layout.
+ * Cam frame/image layout from theme config (?theme=…).
+ * Keys are screen corners — same on every Cam view; only photos rotate.
  */
 export function useCamThemeFrames(game: GameType = "baloot") {
   const { theme } = useRouteTheme("zat");
@@ -24,7 +24,9 @@ export function useCamThemeFrames(game: GameType = "baloot") {
 
   const defaults = computed(() => defaultCamConfig(themeId.value));
 
-  function seat(id: "top" | "bottom" | "left" | "right") {
+  function corner(
+    id: "topLeft" | "topRight" | "bottomLeft" | "bottomRight",
+  ) {
     return computed<ResolvedCamSide>(() =>
       resolveCamSide(camCfg.value?.[id], defaults.value[id].frameSrc),
     );
@@ -33,9 +35,9 @@ export function useCamThemeFrames(game: GameType = "baloot") {
   return {
     themeId,
     camCfg,
-    topCam: seat("top"),
-    bottomCam: seat("bottom"),
-    leftCam: seat("left"),
-    rightCam: seat("right"),
+    topLeftCam: corner("topLeft"),
+    topRightCam: corner("topRight"),
+    bottomLeftCam: corner("bottomLeft"),
+    bottomRightCam: corner("bottomRight"),
   };
 }

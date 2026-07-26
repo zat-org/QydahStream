@@ -217,8 +217,9 @@
           <p class="text-[11px] text-zinc-500">
             Used by Cam overlays. Pass
             <code class="text-emerald-300/90">?theme={{ activeThemeId }}</code>
-            on Cam URLs. Each seat has a container (clips frame + image), then
-            independent frame and image offsets inside that box.
+            on Cam URLs. Layout is by <strong>screen corner</strong> (top
+            left / top right / bottom left / bottom right) — same on every Cam
+            view; only the player photo rotates.
           </p>
 
           <section
@@ -227,8 +228,8 @@
             class="space-y-4 rounded-lg border border-zinc-800 bg-zinc-950/40 p-4"
           >
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <h3 class="text-sm font-semibold capitalize text-zinc-200">
-                {{ sideKey }} seat
+              <h3 class="text-sm font-semibold text-zinc-200">
+                {{ camCornerLabels[sideKey] }}
               </h3>
               <button
                 type="button"
@@ -310,7 +311,9 @@
             </div>
 
             <div class="text-center">
-              <p class="mb-2 text-[10px] text-zinc-500">{{ sideKey }} preview</p>
+              <p class="mb-2 text-[10px] text-zinc-500">
+                {{ camCornerLabels[sideKey] }} preview
+              </p>
               <div
                 class="relative inline-block overflow-visible rounded border border-dashed border-emerald-700/80 bg-zinc-950/80"
                 :style="camSidePreviewSlotStyle(sideKey)"
@@ -728,12 +731,13 @@ import type {
 } from "~/config/themes/types";
 import { THEME_FONT_OPTIONS } from "~/config/themes/fonts";
 import {
-  CAM_SEAT_IDS,
+  CAM_CORNER_IDS,
+  CAM_CORNER_LABELS,
   CAM_SIDE_DEFAULTS,
   defaultCamConfig,
   normalizeCamConfig,
 } from "~/utils/cam-theme";
-import type { CamSeatId } from "~/config/themes/types";
+import type { CamCornerId } from "~/config/themes/types";
 import {
   exportThemeConfigJson,
   getFileThemeConfig,
@@ -883,8 +887,9 @@ const camDraft = computed(
   () => draft.value?.landscape?.baloot?.cam ?? null,
 );
 
-const camSideKeys = CAM_SEAT_IDS;
-type CamSideKey = CamSeatId;
+const camSideKeys = CAM_CORNER_IDS;
+const camCornerLabels = CAM_CORNER_LABELS;
+type CamSideKey = CamCornerId;
 
 const camWrapFields = [
   "wrapWidthPx",
