@@ -168,6 +168,7 @@ export const newzatTheme: ThemeConfig = {
         videoWidth: 1920,
       },
       winner: {
+        enabled: true,
         frameThemSrc: "/images/newzat/BlackFrame.svg",
         frameUsSrc: "/images/newzat/RedFrame.svg",
         introEndSec: 5,

@@ -162,6 +162,7 @@ export const zatTheme: ThemeConfig = {
         videoWidth: 1920,
       },
       winner: {
+        enabled: true,
         frameThemSrc: "/images/zat/BlackFrame.svg",
         frameUsSrc: "/images/zat/RedFrame.svg",
         introEndSec: 5,

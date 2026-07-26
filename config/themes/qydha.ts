@@ -77,6 +77,7 @@ export const qydhaTheme: ThemeConfig = {
         videoWidth: 1920,
       },
       winner: {
+        enabled: true,
         introEndSec: 6,
         introStartSec: 0,
         mainHoldMs: 1000,

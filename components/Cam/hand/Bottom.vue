@@ -1,12 +1,12 @@
 <template>
   <div class="flex h-[1080px] w-[1920px] flex-col justify-between overflow-hidden">
     <div class="flex items-center justify-between overflow-visible">
-      <CamPlayerSlot :side="topLeftCam" :image-url="top?.imageUrl" />
+      <CamPlayerSlot :side="topLeftCam" :image-url="bottom?.imageUrl" />
       <CamPlayerSlot :side="topRightCam" :image-url="right?.imageUrl" />
     </div>
     <div class="flex items-center justify-between overflow-visible">
       <CamPlayerSlot :side="bottomLeftCam" :image-url="left?.imageUrl" />
-      <CamPlayerSlot :side="bottomRightCam" :image-url="bottom?.imageUrl" />
+      <CamPlayerSlot :side="bottomRightCam" :image-url="top?.imageUrl" />
     </div>
   </div>
 </template>

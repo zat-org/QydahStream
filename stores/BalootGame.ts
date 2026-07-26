@@ -527,6 +527,7 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
     }
   };
   // to show  winner
+  const { enabled: winnerOverlayEnabled } = useWinnerOverlayEnabled("baloot");
   const handelGameEnded = () => {
     let winner = false;
 
@@ -548,7 +549,10 @@ export const useMyBalootGameStore = defineStore("myBalootGameStore", () => {
         winner = true;
       }
     }
-    gameService.send({ type: "UPDATE_CONTEXT", ended: winner });
+    gameService.send({
+      type: "UPDATE_CONTEXT",
+      ended: winner && winnerOverlayEnabled.value,
+    });
   };
   // to show statics
   const handelSakkaEnded = () => {

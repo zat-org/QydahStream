@@ -587,6 +587,24 @@
 
           <!-- Winner layout -->
           <template v-else-if="activeScreen === 'winner' && winnerDraft">
+            <section class="space-y-3">
+              <label
+                class="flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-700 bg-zinc-950/60 px-3 py-2.5 text-sm text-zinc-200"
+              >
+                <input
+                  v-model="winnerEnabledCheckbox"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-zinc-600 bg-zinc-900 text-emerald-600 focus:ring-emerald-500/40"
+                />
+                <span>
+                  Show winner overlay on stream
+                  <span class="mt-0.5 block text-[11px] font-normal text-zinc-500">
+                    Uncheck to skip the winner screen when a match ends (score /
+                    detail still work).
+                  </span>
+                </span>
+              </label>
+            </section>
             <section class="space-y-3 border-t border-zinc-800 pt-4">
               <h3 class="text-xs font-semibold uppercase tracking-wide text-sky-400/90">
                 Name
@@ -883,6 +901,15 @@ const detailDraft = computed(
 const winnerDraft = computed(
   () => draft.value?.landscape?.baloot?.winner ?? null,
 );
+
+/** Checkbox: missing enabled = true (show overlay). */
+const winnerEnabledCheckbox = computed({
+  get: () => winnerDraft.value?.enabled !== false,
+  set: (v: boolean) => {
+    if (!winnerDraft.value) return;
+    winnerDraft.value.enabled = v;
+  },
+});
 const camDraft = computed(
   () => draft.value?.landscape?.baloot?.cam ?? null,
 );

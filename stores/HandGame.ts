@@ -8,6 +8,7 @@ import {
 import { pushClientErrorFromUnknown } from "~/utils/client-error-log";
 import { logTypeForGameEvents, pushLog } from "~/utils/firebase-logger";
 import type { HandGameDataI } from "~/models/handGame";
+import { useWinnerOverlayEnabled } from "~/composables/useWinnerOverlayEnabled";
 
 /** Compact fields for RTDB debug_logs (no full rounds/teams blobs). */
 function handSnapshotForLog(g: HandGameDataI | null | undefined) {
@@ -453,6 +454,8 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       Object.assign(game.value, newGame.value);
     }
   };
+  const { enabled: winnerOverlayEnabled } = useWinnerOverlayEnabled("hand");
+
   const handelScoreDecreased = () => {
     // gameService.send({ type: "TO_OUTRO" });
 
@@ -463,7 +466,10 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
         return p.imageUrl != null;
       });
       console.log(showWinner);
-      gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
+      gameService.send({
+        type: "UPDATE_CONTEXT",
+        ended: !!(showWinner && winnerOverlayEnabled.value),
+      });
     }
   };
 
@@ -484,7 +490,10 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
       let showWinner = winnerTeam.value?.players.every((p) => {
         return p.imageUrl != null;
       });
-      gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
+      gameService.send({
+        type: "UPDATE_CONTEXT",
+        ended: !!(showWinner && winnerOverlayEnabled.value),
+      });
     }
   };
 
@@ -497,7 +506,10 @@ export const useMyHandGameStore = defineStore("myHandGameStore", () => {
         return p.imageUrl != null;
       });
       console.log(showWinner);
-      gameService.send({ type: "UPDATE_CONTEXT", ended: showWinner });
+      gameService.send({
+        type: "UPDATE_CONTEXT",
+        ended: !!(showWinner && winnerOverlayEnabled.value),
+      });
     }
   };
   // to show statics

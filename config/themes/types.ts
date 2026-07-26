@@ -137,6 +137,11 @@ export type LandscapeCamConfig = Record<CamCornerId, LandscapeCamSideLayout>;
 export type CamSeatId = CamCornerId;
 
 export type LandscapeWinnerConfig = LandscapeVideoTiming & {
+  /**
+   * When false, stream skips the winner overlay (game can still end).
+   * Default / omitted = true (show winner).
+   */
+  enabled?: boolean;
   /** Hold on main before fade-out + NEW_GAME (ms). */
   mainHoldMs: number;
   /** Full-comp fade duration on unmount. */
