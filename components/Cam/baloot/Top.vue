@@ -2,26 +2,26 @@
   <div class="flex h-[1080px] w-[1920px] flex-col justify-between overflow-hidden">
     <div class="flex items-center justify-between overflow-visible">
       <CamPlayerSlot
-        :key="`left-${left?.id}-${left?.url}`"
+        :key="`bottom-${bottom?.id}-${bottom?.url}`"
         :side="topLeftCam"
-        :image-url="left?.url"
+        :image-url="bottom?.url"
       />
       <CamPlayerSlot
-        :key="`top-${top?.id}-${top?.url}`"
+        :key="`left-${left?.id}-${left?.url}`"
         :side="topRightCam"
-        :image-url="top?.url"
+        :image-url="left?.url"
       />
     </div>
     <div class="flex items-center justify-between overflow-visible">
       <CamPlayerSlot
-        :key="`bottom-${bottom?.id}-${bottom?.url}`"
+        :key="`right-${right?.id}-${right?.url}`"
         :side="bottomLeftCam"
-        :image-url="bottom?.url"
+        :image-url="right?.url"
       />
       <CamPlayerSlot
-        :key="`right-${right?.id}-${right?.url}`"
+        :key="`top-${top?.id}-${top?.url}`"
         :side="bottomRightCam"
-        :image-url="right?.url"
+        :image-url="top?.url"
       />
     </div>
   </div>
