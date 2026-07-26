@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-[1080px] w-[1920px] flex-col justify-between overflow-visible">
+  <div class="flex h-[1080px] w-[1920px] flex-col justify-between overflow-hidden">
     <div class="flex items-center justify-between overflow-visible">
       <CamPlayerSlot :side="topLeftCam" :image-url="bottom?.imageUrl" />
       <CamPlayerSlot :side="topRightCam" :image-url="left?.imageUrl" />

@@ -1,5 +1,5 @@
 <template>
-  <component :is="camComponent" class="h-[1080px] w-[1920px] overflow-visible" />
+  <component :is="camComponent" class="h-[1080px] w-[1920px] overflow-hidden" />
 </template>
 
 <script lang="ts" setup>
