@@ -1,17 +1,19 @@
 <template>
   <div class="flex h-[1080px] w-[1920px] flex-col justify-between overflow-hidden">
     <div class="flex items-center justify-between overflow-visible">
-      <CamPlayerSlot :side="topLeftCam" :image-url="bottom?.url" />
+      <CamPlayerSlot :side="topLeftCam" :image-url="top?.url" />
       <CamPlayerSlot :side="topRightCam" :image-url="right?.url" />
     </div>
     <div class="flex items-center justify-between overflow-visible">
       <CamPlayerSlot :side="bottomLeftCam" :image-url="left?.url" />
-      <CamPlayerSlot :side="bottomRightCam" :image-url="top?.url" />
+      <CamPlayerSlot :side="bottomRightCam" :image-url="bottom?.url" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { useCamThemeFrames } from '~/composables/useCamThemeFrames';
+
 const store = useMyBalootGameStore();
 const { top, bottom, left, right } = storeToRefs(store);
 const { topLeftCam, topRightCam, bottomLeftCam, bottomRightCam } =
