@@ -3,7 +3,7 @@ import type { ThemeConfig } from "./types";
 /**
  * Harvested from Zat baloot landscape Vue screens + /config tuning.
  * Store still supplies live scores/names — this file is skin only.
- * Cam layout keyed by screen corner (topLeft / topRight / bottomLeft / bottomRight).
+ * Synced from RTDB theme_configs/zat.
  */
 export const zatTheme: ThemeConfig = {
   id: "zat",

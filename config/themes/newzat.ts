@@ -2,7 +2,7 @@ import type { ThemeConfig } from "./types";
 
 /**
  * Cloned from zat, then tuned via /config for newzat videos/assets.
- * Cam layout keyed by screen corner (topLeft / topRight / bottomLeft / bottomRight).
+ * Synced from RTDB theme_configs/newzat.
  */
 export const newzatTheme: ThemeConfig = {
   id: "newzat",
@@ -44,7 +44,7 @@ export const newzatTheme: ThemeConfig = {
           wrapWidthPx: 150,
           wrapHeightPx: 219,
           wrapLeftPx: 150,
-          wrapTopPx: 0,
+          wrapTopPx: -26,
           frameWidthPx: 189,
           frameHeightPx: 233,
           frameLeftPx: -18,
