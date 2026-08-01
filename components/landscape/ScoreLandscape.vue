@@ -22,11 +22,12 @@
         class="SponsorImage"
         :style="sponsorStyle(scoreCfg.team1)"
       />
-      <transition name="fade" mode="out-in">
+      <transition name="fade" mode="out-in" @after-enter="refitNames">
         <p
           :key="usName"
+          ref="usNameEl"
           class="teamName"
-          :style="nameStyle(scoreCfg.team1)"
+          :style="nameStyle(scoreCfg.team1, usFittedPx)"
         >
           {{ usName }}
         </p>
@@ -50,11 +51,12 @@
             : tweenedScores.team2.toFixed(0)
         }}
       </p>
-      <transition name="fade" mode="out-in">
+      <transition name="fade" mode="out-in" @after-enter="refitNames">
         <p
           :key="themName"
+          ref="themNameEl"
           class="teamName"
-          :style="nameStyle(scoreCfg.team2)"
+          :style="nameStyle(scoreCfg.team2, themFittedPx)"
         >
           {{ themName }}
         </p>
@@ -125,6 +127,23 @@ let mountTimeline: gsap.core.Timeline | null = null;
 let unmountTimeline: gsap.core.Timeline | null = null;
 let mainTimeline: gsap.core.Timeline | null = null;
 
+const { usNameEl, themNameEl, usFittedPx, themFittedPx, refit } =
+  useFitNameFontSize();
+
+function refitNames() {
+  const cfg = scoreCfg.value;
+  if (!cfg) return;
+  refit(cfg.team1.nameFontSizePx, cfg.team2.nameFontSizePx);
+}
+
+watch(
+  [usName, themName, scoreCfg],
+  () => {
+    refitNames();
+  },
+  { flush: "post" },
+);
+
 const tweenedScores = reactive({
   team1: 0,
   team2: 0,
@@ -138,14 +157,19 @@ function wrapStyle(team: LandscapeTeamLayout) {
   };
 }
 
-function nameStyle(team: LandscapeTeamLayout) {
+function nameStyle(
+  team: LandscapeTeamLayout,
+  fittedPx: number | null = null,
+) {
   const style: Record<string, string> = {
     left: `${team.nameLeftPx}px`,
     width: `${team.nameWidthPx}px`,
+    whiteSpace: "nowrap",
   };
   if (team.nameTopPx != null) style.top = `${team.nameTopPx}px`;
   if (team.nameColor) style.color = team.nameColor;
-  if (team.nameFontSizePx != null) style.fontSize = `${team.nameFontSizePx}px`;
+  const size = fittedPx ?? team.nameFontSizePx;
+  if (size != null) style.fontSize = `${size}px`;
   const font = themeFontCss(team.nameFontFamily);
   if (font) style.fontFamily = `"${font}"`;
   return style;
@@ -438,7 +462,7 @@ onBeforeUnmount(() => {
 }
 
 .teamName {
-  @apply absolute text-[1.5rem] h-[40px] flex justify-center items-center top-1.5;
+  @apply absolute text-[1.5rem] h-[40px] flex justify-center items-center top-1.5 overflow-hidden;
 }
 
 .teamWrap {

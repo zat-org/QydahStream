@@ -23,8 +23,9 @@
         :style="sponsorStyle(detailCfg.team1)"
       />
       <p
+        ref="usNameEl"
         class="teamName"
-        :style="nameStyle(detailCfg.team1)"
+        :style="nameStyle(detailCfg.team1, usFittedPx)"
       >
         {{ usName }}
       </p>
@@ -47,8 +48,9 @@
         {{ last_sakka?.themSakkaScore ?? 0 }}
       </p>
       <p
+        ref="themNameEl"
         class="teamName"
-        :style="nameStyle(detailCfg.team2)"
+        :style="nameStyle(detailCfg.team2, themFittedPx)"
       >
         {{ themName }}
       </p>
@@ -119,6 +121,23 @@ const lastHandledSendState = ref<string | null>(null);
 let mountTimeline: gsap.core.Timeline | null = null;
 let unmountTimeline: gsap.core.Timeline | null = null;
 
+const { usNameEl, themNameEl, usFittedPx, themFittedPx, refit } =
+  useFitNameFontSize();
+
+function refitNames() {
+  const cfg = detailCfg.value;
+  if (!cfg) return;
+  refit(cfg.team1.nameFontSizePx, cfg.team2.nameFontSizePx);
+}
+
+watch(
+  [usName, themName, detailCfg],
+  () => {
+    refitNames();
+  },
+  { flush: "post" },
+);
+
 function wrapStyle(team: LandscapeDetailTeamLayout) {
   return {
     left: `${team.wrapLeftPx}px`,
@@ -128,14 +147,19 @@ function wrapStyle(team: LandscapeDetailTeamLayout) {
   };
 }
 
-function nameStyle(team: LandscapeDetailTeamLayout) {
+function nameStyle(
+  team: LandscapeDetailTeamLayout,
+  fittedPx: number | null = null,
+) {
   const style: Record<string, string> = {
     left: `${team.nameLeftPx}px`,
     width: `${team.nameWidthPx}px`,
+    whiteSpace: "nowrap",
   };
   if (team.nameTopPx != null) style.top = `${team.nameTopPx}px`;
   if (team.nameColor) style.color = team.nameColor;
-  if (team.nameFontSizePx != null) style.fontSize = `${team.nameFontSizePx}px`;
+  const size = fittedPx ?? team.nameFontSizePx;
+  if (size != null) style.fontSize = `${size}px`;
   const font = themeFontCss(team.nameFontFamily);
   if (font) style.fontFamily = `"${font}"`;
   return style;
@@ -372,7 +396,7 @@ onBeforeUnmount(() => {
 }
 
 .teamName {
-  @apply absolute text-[2rem] h-[81px] flex justify-center items-center top-2;
+  @apply absolute text-[2rem] h-[81px] flex justify-center items-center top-2 overflow-hidden;
 }
 
 .teamScore {
